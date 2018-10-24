@@ -10,9 +10,6 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
   protected $_summary = NULL;
 
   protected $_customGroupExtends = array(
-    'Participant',
-    'Contact',
-    'Individual',
     'Event',
   );
   protected $_customGroupGroupBy = FALSE;
