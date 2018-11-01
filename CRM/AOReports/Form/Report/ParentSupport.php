@@ -9,7 +9,7 @@ class CRM_AOReports_Form_Report_ParentSupport extends CRM_Report_Form {
 
   //protected $_customGroupExtends = array('Activity');
   protected $_customGroupGroupBy = FALSE;
-  protected $_customFieldID = 10;
+  protected $_customFieldID = 354;
   protected $_customTableName;
   protected $_columnName;
   protected $_optionValues;
@@ -163,7 +163,7 @@ class CRM_AOReports_Form_Report_ParentSupport extends CRM_Report_Form {
   }
 
   function groupBy() {
-    $this->_groupBy = " GROUP BY civicrm_value_test_activity_5_Parent_Support ";
+    $this->_groupBy = " GROUP BY civicrm_activity.activity_type_id ";
   }
 
   function postProcess() {
