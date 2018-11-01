@@ -6,6 +6,7 @@ class CRM_AOReports_Form_Report_ParentSupport extends CRM_Report_Form {
   protected $_summary = NULL;
   protected $addPaging = FALSE;
   protected $_optimisedForOnlyFullGroupBy = FALSE;
+  protected $_add2groupSupported = FALSE;
 
   //protected $_customGroupExtends = array('Activity');
   protected $_customGroupGroupBy = FALSE;
@@ -43,8 +44,6 @@ class CRM_AOReports_Form_Report_ParentSupport extends CRM_Report_Form {
         ),
       ),
     );
-    $this->_groupFilter = TRUE;
-    $this->_tagFilter = TRUE;
     parent::__construct();
 
     $customField = civicrm_api3('CustomField', 'getsingle', ['id' => $this->_customFieldID]);

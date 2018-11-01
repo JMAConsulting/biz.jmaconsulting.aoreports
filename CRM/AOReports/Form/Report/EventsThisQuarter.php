@@ -8,6 +8,7 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
   protected $_emailField = FALSE;
 
   protected $_summary = NULL;
+  protected $_add2groupSupported = FALSE;
 
   protected $_customGroupExtends = array(
     'Event',
