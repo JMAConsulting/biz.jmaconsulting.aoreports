@@ -163,7 +163,7 @@ class CRM_AOReports_Form_Report_ParentSupport extends CRM_Report_Form {
   }
 
   function groupBy() {
-    $this->_groupBy = " GROUP BY civicrm_activity.activity_type_id ";
+    $this->_groupBy = " GROUP BY {$this->_aliases['civicrm_activity']}.activity_type_id ";
   }
 
   function postProcess() {
