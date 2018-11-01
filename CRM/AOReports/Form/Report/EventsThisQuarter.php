@@ -65,6 +65,7 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
           'event_start_date' => array(
             'title' => ts('Event Start Date'),
             'operatorType' => CRM_Report_Form::OP_DATE,
+            'alias' => 'event_civireport',
           ),
         ],
       ],
@@ -129,7 +130,7 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
             $from     = CRM_Utils_Array::value("{$fieldName}_from", $this->_params);
             $to       = CRM_Utils_Array::value("{$fieldName}_to", $this->_params);
 
-            $clause = $this->dateClause($field['name'], $relative, $from, $to, $field['type']);
+            $clause = $this->dateClause("{$this->_aliases[$tableName]}.".$field['name'], $relative, $from, $to, $field['type']);
           }
           else {
             $op = CRM_Utils_Array::value("{$fieldName}_op", $this->_params);
