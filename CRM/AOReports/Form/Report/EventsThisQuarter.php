@@ -36,15 +36,23 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
           ),
           'children' => array(
             'title' => ts('Children'),
-            'dbAlias' => 'COUNT(child.contact_id_a)'
+            'dbAlias' => 'COUNT(DISTINCT parent.contact_id_a)'
           ),
           'parents' => array(
             'title' => ts('Parents'),
-            'dbAlias' => 'COUNT(parent.contact_id_b)'
+            'dbAlias' => 'COUNT(DISTINCT parent.contact_id_b)'
           ),
           'siblings' => array(
             'title' => ts('Siblings / Friends'),
             'dbAlias' => 'COUNT(sibling.contact_id_a)'
+          ),
+          'professionals' => array(
+            'title' => ts('Professionals'),
+            'dbAlias' => '0'
+          ),
+          'volunteers' => array(
+            'title' => ts('Volunteers'),
+            'dbAlias' => '0'
           ),
         ),
         'filters' => [
@@ -105,7 +113,6 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
     $this->_from = "
          FROM  civicrm_event {$this->_aliases['civicrm_event']}
                LEFT JOIN civicrm_participant {$this->_aliases['civicrm_participant']} ON {$this->_aliases['civicrm_participant']}.event_id = {$this->_aliases['civicrm_event']}.id
-               LEFT JOIN civicrm_relationship child ON child.contact_id_a = {$this->_aliases['civicrm_participant']}.contact_id AND child.relationship_type_id = 1
                LEFT JOIN civicrm_relationship parent ON parent.contact_id_b = {$this->_aliases['civicrm_participant']}.contact_id AND parent.relationship_type_id = 1
                LEFT JOIN civicrm_relationship sibling ON sibling.contact_id_a = {$this->_aliases['civicrm_participant']}.contact_id AND sibling.relationship_type_id = 4
      ";
@@ -194,6 +201,10 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
       }
     }
     $rows = $newRows;
+  }
+
+  public function getTemplateFileName() {
+    return 'CRM/Aoreports/Form/Report/EventsThisQuarter.tpl';
   }
 
 }
