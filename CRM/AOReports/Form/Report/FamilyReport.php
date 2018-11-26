@@ -449,8 +449,12 @@ class CRM_AOReports_Form_Report_FamilyReport extends CRM_Report_Form_Contact_Rel
       AND contact_civireport.id IN ( SELECT DISTINCT t.entity_id FROM civicrm_value_eventbrite_re_20 t WHERE t.languages_spoken_at_home_langues_71 LIKE '%French%' )
       GROUP BY contact_b_civireport.id ) as temp ");
     array_unshift($statistics['counts'], array(
-      'title' => ts('Family Found'),
-      'value' => "Total: $familiesCount, French: $frenchFamiliesCount",
+      'title' => ts('Total Families Found'),
+      'value' => $familiesCount,
+    ));
+    array_unshift($statistics['counts'], array(
+      'title' => ts('Total French Families Found'),
+      'value' => $frenchFamiliesCount,
     ));
 
     $childrenCount = CRM_Core_DAO::singleValueQuery(" SELECT COUNT(*) FROM ( SELECT contact_civireport.id " . $this->_from . " " . $this->_where . " GROUP BY contact_civireport.id ) as temp ");
@@ -461,10 +465,14 @@ class CRM_AOReports_Form_Report_FamilyReport extends CRM_Report_Form_Contact_Rel
     $childrenCount += $familiesCount;
     $frenchChildrenCount += $frenchFamiliesCount;
 
-      array_unshift($statistics['counts'], array(
-        'title' => ts('Individuals Found'),
-        'value' => "Total: $childrenCount, French: $frenchChildrenCount",
-      ));
+    array_unshift($statistics['counts'], array(
+      'title' => ts('Total Individuals Found'),
+      'value' => $childrenCount,
+    ));
+    array_unshift($statistics['counts'], array(
+      'title' => ts('Total French Individuals Found'),
+      'value' => $frenchChildrenCount,
+    ));
   }
 
 
