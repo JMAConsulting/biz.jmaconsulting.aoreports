@@ -443,10 +443,28 @@ class CRM_AOReports_Form_Report_FamilyReport extends CRM_Report_Form_Contact_Rel
    */
   public function countStat(&$statistics, $count) {
     parent::countStat($statistics, $count);
+    $familiesCount = CRM_Core_DAO::singleValueQuery(" SELECT COUNT(*) FROM ( SELECT contact_b_civireport.id " . $this->_from . " " . $this->_where . " GROUP BY contact_b_civireport.id ) as temp ");
+    $frenchFamiliesCount = CRM_Core_DAO::singleValueQuery(" SELECT COUNT(*)
+      FROM ( SELECT contact_b_civireport.id " . $this->_from . " " . $this->_where . "
+      AND contact_civireport.id IN ( SELECT DISTINCT t.entity_id FROM civicrm_value_eventbrite_re_20 t WHERE t.languages_spoken_at_home_langues_71 LIKE '%French%' )
+      GROUP BY contact_b_civireport.id ) as temp ");
     array_unshift($statistics['counts'], array(
       'title' => ts('Family Found'),
-      'value' => CRM_Core_DAO::singleValueQuery(" SELECT COUNT(*) FROM ( SELECT contact_b_civireport.id " . $this->_from . " " . $this->_where . " GROUP BY contact_b_civireport.id ) as temp "),
+      'value' => "Total: $familiesCount, French: $frenchFamiliesCount",
     ));
+
+    $childrenCount = CRM_Core_DAO::singleValueQuery(" SELECT COUNT(*) FROM ( SELECT contact_civireport.id " . $this->_from . " " . $this->_where . " GROUP BY contact_civireport.id ) as temp ");
+    $frenchChildrenCount = CRM_Core_DAO::singleValueQuery(" SELECT COUNT(*)
+      FROM ( SELECT contact_civireport.id " . $this->_from . " " . $this->_where . "
+      AND contact_civireport.id IN ( SELECT DISTINCT t.entity_id FROM civicrm_value_eventbrite_re_20 t WHERE t.languages_spoken_at_home_langues_71 LIKE '%French%' )
+      GROUP BY contact_b_civireport.id ) as temp ");
+    $childrenCount += $familiesCount;
+    $frenchChildrenCount += $frenchFamiliesCount;
+
+      array_unshift($statistics['counts'], array(
+        'title' => ts('Individuals Found'),
+        'value' => "Total: $childrenCount, French: $frenchChildrenCount",
+      ));
   }
 
 
