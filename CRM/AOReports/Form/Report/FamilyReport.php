@@ -321,6 +321,10 @@ class CRM_AOReports_Form_Report_FamilyReport extends CRM_Report_Form_Contact_Rel
     }
   }
 
+  function groupBy() {
+    $this->_groupBy = " GROUP BY {$this->_aliases['civicrm_contact']}.id ";
+  }
+
   /**
    * @param $rows
    */
