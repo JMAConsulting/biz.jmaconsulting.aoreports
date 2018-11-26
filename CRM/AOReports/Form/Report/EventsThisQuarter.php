@@ -53,7 +53,7 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
           ),
           'professionals' => array(
             'title' => ts('Professionals'),
-            'dbAlias' => "(SELECT SUM(qty)
+            'dbAlias' => "(SELECT COALESCE(SUM(qty), 0)
               FROM civicrm_line_item li
                INNER JOIN civicrm_participant p ON li.entity_id = p.id AND li.entity_table = 'civicrm_participant' AND li.price_field_id = {$this->_professionalID}
                WHERE p.event_id = event_civireport.id
@@ -61,7 +61,7 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
           ),
           'volunteers' => array(
             'title' => ts('Volunteers'),
-            'dbAlias' => "(SELECT SUM(qty)
+            'dbAlias' => "(SELECT COALESCE(SUM(qty), 0)
               FROM civicrm_line_item li
                INNER JOIN civicrm_participant p ON li.entity_id = p.id AND li.entity_table = 'civicrm_participant' AND li.price_field_id = {$this->_volunteerID}
                WHERE p.event_id = event_civireport.id
