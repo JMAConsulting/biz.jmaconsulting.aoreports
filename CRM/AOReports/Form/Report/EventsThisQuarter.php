@@ -14,8 +14,8 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
     'Event',
   );
   protected $_customGroupGroupBy = FALSE;
+  protected $_eventTemplateCustomFieldID = 327;
   function __construct() {
-
     $this->_columns = array(
       'civicrm_event' => [
         'dao' => 'CRM_Event_DAO_Event',
@@ -112,11 +112,16 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
   }
 
   function from() {
+    $customField = civicrm_api3('CustomField', 'getsingle', ['id' => $this->_eventTemplateCustomFieldID]);
+    $columnName = $customField['column_name'];
+    $customTableName = civicrm_api3('CustomGroup', 'getvalue', ['id' => $customField['custom_group_id'], 'return' => 'table_name']);
+
     $this->_from = "
          FROM  civicrm_event {$this->_aliases['civicrm_event']}
                LEFT JOIN civicrm_participant {$this->_aliases['civicrm_participant']} ON {$this->_aliases['civicrm_participant']}.event_id = {$this->_aliases['civicrm_event']}.id
                LEFT JOIN civicrm_relationship parent ON parent.contact_id_b = {$this->_aliases['civicrm_participant']}.contact_id AND parent.relationship_type_id = 1
                LEFT JOIN civicrm_relationship sibling ON sibling.contact_id_a = {$this->_aliases['civicrm_participant']}.contact_id AND sibling.relationship_type_id = 4
+               LEFT JOIN $customTableName temp ON temp.entity_id = {$this->_aliases['civicrm_event']}.id AND temp.{$columnName} IS NOT NULL
      ";
   }
 
