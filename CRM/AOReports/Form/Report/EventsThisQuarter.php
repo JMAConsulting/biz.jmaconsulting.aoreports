@@ -15,6 +15,9 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
   );
   protected $_customGroupGroupBy = FALSE;
   protected $_eventTemplateCustomFieldID = 327;
+  protected $_volunteerID = 37;
+  protected $_professionalID = 36;
+
   function __construct() {
     $this->_columns = array(
       'civicrm_event' => [
@@ -49,11 +52,19 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
           ),
           'professionals' => array(
             'title' => ts('Professionals'),
-            'dbAlias' => '0'
+            'dbAlias' => "(SELECT SUM(qty)
+              FROM civicrm_line_item li
+               INNER JOIN civicrm_participant p ON li.entity_id = p.id AND li.entity_table = 'civicrm_participant' AND li.price_field_id = {$this->_professionalID}
+               WHERE p.event_id = event_civireport.id
+             )",
           ),
           'volunteers' => array(
             'title' => ts('Volunteers'),
-            'dbAlias' => '0'
+            'dbAlias' => "(SELECT SUM(qty)
+              FROM civicrm_line_item li
+               INNER JOIN civicrm_participant p ON li.entity_id = p.id AND li.entity_table = 'civicrm_participant' AND li.price_field_id = {$this->_volunteerID}
+               WHERE p.event_id = event_civireport.id
+             )",
           ),
         ),
         'filters' => [
