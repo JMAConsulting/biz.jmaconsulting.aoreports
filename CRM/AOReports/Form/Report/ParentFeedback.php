@@ -178,7 +178,7 @@ class CRM_AOReports_Form_Report_ParentFeedback extends CRM_Report_Form {
     $sqls = [];
     foreach ($this->_customFieldGroupIDs as $key => $id) {
       $customGroup = civicrm_api3('CustomGroup', 'getsingle', ['id' => $id]);
-      $customFields = civicrm_api3('CustomField', 'get', ['custom_group_id' => $id, 'html_type' => ["IN" => ["CheckBox", "Radio", "Multi-Select", "Select"]]])['values'];
+      $customFields = civicrm_api3('CustomField', 'get', ['custom_group_id' => $id, 'is_active' => TRUE, 'html_type' => ["IN" => ["CheckBox", "Radio", "Multi-Select", "Select"]]])['values'];
       if (empty($customFields)) {
         unset($this->_customFieldGroupIDs[$key]);
         continue;
