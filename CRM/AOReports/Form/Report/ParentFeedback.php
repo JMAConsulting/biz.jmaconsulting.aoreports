@@ -262,4 +262,13 @@ class CRM_AOReports_Form_Report_ParentFeedback extends CRM_Report_Form {
     $rows = $newRows;
   }
 
+  public function buildInstanceAndButtons() {
+    parent::buildInstanceAndButtons();
+    CRM_Core_Resources::singleton()->addScript(
+    "CRM.$(function($) {
+      $('.report-layout thead').hide();
+    });"
+  );
+  }
+
 }
