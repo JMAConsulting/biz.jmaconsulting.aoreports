@@ -213,7 +213,6 @@ class CRM_AOReports_Form_Report_ParentFeedback extends CRM_Report_Form {
         $sqls[$cfID] = "SELECT " . implode(', ', $selects) . $from . $this->_where;
       }
     }
-    CRM_Core_Error::debug_var('a', $this->_customFieldOptionLabels);
     $this->_customSQLs = $sqls;
 
     foreach ($this->unselectedOrderByColumns() as $alias => $field) {
@@ -236,7 +235,6 @@ class CRM_AOReports_Form_Report_ParentFeedback extends CRM_Report_Form {
 
 
   function alterDisplay(&$rows) {
-    CRM_Core_Error::Debug_var('a', $rows);
     // custom code to alter rows
     $entryFound = FALSE;
     $newRows = [];
