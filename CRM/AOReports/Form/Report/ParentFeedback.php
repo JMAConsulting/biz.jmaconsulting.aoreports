@@ -62,7 +62,7 @@ class CRM_AOReports_Form_Report_ParentFeedback extends CRM_Report_Form {
           ),
           'activity_type_id' => array(
             'title' => ts('Activity Type'),
-            'default' => CRM_Core_PseudoConstant::getKey('CRM_Activity_DAO_Activity', 'activity_type_id', 'Meeting'),
+            'default' => CRM_Core_PseudoConstant::getKey('CRM_Activity_DAO_Activity', 'activity_type_id', 'Feedback'),
             'operatorType' => CRM_Report_Form::OP_MULTISELECT,
             'options' => $this->activityTypes,
           ),
