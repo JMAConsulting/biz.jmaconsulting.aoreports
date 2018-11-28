@@ -122,16 +122,6 @@ class CRM_AOReports_Form_Report_ParentFeedback extends CRM_Report_Form {
             $clause = $this->dateClause($field['name'], $relative, $from, $to, $field['type']);
           }
           else {
-            if ($fieldName == 'new_child' && $this->_params['new_child_value'] != NULL) {
-              $relative = CRM_Utils_Array::value("activity_date_time_relative", $this->_params);
-              $from     = CRM_Utils_Array::value("activity_date_time_from", $this->_params);
-              $to       = CRM_Utils_Array::value("activity_date_time_to", $this->_params);
-              list($from, $to) = $this->getFromTo($relative, $from, $to, $fromTime, $toTime);
-
-              $op = ($this->_params['new_child_value'] != 1) ? 'NOT IN' : 'IN';
-              $clause = " ac.contact_id $op ( SELECT new_child_id FROM " . E::getNewChildContactTableName($from, $to) . " ) ";
-              continue;
-            }
             $op = CRM_Utils_Array::value("{$fieldName}_op", $this->_params);
             if ($op) {
               $clause = $this->whereClause($field,
@@ -194,7 +184,8 @@ class CRM_AOReports_Form_Report_ParentFeedback extends CRM_Report_Form {
         continue;
       }
       foreach ($customFields as $cfID => $customField) {
-        if ($customField['data_type'] == 'Boolean') {
+        $dataType = $customField['data_type'];
+        if ($dataType == 'Boolean') {
           $optionValues = [
             1 => [
               'name' => 'yes',
@@ -230,7 +221,7 @@ class CRM_AOReports_Form_Report_ParentFeedback extends CRM_Report_Form {
         ];
         foreach ($optionValues as $optionValue) {
           $name = $optionValue['name'];
-          $value = $optionValue['value'];
+          $value = $dataType == 'String' ? "'{$optionValue['value']}'" : $optionValue['value'];
           $this->_customFieldOptionLabels[$cfID][$templateAlias[$count]] = sprintf('<b>%s</b>', $optionValue['label']);
           $selects[] = "COUNT($name.entity_id) as " . $templateAlias[$count];
           $from .= " LEFT JOIN {$customGroup['table_name']} $name ON $name.entity_id = {$this->_aliases['civicrm_activity']}.id AND $name.{$customField['column_name']} = $value ";
