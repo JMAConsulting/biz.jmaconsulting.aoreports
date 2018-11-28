@@ -11,6 +11,7 @@ class CRM_AOReports_Form_Report_ParentFeedback extends CRM_Report_Form {
   protected $_customFieldGroupIDs;
   protected $_customSQLs;
   protected $_customFieldOptionLabels;
+  protected $_maximumCountSupported = 10;
   function __construct() {
     $condition = " AND ( v.component_id IS NULL )";
     $this->activityTypes = CRM_Core_OptionGroup::values('activity_type', FALSE, FALSE, FALSE, $condition);
@@ -30,30 +31,6 @@ class CRM_AOReports_Form_Report_ParentFeedback extends CRM_Report_Form {
             'title' => ts('Questions'),
             'dbAlias' => "'Questions'",
           ),
-          'e_exp' => array(
-            'name' => 'e_exp',
-            'required' => TRUE,
-            'title' => ts('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'),
-            'dbAlias' => "0",
-          ),
-          'm_exp' => array(
-            'name' => 'm_exp',
-            'required' => TRUE,
-            'title' => ts('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'),
-            'dbAlias' => "0",
-          ),
-          'sm_exp' => array(
-            'name' => 'sm_exp',
-            'required' => TRUE,
-            'title' => ts('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'),
-            'dbAlias' => "0",
-          ),
-          'dm_exp' => array(
-            'name' => 'dm_exp',
-            'required' => TRUE,
-            'title' => ts('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'),
-            'dbAlias' => "0",
-          ),
         ),
         'filters' => array(
           'activity_date_time' => array(
@@ -69,6 +46,14 @@ class CRM_AOReports_Form_Report_ParentFeedback extends CRM_Report_Form {
         ),
       ),
     );
+    for ($i = 0; $i < $this->_maximumCountSupported; $i++) {
+      $this->_columns['civicrm_activity']['fields']["$i"] = array(
+        'name' => "$i",
+        'required' => TRUE,
+        'title' => ts('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'),
+        'dbAlias' => "0",
+      );
+    }
     parent::__construct();
   }
 
@@ -202,23 +187,21 @@ class CRM_AOReports_Form_Report_ParentFeedback extends CRM_Report_Form {
         else {
           $optionValues = civicrm_api3('OptionValue', 'get', ['option_group_id' => $customField['option_group_id']])['values'];
         }
+        if (count($optionValues) > $this->_maximumCountSupported) {
+          continue;
+        }
         $from = $this->_from;
-        $templateAlias = [
-          'civicrm_activity_e_exp',
-          'civicrm_activity_m_exp',
-          'civicrm_activity_sm_exp',
-          'civicrm_activity_dm_exp',
-        ];
-        $selects = [sprintf("'%s' as civicrm_activity_label", $customField['label'])];
-        $count = 0;
+        $templateAlias = [];
         $this->_customFieldOptionLabels[$cfID] = [
           'civicrm_activity_id' => '',
           'civicrm_activity_label' => '',
-          'civicrm_activity_e_exp' => '',
-          'civicrm_activity_m_exp' => '',
-          'civicrm_activity_sm_exp' => '',
-          'civicrm_activity_dm_exp' => '',
         ];
+        for ($i = 0; $i < $this->_maximumCountSupported; $i++) {
+          $templateAlias[] = "civicrm_activity_$i";
+          $this->_customFieldOptionLabels[$cfID]["civicrm_activity_$i"] = '';
+        }
+        $selects = [sprintf("'%s' as civicrm_activity_label", $customField['label'])];
+        $count = 0;
         foreach ($optionValues as $optionValue) {
           $name = $optionValue['name'];
           $value = $dataType == 'String' ? "'{$optionValue['value']}'" : $optionValue['value'];
@@ -230,6 +213,7 @@ class CRM_AOReports_Form_Report_ParentFeedback extends CRM_Report_Form {
         $sqls[$cfID] = "SELECT " . implode(', ', $selects) . $from . $this->_where;
       }
     }
+    CRM_Core_Error::debug_var('a', $this->_customFieldOptionLabels);
     $this->_customSQLs = $sqls;
 
     foreach ($this->unselectedOrderByColumns() as $alias => $field) {
@@ -252,17 +236,17 @@ class CRM_AOReports_Form_Report_ParentFeedback extends CRM_Report_Form {
 
 
   function alterDisplay(&$rows) {
+    CRM_Core_Error::Debug_var('a', $rows);
     // custom code to alter rows
     $entryFound = FALSE;
     $newRows = [];
     $templateRows = [
       'civicrm_activity_id' => 0,
       'civicrm_activity_label' => NULL,
-      'civicrm_activity_e_exp' => NULL,
-      'civicrm_activity_m_exp' => NULL,
-      'civicrm_activity_sm_exp' => NULL,
-      'civicrm_activity_dm_exp' => NULL,
     ];
+    for ($i = 0; $i < $this->_maximumCountSupported; $i++) {
+      $templateRows['civicrm_activity_' . $i] = NULL;
+    }
     foreach ($this->_customSQLs as $id => $sql) {
       $row = $templateRows;
       $dao = CRM_Core_DAO::executeQuery($sql);
