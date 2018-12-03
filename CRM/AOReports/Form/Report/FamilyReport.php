@@ -471,7 +471,7 @@ class CRM_AOReports_Form_Report_FamilyReport extends CRM_Report_Form_Contact_Rel
     $childrenCount = CRM_Core_DAO::singleValueQuery(" SELECT COUNT(*) FROM ( SELECT contact_b_civireport.id " . $this->_from . " " . $this->_where . " GROUP BY contact_b_civireport.id ) as temp ");
     $frenchChildrenCount = CRM_Core_DAO::singleValueQuery(" SELECT COUNT(*)
       FROM ( SELECT contact_b_civireport.id " . $this->_from . " " . $this->_where . "
-      AND contact_civireport.id IN ( SELECT DISTINCT t.entity_id FROM civicrm_value_donation_cust_2 t WHERE t.language_10 LIKE '%French%' )
+      AND contact_b_civireport.id IN ( SELECT DISTINCT t.entity_id FROM civicrm_value_donation_cust_2 t WHERE t.language_10 LIKE '%French%' )
       GROUP BY contact_b_civireport.id ) as temp ");
     $childrenCount += $familiesCount;
     $frenchChildrenCount += $frenchFamiliesCount;
