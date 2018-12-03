@@ -38,7 +38,7 @@ class CRM_AOReports_Form_Report_ParentSupport extends CRM_Report_Form {
             'options' => $this->activityTypes,
           ),
           'new_child' => array(
-            'title' => ts('New Child?'),
+            'title' => ts('Child contact is new?'),
             'type' => CRM_Utils_Type::T_BOOLEAN,
           ),
         ),
