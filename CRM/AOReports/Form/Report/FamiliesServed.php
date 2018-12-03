@@ -174,7 +174,7 @@ class CRM_AOReports_Form_Report_FamiliesServed extends CRM_Report_Form {
   function alterDisplay(&$rows) {
     $plFound = NULL;
     $newRows = [
-      'total' => [
+      't' => [
         'civicrm_contact_total' => 1,
         'civicrm_contact_preferred_language' => ts('Total New Families Served'),
         'civicrm_contact_year' => '',
@@ -201,7 +201,7 @@ class CRM_AOReports_Form_Report_FamiliesServed extends CRM_Report_Form {
       }
       $defaultYear = $quarters[$row['civicrm_contact_quarter']] = $row['civicrm_contact_year'];
       $newRows[$plFound]["civicrm_contact_q{$row['civicrm_contact_quarter']}"] = $row['civicrm_contact_total'];
-      $newRows['total']["civicrm_contact_q{$row['civicrm_contact_quarter']}"] += $row['civicrm_contact_total'];
+      $newRows['t']["civicrm_contact_q{$row['civicrm_contact_quarter']}"] += $row['civicrm_contact_total'];
       $newRows[$plFound]['civicrm_contact_preferred_language'] = $plOptions[$plFound];
     }
 
