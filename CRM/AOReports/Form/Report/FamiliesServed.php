@@ -214,5 +214,14 @@ class CRM_AOReports_Form_Report_FamiliesServed extends CRM_Report_Form {
     }
   }
 
+  public function buildInstanceAndButtons() {
+    parent::buildInstanceAndButtons();
+    CRM_Core_Resources::singleton()->addScript(
+    "CRM.$(function($) {
+      $('.report-layout td.report-label').removeClass('report-label');
+    });"
+  );
+  }
+
 
 }
