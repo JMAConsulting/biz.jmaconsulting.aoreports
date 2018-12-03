@@ -263,6 +263,7 @@ class CRM_AOReports_Form_Report_FamilyReport extends CRM_Report_Form_Contact_Rel
   }
 
   public function from() {
+    $tableName = E::getNewChildContactTableName();
     $this->_from = "
         FROM civicrm_relationship {$this->_aliases['civicrm_relationship']}
 
@@ -274,7 +275,8 @@ class CRM_AOReports_Form_Report_FamilyReport extends CRM_Report_Form_Contact_Rel
                         ON ( {$this->_aliases['civicrm_relationship']}.contact_id_b =
                              {$this->_aliases['civicrm_contact_b']}.id )
 
-             {$this->_aclFrom} ";
+            INNER JOIN {$tableName} temp ON temp.new_child_id = {$this->_aliases['civicrm_contact']}.id
+           ";
 
       $this->_from .= "
             INNER  JOIN civicrm_address {$this->_aliases['civicrm_address']}
