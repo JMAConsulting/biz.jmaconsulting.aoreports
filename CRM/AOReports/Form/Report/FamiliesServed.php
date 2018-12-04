@@ -233,7 +233,9 @@ class CRM_AOReports_Form_Report_FamiliesServed extends CRM_Report_Form {
         foreach ($data as $value) {
           $newRows[$key]['civicrm_contact_quarter'] = $value['civicrm_contact_quarter'];
           $newRows[$key]["civicrm_contact_q{$row['civicrm_contact_quarter']}"] = $value['civicrm_contact_total'];
-          $defaultYear = $quarters[$value['civicrm_contact_quarter']] = $value['civicrm_contact_year'];
+          if ($value['civicrm_contact_year']) {
+            $defaultYear = $quarters[$value['civicrm_contact_quarter']] = $value['civicrm_contact_year'];
+          }
         }
       }
       else {
