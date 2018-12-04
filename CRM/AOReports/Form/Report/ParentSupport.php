@@ -10,7 +10,7 @@ class CRM_AOReports_Form_Report_ParentSupport extends CRM_Report_Form {
 
   //protected $_customGroupExtends = array('Activity');
   protected $_customGroupGroupBy = FALSE;
-  protected $_customFieldID = 354;
+  protected $_customFieldID = 332;
   protected $_customTableName;
   protected $_columnName;
   protected $_optionValues;
