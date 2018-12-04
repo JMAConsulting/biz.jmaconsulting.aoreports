@@ -58,7 +58,7 @@ class CRM_AOReports_Form_Report_ParentSupport extends CRM_Report_Form {
             'extends' => 'Activity',
             'name' => $customField['name'],
             'required' => TRUE,
-            'title' => '',
+            'title' => ts('Question'),
             'dbAlias' => "'" . $customField['label'] . "'",
           ],
         ),
@@ -108,7 +108,7 @@ class CRM_AOReports_Form_Report_ParentSupport extends CRM_Report_Form {
 
     $this->_from = " FROM civicrm_activity {$this->_aliases['civicrm_activity']}";
     foreach ($this->_optionValues as $name => $value) {
-      $this->_from .= " LEFT JOIN $this->_customTableName $name ON $name.entity_id = {$this->_aliases['civicrm_activity']}.id AND $name.$this->_columnName = $value ";
+      $this->_from .= " LEFT JOIN $this->_customTableName $name ON $name.entity_id = {$this->_aliases['civicrm_activity']}.id AND $name.$this->_columnName LIKE '%$value%' ";
     }
     $this->_from .= " LEFT JOIN civicrm_activity_contact ac ON ac.activity_id = {$this->_aliases['civicrm_activity']}.id AND record_type_id = $targetID ";
   }
