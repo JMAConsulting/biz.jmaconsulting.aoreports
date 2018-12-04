@@ -18,7 +18,7 @@ class CRM_AOReports_Form_Report_FamiliesServed extends CRM_Report_Form {
           'total' => array(
             'no_display' => TRUE,
             'title' => ts('Contact ID'),
-            'dbAlias' => 'COUNT(DISTINCT id)',
+            'dbAlias' => 'COUNT(DISTINCT contact_civireport.id)',
             'required' => TRUE,
           ),
           'family_count' => array(
