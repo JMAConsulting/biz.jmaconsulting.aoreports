@@ -24,7 +24,7 @@ class CRM_AOReports_Form_Report_FamiliesServed extends CRM_Report_Form {
           'family_count' => array(
             'title' => ts('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'),
             'required' => TRUE,
-            'dbAlias' => 'New Families Served',
+            'dbAlias' => "'New Families Served'",
           ),
           'year' => array(
             'title' => ts('Year'),
