@@ -16,7 +16,6 @@ class CRM_AOReports_Form_Report_FamiliesServed extends CRM_Report_Form {
         'dao' => 'CRM_Contact_DAO_Contact',
         'fields' => array(
           'total' => array(
-            'no_display' => TRUE,
             'title' => ts('Contact ID'),
             'dbAlias' => 'COUNT(DISTINCT contact_civireport.id)',
             'required' => TRUE,
@@ -107,7 +106,7 @@ class CRM_AOReports_Form_Report_FamiliesServed extends CRM_Report_Form {
     $tableName = E::getNewChildContactTableName();
     $this->_from = " FROM civicrm_contact {$this->_aliases['civicrm_contact']}
       LEFT JOIN {$tableName} temp ON temp.parent_id = {$this->_aliases['civicrm_contact']}.id
-      LEFT JOIN civicrm_value_donation_cust_2 lang ON lang.entity_id = {$this->_aliases['civicrm_contact']}.id AND lang.language_10 IS NOT NULL
+      LEFT JOIN civicrm_value_donation_cust_2 lang ON lang.entity_id = temp.parent_id AND lang.language_10 IS NOT NULL
     ";
   }
 
@@ -247,6 +246,8 @@ class CRM_AOReports_Form_Report_FamiliesServed extends CRM_Report_Form {
       $year = $year ?: $defaultYear;
       $this->_columnHeaders["civicrm_contact_q{$quarter}"]['title'] = $this->_columnHeaders["civicrm_contact_q{$quarter}"]['title'] . " $year";
     }
+
+    unset($this->_columnHeaders["civicrm_contact_total"]);
 
     $rows = $newRows;
   }
