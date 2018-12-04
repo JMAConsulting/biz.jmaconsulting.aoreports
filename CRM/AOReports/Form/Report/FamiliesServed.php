@@ -21,9 +21,10 @@ class CRM_AOReports_Form_Report_FamiliesServed extends CRM_Report_Form {
             'dbAlias' => 'COUNT(DISTINCT id)',
             'required' => TRUE,
           ),
-          'preferred_language' => array(
-            'title' => ts('New Families Served'),
+          'family_count' => array(
+            'title' => ts('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'),
             'required' => TRUE,
+            'dbAlias' => 'New Families Served',
           ),
           'year' => array(
             'title' => ts('Year'),
@@ -103,7 +104,8 @@ class CRM_AOReports_Form_Report_FamiliesServed extends CRM_Report_Form {
   function from() {
     $tableName = E::getNewChildContactTableName();
     $this->_from = " FROM civicrm_contact {$this->_aliases['civicrm_contact']}
-      LEFT JOIN {$tableName} temp ON temp.parent_id = {$this->_aliases['civicrm_contact']}.id
+      INNER JOIN {$tableName} temp ON temp.parent_id = {$this->_aliases['civicrm_contact']}.id
+      INNER JOIN civicrm_value_donation_cust_2 lang ON lang.entity_id = {$this->_aliases['civicrm_contact']}.id AND lang.language_10 IS NOT NULL
     ";
   }
 
@@ -148,11 +150,7 @@ class CRM_AOReports_Form_Report_FamiliesServed extends CRM_Report_Form {
   }
 
   function groupBy() {
-    $this->_groupBy = " GROUP BY {$this->_aliases['civicrm_contact']}.preferred_language, YEAR(temp.dof), QUARTER(temp.dof)";
-  }
-
-  function orderBy() {
-    $this->_orderBy = " ORDER BY {$this->_aliases['civicrm_contact']}.preferred_language";
+    $this->_groupBy = " YEAR(temp.dof), QUARTER(temp.dof)";
   }
 
   function postProcess() {
@@ -172,11 +170,50 @@ class CRM_AOReports_Form_Report_FamiliesServed extends CRM_Report_Form {
   }
 
   function alterDisplay(&$rows) {
-    $plFound = NULL;
+    $originalSQL = $this->buildQuery(TRUE);
+
+    $quarters = [
+      1 => NULL,
+      2 => NULL,
+      3 => NULL,
+      4 => NULL,
+    ];
+    $defaultYear = '';
+
     $newRows = [
-      't' => [
+      [
         'civicrm_contact_total' => 1,
-        'civicrm_contact_preferred_language' => ts('Total New Families Served'),
+        'civicrm_contact_family_count' => ts('New Families Served'),
+        'civicrm_contact_year' => '',
+        'civicrm_contact_quarter' => NULL,
+        'civicrm_contact_q1' => 0,
+        'civicrm_contact_q2' => 0,
+        'civicrm_contact_q3' => 0,
+        'civicrm_contact_q4' => 0,
+      ],
+      [
+        'civicrm_contact_total' => 1,
+        'civicrm_contact_family_count' => ts('Francophone New Families Served'),
+        'civicrm_contact_year' => '',
+        'civicrm_contact_quarter' => NULL,
+        'civicrm_contact_q1' => 0,
+        'civicrm_contact_q2' => 0,
+        'civicrm_contact_q3' => 0,
+        'civicrm_contact_q4' => 0,
+      ],
+      [
+        'civicrm_contact_total' => 1,
+        'civicrm_contact_family_count' => ts('Families Served'),
+        'civicrm_contact_year' => '',
+        'civicrm_contact_quarter' => NULL,
+        'civicrm_contact_q1' => 0,
+        'civicrm_contact_q2' => 0,
+        'civicrm_contact_q3' => 0,
+        'civicrm_contact_q4' => 0,
+      ],
+      [
+        'civicrm_contact_total' => 1,
+        'civicrm_contact_family_count' => ts('Francophone Families Served'),
         'civicrm_contact_year' => '',
         'civicrm_contact_quarter' => NULL,
         'civicrm_contact_q1' => 0,
@@ -185,33 +222,40 @@ class CRM_AOReports_Form_Report_FamiliesServed extends CRM_Report_Form {
         'civicrm_contact_q4' => 0,
       ],
     ];
-    $quarters = [
-      1 => NULL,
-      2 => NULL,
-      3 => NULL,
-      4 => NULL,
-    ];
-    $defaultYear = '';
-    $plOptions = CRM_Contact_BAO_Contact::buildOptions('preferred_language');
-    // custom code to alter rows
-    foreach ($rows as $rowNum => $row) {
-      if (empty($newRows[$plFound])) {
-        $plFound = $row['civicrm_contact_preferred_language'];
-        $newRows[$plFound] = $row;
+
+    foreach ($newRows as $key => $row) {
+      $data = [];
+      if ($key == 0) {
+        $data[$key] = $rows[$key];
       }
-      $defaultYear = $quarters[$row['civicrm_contact_quarter']] = $row['civicrm_contact_year'];
-      $newRows[$plFound]["civicrm_contact_q{$row['civicrm_contact_quarter']}"] = $row['civicrm_contact_total'];
-      $newRows['t']["civicrm_contact_q{$row['civicrm_contact_quarter']}"] += $row['civicrm_contact_total'];
-      $newRows[$plFound]['civicrm_contact_preferred_language'] = $plOptions[$plFound];
+      else {
+        if ($key == 1) {
+          $sql = str_replace('lang.language_10 IS NOT NULL', 'lang.language_10 LIKE \'%French%\'', $originalSQL);
+        }
+        else {
+          $sql = str_replace("INNER JOIN temp_newchild_contacts temp ON temp.parent_id = {$this->_aliases['civicrm_contact']}.id", '', $originalSQL);
+          if ($key == 3) {
+            $sql = str_replace('lang.language_10 IS NOT NULL', 'lang.language_10 LIKE \'%French%\'', $originalSQL);
+          }
+
+          $data = CRM_Core_DAO::executeQuery($sql)->fetchAll();
+        }
+      }
+      if (!empty($data[0])) {
+        foreach ($data[0] as $value) {
+          $newRows[$key]['civicrm_contact_quarter'] = $value['civicrm_contact_quarter'];
+          $newRows[$key]["civicrm_contact_q{$row['civicrm_contact_quarter']}"] = $value['civicrm_contact_total'];
+          $defaultYear = $quarters[$value['civicrm_contact_quarter']] = $value['civicrm_contact_year'];
+        }
+      }
     }
 
-    if ($rows) {
-      $rows = $newRows;
-    }
     foreach ($quarters as $quarter => $year) {
       $year = $year ?: $defaultYear;
       $this->_columnHeaders["civicrm_contact_q{$quarter}"]['title'] = $this->_columnHeaders["civicrm_contact_q{$quarter}"]['title'] . " $year";
     }
+
+    $rows = $newRows;
   }
 
   public function buildInstanceAndButtons() {
