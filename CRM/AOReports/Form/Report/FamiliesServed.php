@@ -215,9 +215,8 @@ class CRM_AOReports_Form_Report_FamiliesServed extends CRM_Report_Form {
     ];
 
     foreach ($newRows as $key => $row) {
-      $data = [];
       if ($key == 0) {
-        $data[$key] = $rows[$key];
+        $newRows[$key] = $rows[$key];
       }
       else {
         if ($key == 1) {
@@ -227,18 +226,18 @@ class CRM_AOReports_Form_Report_FamiliesServed extends CRM_Report_Form {
           $sql = str_replace('lang.language_10 IS NOT NULL', 'lang.language_10 NOT LIKE \'%French%\'', $originalSQL);
         }
         $data = CRM_Core_DAO::executeQuery($sql)->fetchAll();
-      }
-      if (!empty($data)) {
-        foreach ($data as $value) {
-          $newRows[$key]['civicrm_contact_quarter'] = $value['civicrm_contact_quarter'];
-          $newRows[$key]["civicrm_contact_q{$row['civicrm_contact_quarter']}"] = $value['civicrm_contact_total'];
-          if ($value['civicrm_contact_year']) {
-            $defaultYear = $quarters[$value['civicrm_contact_quarter']] = $value['civicrm_contact_year'];
+        if (!empty($data)) {
+          foreach ($data as $value) {
+            $newRows[$key]['civicrm_contact_quarter'] = $value['civicrm_contact_quarter'];
+            $newRows[$key]["civicrm_contact_q{$row['civicrm_contact_quarter']}"] = $value['civicrm_contact_total'];
+            if ($value['civicrm_contact_year']) {
+              $defaultYear = $quarters[$value['civicrm_contact_quarter']] = $value['civicrm_contact_year'];
+            }
           }
         }
-      }
-      else {
-        $newRows[$key]["civicrm_contact_year"] = $defaultYear;
+        else {
+          $newRows[$key]["civicrm_contact_year"] = $defaultYear;
+        }
       }
     }
 
