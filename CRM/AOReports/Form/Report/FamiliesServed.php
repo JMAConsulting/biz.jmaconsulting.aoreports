@@ -91,8 +91,10 @@ class CRM_AOReports_Form_Report_FamiliesServed extends CRM_Report_Form {
             CRM_Utils_Array::value($fieldName, $this->_params['fields'])
           ) {
             $select[] = "{$field['dbAlias']} as {$tableName}_{$fieldName}";
-            $this->_columnHeaders["{$tableName}_{$fieldName}"]['title'] = $field['title'];
-            $this->_columnHeaders["{$tableName}_{$fieldName}"]['type'] = CRM_Utils_Array::value('type', $field);
+            if (!CRM_Utils_Array::value('no_display', $field)) {
+              $this->_columnHeaders["{$tableName}_{$fieldName}"]['title'] = $field['title'];
+              $this->_columnHeaders["{$tableName}_{$fieldName}"]['type'] = CRM_Utils_Array::value('type', $field);
+            }
           }
         }
       }
@@ -227,12 +229,15 @@ class CRM_AOReports_Form_Report_FamiliesServed extends CRM_Report_Form {
         }
         $data = CRM_Core_DAO::executeQuery($sql)->fetchAll();
       }
-      if (!empty($data[0])) {
-        foreach ($data[0] as $value) {
+      if (!empty($data)) {
+        foreach ($data as $value) {
           $newRows[$key]['civicrm_contact_quarter'] = $value['civicrm_contact_quarter'];
           $newRows[$key]["civicrm_contact_q{$row['civicrm_contact_quarter']}"] = $value['civicrm_contact_total'];
           $defaultYear = $quarters[$value['civicrm_contact_quarter']] = $value['civicrm_contact_year'];
         }
+      }
+      else {
+        $newRows[$key]["civicrm_contact_year"] = $defaultYear;
       }
     }
 
