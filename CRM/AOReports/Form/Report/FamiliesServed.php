@@ -183,7 +183,7 @@ class CRM_AOReports_Form_Report_FamiliesServed extends CRM_Report_Form {
     $newRows = [
       [
         'civicrm_contact_total' => 1,
-        'civicrm_contact_family_count' => ts('New Families Served'),
+        'civicrm_contact_family_count' => ts('Total New Families Served'),
         'civicrm_contact_year' => '',
         'civicrm_contact_quarter' => NULL,
         'civicrm_contact_q1' => 0,
@@ -203,17 +203,7 @@ class CRM_AOReports_Form_Report_FamiliesServed extends CRM_Report_Form {
       ],
       [
         'civicrm_contact_total' => 1,
-        'civicrm_contact_family_count' => ts('Families Served'),
-        'civicrm_contact_year' => '',
-        'civicrm_contact_quarter' => NULL,
-        'civicrm_contact_q1' => 0,
-        'civicrm_contact_q2' => 0,
-        'civicrm_contact_q3' => 0,
-        'civicrm_contact_q4' => 0,
-      ],
-      [
-        'civicrm_contact_total' => 1,
-        'civicrm_contact_family_count' => ts('Francophone Families Served'),
+        'civicrm_contact_family_count' => ts('Non-francophone New Families Served'),
         'civicrm_contact_year' => '',
         'civicrm_contact_quarter' => NULL,
         'civicrm_contact_q1' => 0,
@@ -233,13 +223,9 @@ class CRM_AOReports_Form_Report_FamiliesServed extends CRM_Report_Form {
           $sql = str_replace('lang.language_10 IS NOT NULL', 'lang.language_10 LIKE \'%French%\'', $originalSQL);
         }
         else {
-          $sql = str_replace("INNER JOIN temp_newchild_contacts temp ON temp.parent_id = {$this->_aliases['civicrm_contact']}.id", '', $originalSQL);
-          if ($key == 3) {
-            $sql = str_replace('lang.language_10 IS NOT NULL', 'lang.language_10 LIKE \'%French%\'', $originalSQL);
-          }
-
-          $data = CRM_Core_DAO::executeQuery($sql)->fetchAll();
+          $sql = str_replace('lang.language_10 IS NOT NULL', 'lang.language_10 NOT LIKE \'%French%\'', $originalSQL);
         }
+        $data = CRM_Core_DAO::executeQuery($sql)->fetchAll();
       }
       if (!empty($data[0])) {
         foreach ($data[0] as $value) {
