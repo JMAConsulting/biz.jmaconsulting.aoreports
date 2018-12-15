@@ -160,7 +160,7 @@ class CRM_AOReports_Form_Report_FamiliesServed extends CRM_Report_Form {
    */
   public static function formRule($fields, $files, $self) {
     $errors = array();
-    if (is_null($fields['dof_relative'])) {
+    if (empty($fields['dof_relative'])) {
       $errors['dof_relative'] = ts("Duration is a required filter");
     }
     return $errors;
