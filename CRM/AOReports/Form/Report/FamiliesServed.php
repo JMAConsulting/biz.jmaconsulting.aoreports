@@ -9,6 +9,8 @@ class CRM_AOReports_Form_Report_FamiliesServed extends CRM_Report_Form {
   protected $_add2groupSupported = FALSE;
   protected $_exposeContactID = FALSE;
 
+  protected $_dateClause;
+
   protected $_customGroupGroupBy = FALSE;
   function __construct() {
     $this->_columns = array(
@@ -121,7 +123,7 @@ class CRM_AOReports_Form_Report_FamiliesServed extends CRM_Report_Form {
             $from     = CRM_Utils_Array::value("{$fieldName}_from", $this->_params);
             $to       = CRM_Utils_Array::value("{$fieldName}_to", $this->_params);
 
-            $clause = $this->dateClause($field['name'], $relative, $from, $to, $field['type']);
+            $this->_dateClause = $clause = $this->dateClause($field['name'], $relative, $from, $to, $field['type']);
           }
           else {
             $op = CRM_Utils_Array::value("{$fieldName}_op", $this->_params);
@@ -184,7 +186,7 @@ class CRM_AOReports_Form_Report_FamiliesServed extends CRM_Report_Form {
     $newRows = [
       [
         'civicrm_contact_total' => 1,
-        'civicrm_contact_family_count' => ts('Total New Families Served'),
+        'civicrm_contact_family_count' => ts('New Families Served'),
         'civicrm_contact_year' => '',
         'civicrm_contact_quarter' => NULL,
         'civicrm_contact_q1' => 0,
@@ -204,7 +206,17 @@ class CRM_AOReports_Form_Report_FamiliesServed extends CRM_Report_Form {
       ],
       [
         'civicrm_contact_total' => 1,
-        'civicrm_contact_family_count' => ts('Non-francophone New Families Served'),
+        'civicrm_contact_family_count' => ts('Families Served'),
+        'civicrm_contact_year' => '',
+        'civicrm_contact_quarter' => NULL,
+        'civicrm_contact_q1' => 0,
+        'civicrm_contact_q2' => 0,
+        'civicrm_contact_q3' => 0,
+        'civicrm_contact_q4' => 0,
+      ],
+      [
+        'civicrm_contact_total' => 1,
+        'civicrm_contact_family_count' => ts('Francophone Families Served'),
         'civicrm_contact_year' => '',
         'civicrm_contact_quarter' => NULL,
         'civicrm_contact_q1' => 0,
@@ -228,14 +240,25 @@ class CRM_AOReports_Form_Report_FamiliesServed extends CRM_Report_Form {
         if ($key == 1) {
           $sql = str_replace('lang.language_10 IS NOT NULL', 'lang.language_10 LIKE \'%French%\'', $originalSQL);
         }
-        else {
+        elseif ($key == 2) {
           $sql = str_replace('lang.language_10 IS NOT NULL', 'lang.language_10 NOT LIKE \'%French%\'', $originalSQL);
+          $sql = str_replace($this->_dateClause, '(1)' $originalSQL);
+        }
+        else {
+          $sql = str_replace('lang.language_10 IS NOT NULL', 'lang.language_10 LIKE \'%French%\'', $originalSQL);
+          $sql = str_replace($this->_dateClause, '(1)' $originalSQL);
         }
         $data = CRM_Core_DAO::executeQuery($sql)->fetchAll();
         if (!empty($data)) {
           foreach ($data as $value) {
             $newRows[$key]['civicrm_contact_quarter'] = $value['civicrm_contact_quarter'];
             $newRows[$key]["civicrm_contact_q{$value['civicrm_contact_quarter']}"] = $value['civicrm_contact_total'];
+            if ($key == 2) {
+              $newRows[$key]["civicrm_contact_q{$value['civicrm_contact_quarter']}"] -= $newRows[0]["civicrm_contact_q{$value['civicrm_contact_quarter']}"];
+            }
+            elseif ($key == 3) {
+              $newRows[$key]["civicrm_contact_q{$value['civicrm_contact_quarter']}"] -= $newRows[1]["civicrm_contact_q{$value['civicrm_contact_quarter']}"];
+            }
             if ($value['civicrm_contact_year']) {
               $defaultYear = $quarters[$value['civicrm_contact_quarter']] = $value['civicrm_contact_year'];
             }
@@ -245,11 +268,6 @@ class CRM_AOReports_Form_Report_FamiliesServed extends CRM_Report_Form {
           $newRows[$key]["civicrm_contact_year"] = $defaultYear;
         }
       }
-    }
-
-    foreach ($quarters as $quarter => $year) {
-      $year = $year ?: $defaultYear;
-      $this->_columnHeaders["civicrm_contact_q{$quarter}"]['title'] = $this->_columnHeaders["civicrm_contact_q{$quarter}"]['title'] . " $year";
     }
 
     unset($this->_columnHeaders["civicrm_contact_total"]);
