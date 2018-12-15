@@ -107,7 +107,7 @@ class CRM_AOReports_Form_Report_FamiliesServed extends CRM_Report_Form {
     $tableName = E::getNewChildContactTableName();
     $this->_from = " FROM civicrm_contact {$this->_aliases['civicrm_contact']}
       INNER JOIN {$tableName} temp ON temp.parent_id = {$this->_aliases['civicrm_contact']}.id
-      INNER JOIN civicrm_value_donation_cust_2 lang ON lang.entity_id = temp.parent_id AND lang.language_10 IS NOT NULL AND lang.language_10 NOT LIKE '%French%'
+      INNER JOIN civicrm_value_donation_cust_2 lang ON lang.entity_id = temp.parent_id AND lang.language_10 IS NOT NULL
     ";
   }
 
@@ -220,7 +220,7 @@ class CRM_AOReports_Form_Report_FamiliesServed extends CRM_Report_Form {
       ],
       [
         'civicrm_contact_total' => 1,
-        'civicrm_contact_family_count' => ts('Families Served'),
+        'civicrm_contact_family_count' => ts('Total Families Served'),
         'civicrm_contact_year' => '',
         'civicrm_contact_quarter' => NULL,
         'civicrm_contact_q1' => 0,
@@ -230,7 +230,7 @@ class CRM_AOReports_Form_Report_FamiliesServed extends CRM_Report_Form {
       ],
       [
         'civicrm_contact_total' => 1,
-        'civicrm_contact_family_count' => ts('Francophone Families Served'),
+        'civicrm_contact_family_count' => ts('Total Francophone Families Served'),
         'civicrm_contact_year' => '',
         'civicrm_contact_quarter' => NULL,
         'civicrm_contact_q1' => 0,
@@ -255,7 +255,7 @@ class CRM_AOReports_Form_Report_FamiliesServed extends CRM_Report_Form {
           $sql = str_replace($this->_dateClause, '(1)', $originalSQL);
         }
         else {
-          $sql = str_replace('lang.language_10 NOT LIKE \'%French%\'', 'lang.language_10 LIKE \'%French%\'', $originalSQL);
+          $sql = str_replace('lang.language_10 NOT NULL', 'lang.language_10 NOT NULL AND lang.language_10 LIKE \'%French%\'', $originalSQL);
           if ($key == 3) {
            $sql = str_replace($this->_dateClause, '(1)', $originalSQL);
           }
