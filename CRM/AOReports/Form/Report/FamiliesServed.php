@@ -242,11 +242,11 @@ class CRM_AOReports_Form_Report_FamiliesServed extends CRM_Report_Form {
         }
         elseif ($key == 2) {
           $sql = str_replace('lang.language_10 IS NOT NULL', 'lang.language_10 NOT LIKE \'%French%\'', $originalSQL);
-          $sql = str_replace($this->_dateClause, '(1)' $originalSQL);
+          $sql = str_replace($this->_dateClause, '(1)', $originalSQL);
         }
         else {
           $sql = str_replace('lang.language_10 IS NOT NULL', 'lang.language_10 LIKE \'%French%\'', $originalSQL);
-          $sql = str_replace($this->_dateClause, '(1)' $originalSQL);
+          $sql = str_replace($this->_dateClause, '(1)', $originalSQL);
         }
         $data = CRM_Core_DAO::executeQuery($sql)->fetchAll();
         if (!empty($data)) {
