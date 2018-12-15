@@ -200,7 +200,7 @@ class CRM_AOReports_Form_Report_FamiliesServed extends CRM_Report_Form {
     $newRows = [
       [
         'civicrm_contact_total' => 1,
-        'civicrm_contact_family_count' => ts('New Families Served'),
+        'civicrm_contact_family_count' => ts('Total New Families Served'),
         'civicrm_contact_year' => '',
         'civicrm_contact_quarter' => NULL,
         'civicrm_contact_q1' => 0,
@@ -230,7 +230,7 @@ class CRM_AOReports_Form_Report_FamiliesServed extends CRM_Report_Form {
       ],
       [
         'civicrm_contact_total' => 1,
-        'civicrm_contact_family_count' => ts('Total Francophone Families Served'),
+        'civicrm_contact_family_count' => ts('Francophone Families Served'),
         'civicrm_contact_year' => '',
         'civicrm_contact_quarter' => NULL,
         'civicrm_contact_q1' => 0,
