@@ -35,7 +35,6 @@ class CRM_AOReports_Form_Report_FamiliesServed extends CRM_Report_Form {
           ),
           'quarter' => array(
             'title' => ts('Quarter'),
-            'no_display' => TRUE,
             'dbAlias' => 'QUARTER(temp.dof)',
             'required' => TRUE,
           ),
@@ -108,7 +107,7 @@ class CRM_AOReports_Form_Report_FamiliesServed extends CRM_Report_Form {
     $tableName = E::getNewChildContactTableName();
     $this->_from = " FROM civicrm_contact {$this->_aliases['civicrm_contact']}
       INNER JOIN {$tableName} temp ON temp.parent_id = {$this->_aliases['civicrm_contact']}.id
-      INNER JOIN civicrm_value_donation_cust_2 lang ON lang.entity_id = temp.parent_id AND lang.language_10 IS NOT NULL
+      INNER JOIN civicrm_value_donation_cust_2 lang ON lang.entity_id = temp.parent_id AND lang.language_10 IS NOT NULL AND 'lang.language_10 NOT LIKE '%French%'
     ";
   }
 
@@ -237,16 +236,14 @@ class CRM_AOReports_Form_Report_FamiliesServed extends CRM_Report_Form {
         }
       }
       else {
-        if ($key == 1) {
-          $sql = str_replace('lang.language_10 IS NOT NULL', 'lang.language_10 LIKE \'%French%\'', $originalSQL);
-        }
-        elseif ($key == 2) {
-          $sql = str_replace('lang.language_10 IS NOT NULL', 'lang.language_10 NOT LIKE \'%French%\'', $originalSQL);
+        if ($key == 2) {
           $sql = str_replace($this->_dateClause, '(1)', $originalSQL);
         }
         else {
-          $sql = str_replace('lang.language_10 IS NOT NULL', 'lang.language_10 LIKE \'%French%\'', $originalSQL);
-          $sql = str_replace($this->_dateClause, '(1)', $originalSQL);
+          $sql = str_replace('lang.language_10 NOT LIKE \'%French%\'', 'lang.language_10 LIKE \'%French%\'', $originalSQL);
+          if ($key == 3) {
+           $sql = str_replace($this->_dateClause, '(1)', $originalSQL);
+          }
         }
         $data = CRM_Core_DAO::executeQuery($sql)->fetchAll();
         if (!empty($data)) {
@@ -271,6 +268,7 @@ class CRM_AOReports_Form_Report_FamiliesServed extends CRM_Report_Form {
     }
 
     unset($this->_columnHeaders["civicrm_contact_total"]);
+    unset($this->_columnHeaders["quarter"]);
 
     $rows = $newRows;
   }
