@@ -151,6 +151,21 @@ class CRM_AOReports_Form_Report_FamiliesServed extends CRM_Report_Form {
     }
   }
 
+  /**
+   * @param $fields
+   * @param $files
+   * @param $self
+   *
+   * @return array
+   */
+  public static function formRule($fields, $files, $self) {
+    $errors = array();
+    if (is_null($fields['dof_relative'])) {
+      $errors['dof_relative'] = ts("Duration is a required filter");
+    }
+    return $errors;
+  }
+
   function groupBy() {
     $this->_groupBy = "GROUP BY YEAR(temp.dof), QUARTER(temp.dof)";
   }
@@ -268,7 +283,7 @@ class CRM_AOReports_Form_Report_FamiliesServed extends CRM_Report_Form {
     }
 
     unset($this->_columnHeaders["civicrm_contact_total"]);
-    unset($this->_columnHeaders["quarter"]);
+    unset($this->_columnHeaders["civicrm_contact_quarter"]);
 
     $rows = $newRows;
   }
