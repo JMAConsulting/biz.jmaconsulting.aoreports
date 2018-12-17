@@ -42,6 +42,8 @@ class CRM_AOReports_Utils {
        WHERE $DOFColumnName IS NOT NULL {$dateClause}
     ";
     CRM_Core_DAO::executeQuery($sql);
+    CRM_Core_DAO::executeQuery("CREATE INDEX ind_new_child ON $tempTableName(new_child_id)");
+    CRM_Core_DAO::executeQuery("CREATE INDEX ind_parent ON $tempTableName(parent_id)");
 
     return $tempTableName;
   }
