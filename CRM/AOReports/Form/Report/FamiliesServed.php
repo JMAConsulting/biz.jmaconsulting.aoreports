@@ -266,10 +266,10 @@ class CRM_AOReports_Form_Report_FamiliesServed extends CRM_Report_Form {
             $newRows[$key]['civicrm_contact_quarter'] = $value['civicrm_contact_quarter'];
             $newRows[$key]["civicrm_contact_q{$value['civicrm_contact_quarter']}"] = $value['civicrm_contact_total'];
             if ($key == 2) {
-              $newRows[$key]["civicrm_contact_q{$value['civicrm_contact_quarter']}"] -= $newRows[0]["civicrm_contact_q{$value['civicrm_contact_quarter']}"];
+              $newRows[$key]["civicrm_contact_q{$value['civicrm_contact_quarter']}"] = $newRows[0]["civicrm_contact_q{$value['civicrm_contact_quarter']}"];
             }
             elseif ($key == 3) {
-              $newRows[$key]["civicrm_contact_q{$value['civicrm_contact_quarter']}"] -= $newRows[1]["civicrm_contact_q{$value['civicrm_contact_quarter']}"];
+              $newRows[$key]["civicrm_contact_q{$value['civicrm_contact_quarter']}"] = $newRows[1]["civicrm_contact_q{$value['civicrm_contact_quarter']}"];
             }
             if ($value['civicrm_contact_year']) {
               $defaultYear = $quarters[$value['civicrm_contact_quarter']] = $value['civicrm_contact_year'];
