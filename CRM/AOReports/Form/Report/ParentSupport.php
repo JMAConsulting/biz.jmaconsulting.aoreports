@@ -134,7 +134,7 @@ class CRM_AOReports_Form_Report_ParentSupport extends CRM_Report_Form {
               list($from, $to) = $this->getFromTo($relative, $from, $to, $fromTime, $toTime);
 
               $op = ($this->_params['new_child_value'] != 1) ? 'NOT IN' : 'IN';
-              $clause = " ac.contact_id $op ( SELECT new_child_id FROM " . E::getNewChildContactTableName($from, $to) . " ) ";
+              $clauses[] = " ac.contact_id $op ( SELECT new_child_id FROM " . E::getNewChildContactTableName($from, $to) . " ) ";
               continue;
             }
             $op = CRM_Utils_Array::value("{$fieldName}_op", $this->_params);
