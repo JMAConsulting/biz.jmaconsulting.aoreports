@@ -167,7 +167,7 @@ class CRM_AOReports_Form_Report_FamiliesServed extends CRM_Report_Form {
   }
 
   function groupBy() {
-    $this->_groupBy = "GROUP BY YEAR(temp.dof), QUARTER(temp.dof)";
+    $this->_groupBy = "GROUP BY QUARTER(temp.dof)";
   }
 
   function postProcess() {
