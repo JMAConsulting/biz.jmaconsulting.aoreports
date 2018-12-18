@@ -128,13 +128,8 @@ class CRM_AOReports_Form_Report_ParentSupport extends CRM_Report_Form {
           }
           else {
             if ($fieldName == 'new_child' && $this->_params['new_child_value'] != NULL) {
-              $relative = CRM_Utils_Array::value("activity_date_time_relative", $this->_params);
-              $from     = CRM_Utils_Array::value("activity_date_time_from", $this->_params);
-              $to       = CRM_Utils_Array::value("activity_date_time_to", $this->_params);
-              list($from, $to) = $this->getFromTo($relative, $from, $to, $fromTime, $toTime);
-
               $op = ($this->_params['new_child_value'] != 1) ? 'NOT IN' : 'IN';
-              $clauses[] = " ac.contact_id $op ( SELECT new_child_id FROM " . E::getNewChildContactTableName($from, $to) . " ) ";
+              $clauses[] = " ac.contact_id $op ( SELECT parent_id FROM " . E::getNewChildContactTableName(NULL, NULL, TRUE) . " ) ";
               continue;
             }
             $op = CRM_Utils_Array::value("{$fieldName}_op", $this->_params);

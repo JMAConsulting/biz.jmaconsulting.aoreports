@@ -7,27 +7,28 @@ class CRM_AOReports_Utils {
   /**
   * Fetch new child whose is a 'Lead Family Member' + family has checked 'Does your child have an ASD diagnosis?'
   */
-  public static function getNewChildContactTableName($from = NULL, $to = NULL) {
-    $customField = civicrm_api3('CustomField', 'getsingle', ['id' => LEAD_FAMILY_MEMBER_CF_ID]);
-    $columnName = $customField['column_name'];
+  public static function getNewChildContactTableName($from = NULL, $to = NULL, $leadFamilyMember = FALSE) {
+    $customField = civicrm_api3('CustomField', 'getsingle', ['id' => DIAGNOSIS_ON_FILE_CF_ID])['column_name'];
+    $DOFColumnName = $customField['column_name'];
     $customTableName = civicrm_api3('CustomGroup', 'getvalue', ['id' => $customField['custom_group_id'], 'return' => 'table_name']);
 
-    $DOFCustomField = civicrm_api3('CustomField', 'getsingle', ['id' => DIAGNOSIS_ON_FILE_CF_ID]);
-    $DOFColumnName = $DOFCustomField['column_name'];
-
     $clauses = [];
-    $dateClause = ' AND (1)';
-    if ($from) {
-      $from = substr($from, 0, 8);
-      $clauses[] = "( {$DOFColumnName} >= {$from} )";
+    if ($leadFamilyMember) {
+      $columnName = civicrm_api3('CustomField', 'getsingle', ['id' => LEAD_FAMILY_MEMBER_CF_ID])['column_name'];
+      $clauses[] = " $columnName = 1 ";
     }
-    if ($to) {
-      $to = ($type == CRM_Utils_Type::T_DATE) ? substr($to, 0, 8) : $to;
-      $clauses[] = "( {$DOFColumnName} <= {$to} )";
+    else {
+      $clauses = ["$DOFColumnName IS NOT NULL"];
+      if ($from) {
+        $from = substr($from, 0, 8);
+        $clauses[] = "( {$DOFColumnName} >= {$from} )";
+      }
+      if ($to) {
+        $to = ($type == CRM_Utils_Type::T_DATE) ? substr($to, 0, 8) : $to;
+        $clauses[] = "( {$DOFColumnName} <= {$to} )";
+      }
     }
-    if (!empty($clauses)) {
-      $dateClause = 'AND ' . implode(' AND ', $clauses);
-    }
+    $whereClause = implode (' AND ', $clauses);
 
     $tempTableName = 'temp_newchild_contacts';
 
@@ -39,7 +40,7 @@ class CRM_AOReports_Utils {
        INNER JOIN civicrm_relationship rel ON rel.contact_id_a = ct.entity_id AND rel.relationship_type_id IN (1, 4)
        LEFT JOIN civicrm_activity_contact ac ON ac.contact_id = ct.entity_id
        LEFT JOIN civicrm_activity a ON a.id = ac.activity_id
-       WHERE $DOFColumnName IS NOT NULL {$dateClause}
+       WHERE $whereClause
     ";
     CRM_Core_DAO::executeQuery($sql);
     CRM_Core_DAO::executeQuery("CREATE INDEX ind_new_child ON $tempTableName(new_child_id)");
