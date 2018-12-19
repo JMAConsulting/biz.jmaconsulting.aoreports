@@ -256,17 +256,6 @@ class CRM_AOReports_Form_Report_FamilyReport extends CRM_Report_Form_Contact_Rel
         ),
         'grouping' => 'contact_a_fields',
       ),
-      'civicrm_value_newsletter_cu_3' => array(
-        'dao' => 'CRM_Contact_DAO_Contact',
-        'fields' => [
-          'entity_id' => [
-            'name' => 'entity_id',
-            'dbAlias' => 'temp.entity_id',
-            'required' => TRUE,
-            'no_display' => TRUE,
-          ],
-        ],
-      ),
     );
 
     $this->_groupFilter = TRUE;
@@ -329,15 +318,16 @@ class CRM_AOReports_Form_Report_FamilyReport extends CRM_Report_Form_Contact_Rel
                             {$this->_aliases['civicrm_phone_b']}.contact_id AND
                             {$this->_aliases['civicrm_phone_b']}.is_primary = 1 )";
     }
-
-    $this->_from .= E::getNewChildFromClause($this->_aliases['civicrm_contact']);
-
   }
 
   function groupBy() {
     $this->_groupBy = " GROUP BY  {$this->_aliases['civicrm_contact_b']}.id ";
   }
 
+  public function where() {
+    parent::where();
+    $this->_where .= E::getNewChildWhereClause('contact_civireport');
+  }
   /**
    * @param $rows
    */

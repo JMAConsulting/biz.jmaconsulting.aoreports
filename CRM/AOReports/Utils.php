@@ -48,10 +48,21 @@ class CRM_AOReports_Utils {
   }
 
   public static function getNewChildFromClause($entityTable, $entityID = 'id') {
+    list($customTableName, $customFieldName) = self::getnewChildTableAndColumn();
+    return " LEFT JOIN {$customTableName} temp ON temp.entity_id = {$entityTable}.{$entityID} AND temp.{$customFieldName} = 1 ";
+  }
+
+  public static function getNewChildWhereClause($entityTable, $entityID = 'id') {
+    list($customTableName, $customFieldName) = self::getnewChildTableAndColumn();
+    return " AND {$entityTable}.{$entityID} IN (SELECT DISTINCT temp.entity_id FROM {$customTableName} temp WHERE {$customFieldName} = 1 ) ";
+  }
+
+  public static function getnewChildTableAndColumn() {
     $customField = civicrm_api3('CustomField', 'getsingle', ['id' => LEAD_FAMILY_MEMBER_CF_ID]);
     $customTableName = civicrm_api3('CustomGroup', 'getvalue', ['id' => $customField['custom_group_id'], 'return' => 'table_name']);
     $customFieldName = $customField['column_name'];
-    return " LEFT JOIN {$customTableName} temp ON temp.entity_id = {$entityTable}.{$entityID} AND temp.{$customFieldName} = 1 ";
+    return [$customTableName, $customFieldName];
   }
+
 
 }
