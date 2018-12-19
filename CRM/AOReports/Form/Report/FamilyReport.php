@@ -263,8 +263,11 @@ class CRM_AOReports_Form_Report_FamilyReport extends CRM_Report_Form_Contact_Rel
   }
 
   public function from() {
+    list($customTableName, $customFieldName) = self::getnewChildTableAndColumn();
+
     $this->_from = "
-        FROM civicrm_relationship {$this->_aliases['civicrm_relationship']}
+        FROM {$customTableName} temp
+        INNER JOIN civicrm_relationship {$this->_aliases['civicrm_relationship']} ON temp.entity_id = {$this->_aliases['civicrm_relationship']}.contact_id_a AND temp.{$customFieldName} = 1
 
              INNER JOIN civicrm_contact {$this->_aliases['civicrm_contact']}
                         ON ( {$this->_aliases['civicrm_relationship']}.contact_id_a =
@@ -324,10 +327,6 @@ class CRM_AOReports_Form_Report_FamilyReport extends CRM_Report_Form_Contact_Rel
     $this->_groupBy = " GROUP BY  {$this->_aliases['civicrm_contact_b']}.id ";
   }
 
-  public function where() {
-    parent::where();
-    $this->_where .= E::getNewChildWhereClause('contact_civireport');
-  }
   /**
    * @param $rows
    */
