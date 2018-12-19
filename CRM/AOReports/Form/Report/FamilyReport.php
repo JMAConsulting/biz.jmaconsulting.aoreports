@@ -263,7 +263,6 @@ class CRM_AOReports_Form_Report_FamilyReport extends CRM_Report_Form_Contact_Rel
   }
 
   public function from() {
-    $fromClause = E::getNewChildFromClause($this->_aliases['civicrm_contact']);
     $this->_from = "
         FROM civicrm_relationship {$this->_aliases['civicrm_relationship']}
 
@@ -274,8 +273,6 @@ class CRM_AOReports_Form_Report_FamilyReport extends CRM_Report_Form_Contact_Rel
              INNER JOIN civicrm_contact {$this->_aliases['civicrm_contact_b']}
                         ON ( {$this->_aliases['civicrm_relationship']}.contact_id_b =
                              {$this->_aliases['civicrm_contact_b']}.id )
-
-            {$fromClause}
            ";
 
       $this->_from .= "
@@ -321,6 +318,9 @@ class CRM_AOReports_Form_Report_FamilyReport extends CRM_Report_Form_Contact_Rel
                             {$this->_aliases['civicrm_phone_b']}.contact_id AND
                             {$this->_aliases['civicrm_phone_b']}.is_primary = 1 )";
     }
+
+    $this->_from .= E::getNewChildFromClause($this->_aliases['civicrm_contact']);
+
   }
 
   function groupBy() {
