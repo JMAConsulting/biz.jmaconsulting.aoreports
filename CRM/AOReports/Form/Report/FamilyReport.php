@@ -263,7 +263,7 @@ class CRM_AOReports_Form_Report_FamilyReport extends CRM_Report_Form_Contact_Rel
   }
 
   public function from() {
-    list($customTableName, $customFieldName) = self::getnewChildTableAndColumn();
+    list($customTableName, $customFieldName) = E::getnewChildTableAndColumn();
 
     $this->_from = "
         FROM {$customTableName} temp
