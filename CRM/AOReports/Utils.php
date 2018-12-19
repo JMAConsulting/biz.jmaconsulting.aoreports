@@ -54,7 +54,7 @@ class CRM_AOReports_Utils {
 
   public static function getNewChildWhereClause($entityTable, $entityID = 'id', $op = 'IN') {
     list($customTableName, $customFieldName) = self::getnewChildTableAndColumn();
-    return " AND {$entityTable}.{$entityID} {$op} (SELECT DISTINCT temp.entity_id FROM {$customTableName} temp WHERE {$customFieldName} = 1 ) ";
+    return " {$entityTable}.{$entityID} {$op} (SELECT DISTINCT temp.entity_id FROM {$customTableName} temp WHERE {$customFieldName} = 1 ) ";
   }
 
   public static function getnewChildTableAndColumn() {
