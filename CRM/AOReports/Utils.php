@@ -52,9 +52,9 @@ class CRM_AOReports_Utils {
     return " LEFT JOIN {$customTableName} temp ON temp.entity_id = {$entityTable}.{$entityID} AND temp.{$customFieldName} = 1 ";
   }
 
-  public static function getNewChildWhereClause($entityTable, $entityID = 'id') {
+  public static function getNewChildWhereClause($entityTable, $entityID = 'id', $op = 'IN') {
     list($customTableName, $customFieldName) = self::getnewChildTableAndColumn();
-    return " AND {$entityTable}.{$entityID} IN (SELECT DISTINCT temp.entity_id FROM {$customTableName} temp WHERE {$customFieldName} = 1 ) ";
+    return " AND {$entityTable}.{$entityID} {$op} (SELECT DISTINCT temp.entity_id FROM {$customTableName} temp WHERE {$customFieldName} = 1 ) ";
   }
 
   public static function getnewChildTableAndColumn() {
