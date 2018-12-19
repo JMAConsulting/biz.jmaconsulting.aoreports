@@ -8,7 +8,7 @@ class CRM_AOReports_Utils {
   * Fetch new child whose is a 'Lead Family Member' + family has checked 'Does your child have an ASD diagnosis?'
   */
   public static function getNewChildContactTableName($from = NULL, $to = NULL, $leadFamilyMember = FALSE) {
-    $customField = civicrm_api3('CustomField', 'getsingle', ['id' => DIAGNOSIS_ON_FILE_CF_ID])['column_name'];
+    $customField = civicrm_api3('CustomField', 'getsingle', ['id' => DIAGNOSIS_ON_FILE_CF_ID]);
     $DOFColumnName = $customField['column_name'];
     $customTableName = civicrm_api3('CustomGroup', 'getvalue', ['id' => $customField['custom_group_id'], 'return' => 'table_name']);
 
@@ -38,8 +38,6 @@ class CRM_AOReports_Utils {
        SELECT DISTINCT ct.entity_id as new_child_id, rel.contact_id_b as parent_id, $DOFColumnName as dof
        FROM $customTableName ct
        INNER JOIN civicrm_relationship rel ON rel.contact_id_a = ct.entity_id AND rel.relationship_type_id IN (1, 4)
-       LEFT JOIN civicrm_activity_contact ac ON ac.contact_id = ct.entity_id
-       LEFT JOIN civicrm_activity a ON a.id = ac.activity_id
        WHERE $whereClause
     ";
     CRM_Core_DAO::executeQuery($sql);
@@ -47,6 +45,13 @@ class CRM_AOReports_Utils {
     CRM_Core_DAO::executeQuery("CREATE INDEX ind_parent ON $tempTableName(parent_id)");
 
     return $tempTableName;
+  }
+
+  public static function getNewChildFromClause($entityTable, $entityID = 'id') {
+    $customField = civicrm_api3('CustomField', 'getsingle', ['id' => LEAD_FAMILY_MEMBER_CF_ID]);
+    $customTableName = civicrm_api3('CustomGroup', 'getvalue', ['id' => $customField['custom_group_id'], 'return' => 'table_name']);
+    $customFieldName = $customField['column_name'];
+    return "LEFT JOIN {$customTableName} temp ON temp.entity_id = {$entityTable}.{$entityID} AND temp.{$customFieldName} = 1 ";
   }
 
 }
