@@ -437,6 +437,33 @@ class CRM_AOReports_Form_Report_FamilyReport extends CRM_Report_Form_Contact_Rel
   }
 
   /**
+   * Post process function.
+   */
+  public function postProcess() {
+
+    // get ready with post process params
+    $this->beginPostProcess();
+
+    // build query
+    $sql = $this->buildQuery();
+    // CRM_Core_Error::Debug('sql', $sql); exit;
+
+    // build array of result based on column headers. This method also allows
+    // modifying column headers before using it to build result set i.e $rows.
+    $rows = array();
+    $this->buildRows($sql, $rows);
+
+    // format result set.
+    $this->formatDisplay($rows);
+
+    // assign variables to templates
+    $this->doTemplateAssignment($rows);
+
+    // do print / pdf / instance stuff if needed
+    $this->endPostProcess($rows);
+  }
+
+  /**
    * Add count statistics.
    *
    * @param array $statistics
