@@ -283,7 +283,45 @@ class CRM_AOReports_Form_Report_ParentFeedback extends CRM_Report_Form {
 
       $config = CRM_Core_Config::singleton();
       $csv = '';
+
+      // Add headers if this is the first row.
+      $columnHeaders = array_keys($form->_columnHeaders);
+
       foreach ($rows as $row) {
+        foreach ($columnHeaders as $k => $v) {
+          $value = CRM_Utils_Array::value($v, $row);
+          if (isset($value)) {
+            // Remove HTML, unencode entities, and escape quotation marks.
+            $value = str_replace('"', '""', html_entity_decode(strip_tags($value)));
+
+            if (CRM_Utils_Array::value('type', $form->_columnHeaders[$v]) & 4) {
+              if (CRM_Utils_Array::value('group_by', $form->_columnHeaders[$v]) == 'MONTH' ||
+                CRM_Utils_Array::value('group_by', $form->_columnHeaders[$v]) == 'QUARTER'
+              ) {
+                $value = CRM_Utils_Date::customFormat($value, $config->dateformatPartial);
+              }
+              elseif (CRM_Utils_Array::value('group_by', $form->_columnHeaders[$v]) == 'YEAR') {
+                $value = CRM_Utils_Date::customFormat($value, $config->dateformatYear);
+              }
+              elseif ($form->_columnHeaders[$v]['type'] == 12) {
+                // This is a datetime format
+                $value = CRM_Utils_Date::customFormat($value, '%Y-%m-%d %H:%i');
+              }
+              else {
+                $value = CRM_Utils_Date::customFormat($value, '%Y-%m-%d');
+              }
+            }
+            // Note the reference to a specific field does not belong in this generic class & does not work on all reports.
+            // @todo - fix this properly rather than just supressing the en-otice. Repeat transaction report is a good example.
+            elseif (CRM_Utils_Array::value('type', $form->_columnHeaders[$v]) == 1024 && !empty($row['civicrm_contribution_currency'])) {
+              $value = CRM_Utils_Money::format($value, $row['civicrm_contribution_currency']);
+            }
+            $displayRows[$v] = '"' . $value . '"';
+          }
+          else {
+            $displayRows[$v] = "";
+          }
+        }
         // Add the data row.
         $csv .= implode($config->fieldSeparator,
             $displayRows
