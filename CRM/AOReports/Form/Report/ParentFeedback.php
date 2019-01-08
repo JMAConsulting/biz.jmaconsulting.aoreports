@@ -295,7 +295,7 @@ class CRM_AOReports_Form_Report_ParentFeedback extends CRM_Report_Form {
       //Force a download and name the file using the current timestamp.
       $datetime = date('Ymd-Gi', $_SERVER['REQUEST_TIME']);
       CRM_Utils_System::setHttpHeader('Content-Disposition', 'attachment; filename=Report_' . $datetime . '.csv');
-      echo $csv
+      echo $csv;
       CRM_Utils_System::civiExit();
     }
     else {
