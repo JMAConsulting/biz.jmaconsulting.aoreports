@@ -268,8 +268,39 @@ class CRM_AOReports_Form_Report_ParentFeedback extends CRM_Report_Form {
     "CRM.$(function($) {
       $('.report-layout thead').hide();
       $('.criteria-group tr:nth-child(2), .criteria-group tr:nth-child(3), .criteria-group tr:nth-child(1) td:nth-child(2n), .criteria-group tr:nth-child(1) td:nth-child(3)').hide();
-    });"
-  );
+      });"
+    );
+  }
+
+  /**
+   * End post processing.
+   *
+   * @param array|null $rows
+   */
+  public function endPostProcess(&$rows = NULL) {
+    if ($this->_outputMode == 'csv') {
+      $this->assign('report_class', get_class($this));
+
+      $config = CRM_Core_Config::singleton();
+      $csv = '';
+      foreach ($rows as $row) {
+        // Add the data row.
+        $csv .= implode($config->fieldSeparator,
+            $displayRows
+          ) . "\r\n";
+      }
+      //Mark as a CSV file.
+      CRM_Utils_System::setHttpHeader('Content-Type', 'text/csv');
+
+      //Force a download and name the file using the current timestamp.
+      $datetime = date('Ymd-Gi', $_SERVER['REQUEST_TIME']);
+      CRM_Utils_System::setHttpHeader('Content-Disposition', 'attachment; filename=Report_' . $datetime . '.csv');
+      echo $csv
+      CRM_Utils_System::civiExit();
+    }
+    else {
+      parent::endPostProcess($rows);
+    }
   }
 
 }
