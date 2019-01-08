@@ -285,7 +285,7 @@ class CRM_AOReports_Form_Report_ParentFeedback extends CRM_Report_Form {
       $csv = '';
 
       // Add headers if this is the first row.
-      $columnHeaders = array_keys($form->_columnHeaders);
+      $columnHeaders = array_keys($this->_columnHeaders);
 
       foreach ($rows as $row) {
         foreach ($columnHeaders as $k => $v) {
