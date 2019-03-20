@@ -4,6 +4,28 @@ require_once __DIR__ . '../../../ao.variables.php';
 
 class CRM_AOReports_Utils {
 
+  public static function getSNPActivityTableName($activityTypeID) {
+    $customField = civicrm_api3('CustomField', 'getsingle', ['id' => SNP_REGION_CF_ID]);
+    $SNPRegionColumnName = $customField['column_name'];
+    $customTableName = civicrm_api3('CustomGroup', 'getvalue', ['id' => $customField['custom_group_id'], 'return' => 'table_name']);
+    $tempTableName = 'temp_snp_activity' . substr(sha1(rand()), 0, 7);
+
+    CRM_Core_DAO::executeQuery('DROP TEMPORARY TABLE IF EXISTS ' . $tempTableName);
+    $sql = "
+      CREATE TEMPORARY TABLE $tempTableName DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci
+       SELECT DISTINCT rel.contact_id_b as parent_id, DATE(ca.activity_date_time) as dof, $SNPRegionColumnName as region
+       FROM civicrm_activity ca
+       LEFT JOIN civicrm_activity_contact cac ON ca.id = cac.activity_id AND ca.activity_type_id = $activityTypeID
+       LEFT JOIN civicrm_relationship rel ON rel.contact_id_a = cac.contact_id AND rel.relationship_type_id IN (1, 4) AND cac.record_type_id = 1
+       LEFT JOIN $customTableName ct ON ct.entity_id = cac.activity_id
+    ";
+    CRM_Core_DAO::executeQuery($sql);
+    CRM_Core_DAO::executeQuery("CREATE INDEX ind_parent ON $tempTableName(parent_id)");
+  }
+
+  public static function getSNPActivityTableName($activityTypeID) {
+  }
+
   /**
   * Fetch new child whose is a 'Lead Family Member' + family has checked 'Does your child have an ASD diagnosis?'
   */
@@ -30,7 +52,7 @@ class CRM_AOReports_Utils {
     }
     $whereClause = implode (' AND ', $clauses);
 
-    $tempTableName = 'temp_newchild_contacts';
+    $tempTableName = 'temp_newchild_contacts' . substr(sha1(rand()), 0, 7);
 
     CRM_Core_DAO::executeQuery('DROP TEMPORARY TABLE IF EXISTS ' . $tempTableName);
     $sql = "
