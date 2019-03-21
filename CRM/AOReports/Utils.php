@@ -23,9 +23,6 @@ class CRM_AOReports_Utils {
     CRM_Core_DAO::executeQuery("CREATE INDEX ind_parent ON $tempTableName(parent_id)");
   }
 
-  public static function getSNPActivityTableName($activityTypeID) {
-  }
-
   /**
   * Fetch new child whose is a 'Lead Family Member' + family has checked 'Does your child have an ASD diagnosis?'
   */
