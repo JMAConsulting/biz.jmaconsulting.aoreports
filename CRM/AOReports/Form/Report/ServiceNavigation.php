@@ -12,6 +12,14 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
       'operator' => 'like',
       'type' => CRM_Report_Form::OP_STRING,
     );
+    $this->_columns['civicrm_contact']['filters']['status_id'] = array(
+      'name' => 'status_id',
+      'dbAlias' => "temp.status_id",
+      'title' => 'SNP Status',
+      'type' => CRM_Utils_Type::T_STRING,
+      'operatorType' => CRM_Report_Form::OP_SELECT,
+      'options' => CRM_Core_PseudoConstant::activityStatus(),
+    );
     $this->_columns['civicrm_contact']['fields']['family_count'] = array(
       'title' => ts('&nbsp;&nbsp;&nbsp;DATA ELEMENT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'),
       'required' => TRUE,
