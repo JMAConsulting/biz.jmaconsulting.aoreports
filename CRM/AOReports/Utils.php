@@ -16,11 +16,12 @@ class CRM_AOReports_Utils {
        SELECT DISTINCT rel.contact_id_b as parent_id, DATE(ca.activity_date_time) as dof, $SNPRegionColumnName as region
        FROM civicrm_activity ca
        LEFT JOIN civicrm_activity_contact cac ON ca.id = cac.activity_id AND ca.activity_type_id = $activityTypeID
-       LEFT JOIN civicrm_relationship rel ON rel.contact_id_a = cac.contact_id AND rel.relationship_type_id IN (1, 4) AND cac.record_type_id = 1
-       LEFT JOIN $customTableName ct ON ct.entity_id = cac.activity_id
+       LEFT JOIN civicrm_relationship rel ON rel.contact_id_b = cac.contact_id AND rel.relationship_type_id IN (1, 4) AND cac.record_type_id = 3
+       LEFT JOIN $customTableName ct ON ct.entity_id = cac.contact_id
     ";
     CRM_Core_DAO::executeQuery($sql);
     CRM_Core_DAO::executeQuery("CREATE INDEX ind_parent ON $tempTableName(parent_id)");
+    return $tempTableName;
   }
 
   /**

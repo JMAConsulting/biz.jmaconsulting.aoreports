@@ -16,6 +16,15 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
       'required' => TRUE,
       'dbAlias' => "temp.region",
     );
+    $this->_columns['civicrm_contact']['fields']['total_count'] = array(
+      'title' => ts('YTD 2018-19'),
+      'required' => TRUE,
+      'dbAlias' => "0",
+    );
+    $this->_columns['civicrm_contact']['fields']['q1']['title'] = ts('Q1 2018-19');
+    $this->_columns['civicrm_contact']['fields']['q1']['title'] = ts('Q2 2018-19');
+    $this->_columns['civicrm_contact']['fields']['q1']['title'] = ts('Q3 2018-19');
+    $this->_columns['civicrm_contact']['fields']['q1']['title'] = ts('Q4 2018-19');
   }
 
   function from() {
@@ -47,6 +56,7 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
         'civicrm_contact_q2' => 0,
         'civicrm_contact_q3' => 0,
         'civicrm_contact_q4' => 0,
+        'civicrm_contact_total_count' => 0,
       ];
     }
 
@@ -55,6 +65,7 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
         if (strstr($row['civicrm_contact_family_count'], $key)) {
           $newRows[$key]['civicrm_contact_quarter'] = $row['civicrm_contact_quarter'];
           $newRows[$key]["civicrm_contact_q{$row['civicrm_contact_quarter']}"] = $row['civicrm_contact_total'];
+          $newRows[$key]["civicrm_contact_total_count"] += $row['civicrm_contact_total'];
         }
       }
     }
