@@ -22,9 +22,9 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
       'dbAlias' => "0",
     );
     $this->_columns['civicrm_contact']['fields']['q1']['title'] = ts('Q1 2018-19');
-    $this->_columns['civicrm_contact']['fields']['q1']['title'] = ts('Q2 2018-19');
-    $this->_columns['civicrm_contact']['fields']['q1']['title'] = ts('Q3 2018-19');
-    $this->_columns['civicrm_contact']['fields']['q1']['title'] = ts('Q4 2018-19');
+    $this->_columns['civicrm_contact']['fields']['q3']['title'] = ts('Q2 2018-19');
+    $this->_columns['civicrm_contact']['fields']['q4']['title'] = ts('Q3 2018-19');
+    $this->_columns['civicrm_contact']['fields']['q5']['title'] = ts('Q4 2018-19');
   }
 
   function from() {
@@ -45,7 +45,7 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
     $newRows = [];
     $defaultYear = '';
 
-    $regions = CRM_Core_OptionGroup::values('region');
+    $regions = CRM_Core_OptionGroup::values('service_region');
     foreach ($regions as $value => $name) {
       $newRows[$value] = [
         'civicrm_contact_total' => 1,
@@ -65,9 +65,12 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
         if (strstr($row['civicrm_contact_family_count'], $key)) {
           $newRows[$key]['civicrm_contact_quarter'] = $row['civicrm_contact_quarter'];
           $newRows[$key]["civicrm_contact_q{$row['civicrm_contact_quarter']}"] = $row['civicrm_contact_total'];
-          $newRows[$key]["civicrm_contact_total_count"] += $row['civicrm_contact_total'];
         }
       }
+    }
+
+    foreach ($newRows as $key => $row) {
+      $newRows[$key]["civicrm_contact_total_count"] =   $newRows[$key]["civicrm_contact_q1"] + $newRows[$key]["civicrm_contact_q2"] + $newRows[$key]["civicrm_contact_q3"] + $newRows[$key]["civicrm_contact_q4"];
     }
 
     unset($this->_columnHeaders["civicrm_contact_total"]);
