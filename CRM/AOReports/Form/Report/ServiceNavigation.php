@@ -7,6 +7,7 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
     parent::__construct();
     $this->_columns['civicrm_contact']['filters']['language_10'] = array(
       'name' => 'language_10',
+      'dbAlias' => "lang.language_10",
       'title' => 'Language',
       'operator' => 'like',
       'type' => CRM_Report_Form::OP_STRING,
