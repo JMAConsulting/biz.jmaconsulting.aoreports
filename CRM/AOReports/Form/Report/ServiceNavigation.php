@@ -9,8 +9,9 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
       'name' => 'language_10',
       'dbAlias' => "lang.language_10",
       'title' => 'Language',
-      'operator' => 'like',
-      'type' => CRM_Report_Form::OP_STRING,
+      'type' => CRM_Utils_Type::T_STRING,
+      'operatorType' => CRM_Report_Form::OP_SELECT,
+      'options' => CRM_Core_OptionGroup::values('language_10'),
     );
     $this->_columns['civicrm_contact']['filters']['status_id'] = array(
       'name' => 'status_id',
@@ -21,7 +22,7 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
       'options' => CRM_Core_PseudoConstant::activityStatus(),
     );
     $this->_columns['civicrm_contact']['fields']['family_count'] = array(
-      'title' => ts('&nbsp;&nbsp;&nbsp;YTDT&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'),
+      'title' => ts('&nbsp;&nbsp;&nbsp;YTD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'),
       'required' => TRUE,
       'dbAlias' => "temp.region",
     );
