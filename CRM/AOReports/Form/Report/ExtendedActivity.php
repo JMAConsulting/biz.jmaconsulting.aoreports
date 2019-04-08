@@ -114,7 +114,7 @@ class CRM_AOReports_Form_Report_ExtendedActivity extends CRM_Report_Form_Activit
       LEFT JOIN civicrm_contact contact_civireport ON contact_civireport.id = {$this->_aliases['civicrm_activity_contact']}.contact_id
       {$this->_where} AND contact_id = {$contactID} {$groupByFromSelect} {$this->_having} {$this->_orderBy} {$this->_limit}";
 
-    CRM_Utils_Hook::alterReportVar('sql', $this, $this);
+    CRM_Utils_Hook::alterReportVar('sql', $sql, $this);
     $this->addToDeveloperTab($sql);
 
     return $sql;
