@@ -216,6 +216,27 @@ class CRM_AOReports_Form_Report_ExtendedParticipantListing extends CRM_Report_Fo
     }
   }
 
+  /**
+ * @param $rows
+ * @param $entryFound
+ * @param $row
+ * @param int $rowId
+ * @param $rowNum
+ * @param $types
+ *
+ * @return bool
+ */
+private function _initBasicRow(&$rows, &$entryFound, $row, $rowId, $rowNum, $types) {
+  if (!array_key_exists($rowId, $row)) {
+    return FALSE;
+  }
+
+  $value = $row[$rowId];
+  if ($value) {
+    $rows[$rowNum][$rowId] = $types[$value];
+  }
+  $entryFound = TRUE;
+}
 
 
 }
