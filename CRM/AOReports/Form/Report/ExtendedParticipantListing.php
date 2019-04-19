@@ -69,18 +69,18 @@ class CRM_AOReports_Form_Report_ExtendedParticipantListing extends CRM_Report_Fo
     $select = " SELECT CONCAT(pf.label, ' - ', SUM(participant_count)) as c,  SUM(participant_count) as count ";
     $sql = "{$select} {$this->_from} {$this->_where} GROUP BY line_item_civireport.price_field_id ";
     $dao = CRM_Core_DAO::executeQuery($sql);
-    if ($dao->fetch()) {
+    while ($dao->fetch()) {
       $totalParticipant += (int) $dao->count;
       $labels[] = $dao->c;
     }
     $statistics['counts']['count'] = [
-      'value' => $dao->count,
+      'value' => $totalParticipant,
       'title' => ts('Total Participants'),
       'type' => CRM_Utils_Type::T_INT,
     ];
-    $statistics['labelcount']['labelcount'] = [
+    $statistics['counts']['labelcount'] = [
       'value' => implode(', ', $labels),
-      'title' => '',
+      'title' => ' ',
       'type' => CRM_Utils_Type::T_STRING,
     ];
 
