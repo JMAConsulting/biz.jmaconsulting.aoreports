@@ -70,17 +70,16 @@ class CRM_AOReports_Form_Report_ExtendedParticipantListing extends CRM_Report_Fo
     $sql = "{$select} {$this->_from} {$this->_where} GROUP BY line_item_civireport.price_field_id ";
     $dao = CRM_Core_DAO::executeQuery($sql);
     while ($dao->fetch()) {
+      if (empty($dao->count)) {
+        continue;
+      }
       $totalParticipant += (int) $dao->count;
-      $labels[] = $dao->c;
+      $labels[] = str_replace('# of', '', $dao->c);
     }
+
     $statistics['counts']['count'] = [
-      'value' => $totalParticipant,
+      'value' => $totalParticipant . sprintf('(%s)', implode(', ', $labels)),
       'title' => ts('Total Participants'),
-      'type' => CRM_Utils_Type::T_INT,
-    ];
-    $statistics['counts']['labelcount'] = [
-      'value' => implode(', ', $labels),
-      'title' => ' ',
       'type' => CRM_Utils_Type::T_STRING,
     ];
 
