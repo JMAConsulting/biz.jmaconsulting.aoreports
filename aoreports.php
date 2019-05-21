@@ -141,6 +141,13 @@ function aoreports_civicrm_alterReportVar($type, &$columns, &$form) {
     $replace = "AND contact_id = 108716";
     $sql = str_replace($match, $replace, $sql);
   }
+  if ('CRM_Report_Form_Contribute_Detail' == get_class($form) && $type == 'columns') {
+    $columns['civicrm_financial_trxn']['fields']['financial_trxn_id'] = [
+      'name' => 'id',
+      'no_display' => TRUE,
+      'required' => TRUE,
+    ];
+  }
 }
 
 // --- Functions below this ship commented out. Uncomment as required. ---
