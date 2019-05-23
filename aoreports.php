@@ -135,11 +135,11 @@ function aoreports_civicrm_entityTypes(&$entityTypes) {
 }
 
 function aoreports_civicrm_alterReportVar($type, &$columns, &$form) {
-  if ('CRM_AOReports_Form_Report_ExtendedActivity' == get_class($form) && $type == 'sql' && is_string($columns) && strstr($_GET['q'], 'instance/52')) {
-    $contactID = CRM_Core_Session::singleton()->get('userID');
+ if ('CRM_AOReports_Form_Report_ExtendedActivity' == get_class($form) && $type == 'sql' && is_string($columns) && strstr($_GET['q'], 'instance/52')) {
+  $contactID = CRM_Core_Session::singleton()->get('userID');
     $match = "AND contact_id = {$contactID}";
     $replace = "AND contact_id = 108716";
-    $sql = str_replace($match, $replace, $sql);
+    $columns = str_replace($match, $replace, $columns);
   }
   if ('CRM_Report_Form_Contribute_Detail' == get_class($form) && $type == 'columns') {
     $columns['civicrm_financial_trxn']['fields']['financial_trxn_id'] = [
