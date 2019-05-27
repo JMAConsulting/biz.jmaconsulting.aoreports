@@ -143,6 +143,8 @@ function aoreports_civicrm_alterReportVar($type, &$columns, &$form) {
   }
   if ('CRM_Report_Form_Contribute_Bookkeeping' == get_class($form) && $type == 'columns') {
     $columns['civicrm_batch']['filters']['batch_id'] = [
+      'name' => 'id',
+      'dbAlias' => 'batch.id',
       'title' => ts('Batch title'),
       'type' => CRM_Utils_Type::T_INT,
       'operatorType' => CRM_Report_Form::OP_MULTISELECT,
