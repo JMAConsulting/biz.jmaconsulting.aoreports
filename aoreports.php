@@ -141,13 +141,15 @@ function aoreports_civicrm_alterReportVar($type, &$columns, &$form) {
     $replace = "AND contact_id = 108716";
     $columns = str_replace($match, $replace, $columns);
   }
-  if ('CRM_Report_Form_Contribute_Detail' == get_class($form) && $type == 'columns') {
-    $columns['civicrm_financial_trxn']['fields']['financial_trxn_id'] = [
-      'name' => 'id',
-      'no_display' => TRUE,
-      'required' => TRUE,
+  if ('CRM_Report_Form_Contribute_Bookkeeping' == get_class($form) && $type == 'columns') {
+    $columns['civicrm_batch']['filters']['batch_id'] = [
+      'title' => ts('Batch title'),
+      'type' => CRM_Utils_Type::T_INT,
+      'operatorType' => CRM_Report_Form::OP_MULTISELECT,
+      'options' => CRM_Contribute_PseudoConstant::batch(),
     ];
   }
+
 }
 
 // --- Functions below this ship commented out. Uncomment as required. ---
