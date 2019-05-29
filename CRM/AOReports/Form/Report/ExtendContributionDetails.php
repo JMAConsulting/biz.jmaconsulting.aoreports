@@ -15,6 +15,10 @@ class CRM_AOReports_Form_Report_ExtendContributionDetails extends CRM_Report_For
         '1' => ts('Yes'),
       ],
     ];
+    $this->_columns['civicrm_batch']['filters']['created_date'] = [
+      'title' => ts('Batch Date'),
+      'operatorType' => CRM_Report_Form::OP_DATE,
+    ];
   }
 
   /**
@@ -65,12 +69,11 @@ class CRM_AOReports_Form_Report_ExtendContributionDetails extends CRM_Report_For
 
 
   public function where() {
-    $this->storeWhereHavingClauseArray();
-
     if (!empty($this->_params['prior_batch_date_value'])) {
-      $this->_whereClauses[] = "civicrm_easybatch_entity.id IS NOT NULL";
-
+      $this->_whereClauses[] = "ee.id IS NOT NULL";
+      unset($this->_params['prior_batch_date_value']);
     }
+    $this->storeWhereHavingClauseArray();
 
     if (empty($this->_whereClauses)) {
       $this->_where = "WHERE ( 1 ) ";
