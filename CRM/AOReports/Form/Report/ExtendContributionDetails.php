@@ -7,8 +7,13 @@ class CRM_AOReports_Form_Report_ExtendContributionDetails extends CRM_Report_For
     parent::__construct();
     $this->_columns['civicrm_batch']['filters']['prior_batch_date'] = [
       'title' => ts('Auto batch for prior month?'),
-      'operatorType' => CRM_Report_Form::OP_INT,
+      'operatorType' => CRM_Report_Form::OP_SELECT,
       'type' => CRM_Utils_Type::T_INT,
+      'dbAlias' => '(1)'
+      'options' => [
+        '0' => ts('No'),
+        '1' => ts('Yes'),
+      ],
     ];
   }
 
