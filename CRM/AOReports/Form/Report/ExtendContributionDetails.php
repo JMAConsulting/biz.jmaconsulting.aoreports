@@ -15,6 +15,9 @@ class CRM_AOReports_Form_Report_ExtendContributionDetails extends CRM_Report_For
         '1' => ts('Yes'),
       ],
     ];
+    $this->_columns['civicrm_batch']['fields']['created_date'] = [
+      'title' => ts('Batch Date'),
+    ];
     $this->_columns['civicrm_batch']['filters']['created_date'] = [
       'title' => ts('Batch Date'),
       'operatorType' => CRM_Report_Form::OP_DATE,
@@ -58,39 +61,13 @@ class CRM_AOReports_Form_Report_ExtendContributionDetails extends CRM_Report_For
 
         if (!empty($this->_params['prior_batch_date_value'])) {
           $this->_from .= "
-            LEFT JOIN civicrm_easybatch_entity ee ON {$this->_aliases['civicrm_batch']}.id = ee.batch_id AND MONTH(ee.batch_date) = MONTH(CURRENT_DATE - INTERVAL 1 MONTH) AND YEAR(ee.batch_date) = YEAR(CURRENT_DATE)
+            LEFT JOIN civicrm_easybatch_entity ee ON {$this->_aliases['civicrm_batch']}.id = ee.batch_id
           ";
         }
     }
 
     // for credit card type
     $this->addFinancialTrxnFromClause();
-  }
-
-
-  public function where() {
-    if (!empty($this->_params['prior_batch_date_value'])) {
-      $this->_whereClauses[] = "ee.id IS NOT NULL";
-      unset($this->_params['prior_batch_date_value']);
-    }
-    $this->storeWhereHavingClauseArray();
-
-    if (empty($this->_whereClauses)) {
-      $this->_where = "WHERE ( 1 ) ";
-      $this->_having = "";
-    }
-    else {
-      $this->_where = "WHERE " . implode(' AND ', $this->_whereClauses);
-    }
-
-    if ($this->_aclWhere) {
-      $this->_where .= " AND {$this->_aclWhere} ";
-    }
-
-    if (!empty($this->_havingClauses)) {
-      // use this clause to construct group by clause.
-      $this->_having = "HAVING " . implode(' AND ', $this->_havingClauses);
-    }
   }
 
 }
