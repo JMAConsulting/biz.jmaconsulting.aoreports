@@ -15,6 +15,15 @@ class CRM_AOReports_Form_Report_ExtendedBatchDetail extends CRM_Report_Form_Cont
         '3' => ts('Moneris'),
       ],
     ];
+    $this->_columns['civicrm_easybatch_entity']['filters']['is_automatic'] = [
+      'title' => ts('Is Auto Batch?'),
+      'operatorType' => CRM_Report_Form::OP_SELECT,
+      'type' => CRM_Utils_Type::T_INT,
+      'options' => [
+        '0' => ts('No'),
+        '1' => ts('Yes'),
+      ],
+    ];
     unset($this->_columns['civicrm_contribution']['fields']['invoice_id']);
   }
 
