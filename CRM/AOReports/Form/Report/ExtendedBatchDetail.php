@@ -1,7 +1,12 @@
 <?php
 
 class CRM_AOReports_Form_Report_ExtendedBatchDetail extends CRM_Report_Form_Contribute_BatchDetail {
-    
+  public function __construct() {
+    parent::__construct();
+    $this->_columns['civicrm_financial_trxn']['fields']['payment_id']['no_display'] = TRUE;
+    unset($this->_columns['civicrm_contribution']['fields']['invoice_id']);
+  }
+
   public function groupBy() {
     $groupBy = [
       "{$this->_aliases['civicrm_batch']}.id",
