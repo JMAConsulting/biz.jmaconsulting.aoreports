@@ -4,6 +4,17 @@ class CRM_AOReports_Form_Report_ExtendedBatchDetail extends CRM_Report_Form_Cont
   public function __construct() {
     parent::__construct();
     $this->_columns['civicrm_financial_trxn']['fields']['payment_id']['no_display'] = TRUE;
+    $this->_columns['civicrm_easybatch_entity']['filters']['payment_processor_id'] = [
+      'name' => 'payment_processor_id',
+      'dbAlias' => 'easybatch_entity_civireport.payment_processor_id',
+      'title' => ts('Payment Processor'),
+      'type' => CRM_Utils_Type::T_INT,
+      'operatorType' => CRM_Report_Form::OP_MULTISELECT,
+      'options' => [
+        '1' => ts('Dummy Processor'),
+        '3' => ts('Moneris'),
+      ],
+    ];
     unset($this->_columns['civicrm_contribution']['fields']['invoice_id']);
   }
 
@@ -103,7 +114,7 @@ class CRM_AOReports_Form_Report_ExtendedBatchDetail extends CRM_Report_Form_Cont
       }
       if (array_key_exists('civicrm_batch_batch_id', $row)) {
         $value = $row['civicrm_batch_batch_id'];
-        $url = CRM_Utils_System::url("civicrm/biz.jmaconsulting.aoreports:extendedbookkeeping?", 'force=1&batch_id_value=' . $value);
+        $url = CRM_Utils_System::url("civicrm/report/instance/75?", 'force=1&batch_id_value=' . $value);
         $rows[$rowNum]['civicrm_batch_batch_id'] = "<a target='_blank' href=\"$url\">$value</a>";
         $rows[$rowNum]['civicrm_batch_batch_id_hover'] = ts('View Details of Batch transactions.');
       }
