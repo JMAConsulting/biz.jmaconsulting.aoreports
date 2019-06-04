@@ -116,6 +116,10 @@ class CRM_AOReports_Form_Report_ExtendedBookkeeping extends CRM_Report_Form_Cont
               LEFT JOIN civicrm_easybatch_entity ee
                ON batch.id = ee.batch_id
                     ";
+
+      if (!empty($this->_params['prior_batch_date_value'])) {
+        $this->_from .= " AND ee.is_automatic = 1 ";
+      }
     }
     $this->_from .= "
     LEFT JOIN civicrm_line_item li ON li.contribution_id = contribution_civireport.id
