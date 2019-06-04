@@ -40,7 +40,7 @@ class CRM_AOReports_Form_Report_ExtendedBookkeeping extends CRM_Report_Form_Cont
       'options' => [
         '1' => ts('Dummy'),
         '3' => ts('Moneris'),
-      ],,
+      ],
     ];
 
     $this->_columns['civicrm_chapter_entity']['fields']['chapter_code_from'] = array(
