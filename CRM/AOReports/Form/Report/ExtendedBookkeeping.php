@@ -104,7 +104,7 @@ class CRM_AOReports_Form_Report_ExtendedBookkeeping extends CRM_Report_Form_Cont
                ON batch.id = ee.batch_id
                     ";
     }
-    $this-> .= "
+    $this->_from .= "
     LEFT JOIN civicrm_line_item li ON li.contribution_id = contribution_civireport.id
     LEFT JOIN civicrm_chapter_entity ce_from ON ce_from.entity_id = li.id AND ce_from.entity_table = 'civicrm_line_item'
     LEFT JOIN civicrm_chapter_entity ce_to ON ce_to.entity_id = financial_trxn_civireport.id AND ce_to.entity_table = 'civicrm_financial_trxn'
