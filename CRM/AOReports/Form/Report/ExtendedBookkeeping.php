@@ -19,11 +19,21 @@ class CRM_AOReports_Form_Report_ExtendedBookkeeping extends CRM_Report_Form_Cont
         '1' => ts('Yes'),
       ],
     ];
+    $this->_columns['civicrm_batch']['filters']['batch_id'] = [
+      'name' => 'id',
+      'dbAlias' => 'batch.id',
+      'title' => ts('Batch title'),
+      'type' => CRM_Utils_Type::T_INT,
+      'operatorType' => CRM_Report_Form::OP_MULTISELECT,
+      'options' => CRM_Contribute_PseudoConstant::batch(),
+    ];
     $this->_columns['civicrm_batch']['filters']['created_date'] = [
       'title' => ts('Batch Date'),
       'operatorType' => CRM_Report_Form::OP_DATE,
     ];
     $this->_columns['civicrm_financial_trxn']['filters']['payment_processor_id'] = [
+      'name' => 'payment_processor_id',
+      'dbAlias' => 'financial_trxn_civireport.payment_processor_id',
       'title' => ts('Payment Processor'),
       'type' => CRM_Utils_Type::T_INT,
       'operatorType' => CRM_Report_Form::OP_MULTISELECT,
