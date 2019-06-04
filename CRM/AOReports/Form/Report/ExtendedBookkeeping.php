@@ -37,7 +37,10 @@ class CRM_AOReports_Form_Report_ExtendedBookkeeping extends CRM_Report_Form_Cont
       'title' => ts('Payment Processor'),
       'type' => CRM_Utils_Type::T_INT,
       'operatorType' => CRM_Report_Form::OP_MULTISELECT,
-      'options' => CRM_Contribute_BAO_ContributionRecur::buildOptions('payment_processor_id', 'get'),
+      'options' => [
+        '1' => ts('Dummy'),
+        '3' => ts('Moneris'),
+      ],,
     ];
 
     $this->_columns['civicrm_chapter_entity']['fields']['chapter_code_from'] = array(
