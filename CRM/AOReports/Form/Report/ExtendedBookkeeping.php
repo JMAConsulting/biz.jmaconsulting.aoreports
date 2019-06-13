@@ -136,6 +136,8 @@ class CRM_AOReports_Form_Report_ExtendedBookkeeping extends CRM_Report_Form_Cont
     ";
   }
 
-
+  public function groupBy() {
+    parent::groupBy();
+  }
 
 }
