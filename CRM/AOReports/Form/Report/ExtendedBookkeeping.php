@@ -137,7 +137,20 @@ class CRM_AOReports_Form_Report_ExtendedBookkeeping extends CRM_Report_Form_Cont
   }
 
   public function groupBy() {
-    parent::groupBy();
+    $this->storeGroupByArray();
+
+    if (!empty($this->_groupByArray)) {
+      if ($this->optimisedForOnlyFullGroupBy) {
+        // We should probably deprecate this code path. What happens here is that
+        // the group by is amended to reflect the select columns. This often breaks the
+        // results. Retrofitting group strict group by onto existing report classes
+        // went badly.
+        $this->_groupBy = CRM_Contact_BAO_Query::getGroupByFromSelectColumns($this->_selectClauses, $this->_groupByArray);
+      }
+      else {
+        $this->_groupBy = ' GROUP BY ' . implode($this->_groupByArray);
+      }
+    }
   }
 
 }
