@@ -21,6 +21,10 @@ class CRM_AOReports_Form_Report_ExtendedBookkeeping extends CRM_Report_Form_Cont
         '1' => ts('Yes'),
       ],
     ];
+    $this->_columns['civicrm_batch']['group_bys']['batch_id'] = [
+      'name' => 'id',
+      'title' => ts('Batch ID'),
+    ];
     $this->_columns['civicrm_batch']['filters']['batch_id'] = [
       'name' => 'id',
       'dbAlias' => 'batch.id',
