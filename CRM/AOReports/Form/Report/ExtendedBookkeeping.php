@@ -21,9 +21,16 @@ class CRM_AOReports_Form_Report_ExtendedBookkeeping extends CRM_Report_Form_Cont
         '1' => ts('Yes'),
       ],
     ];
-    $this->_columns['civicrm_batch']['group_bys']['batch_id'] = [
+    $this->_columns['civicrm_batch']['group_bys']['id'] = [
       'name' => 'id',
       'title' => ts('Batch ID'),
+      'dbAlias' => 'batch.id',
+    ];
+    $this->_columns['civicrm_batch']['order_bys']['title'] = [
+      'title' => ts('Batch title'),
+      'default_weight' => '0',
+      'default_order' => 'ASC',
+      'dbAlias' => 'batch.title',
     ];
     $this->_columns['civicrm_batch']['filters']['batch_id'] = [
       'name' => 'id',
@@ -154,6 +161,62 @@ class CRM_AOReports_Form_Report_ExtendedBookkeeping extends CRM_Report_Form_Cont
       else {
         $this->_groupBy = ' GROUP BY ' . implode($this->_groupByArray);
       }
+    }
+  }
+
+  public function sectionTotals() {
+
+    if (!empty($this->_sections)) {
+      // build the query with no LIMIT clause
+      $select = str_ireplace('SELECT SQL_CALC_FOUND_ROWS ', 'SELECT ', $this->_select);
+      $sql = "{$select} {$this->_from} {$this->_where} {$this->_groupBy} {$this->_having} {$this->_orderBy}";
+
+      // pull section aliases out of $this->_sections
+      $sectionAliases = array_keys($this->_sections);
+
+      $ifnulls = [];
+      foreach (array_merge($sectionAliases, $this->_selectAliases) as $alias) {
+        $ifnulls[] = "ifnull($alias, '') as $alias";
+      }
+      $this->_select = "SELECT " . implode(", ", $ifnulls) . ", SUM(civicrm_entity_financial_trxn_amount) as totalamount";
+      $this->_select = CRM_Contact_BAO_Query::appendAnyValueToSelect($ifnulls, $sectionAliases);
+
+      // Group (un-limited) report by all aliases and get counts. This might
+      // be done more efficiently when the contents of $sql are known, ie. by
+      // overriding this method in the report class.
+
+      $query = $this->_select .
+        ", count(*) as ct from ($sql) as subquery group by " .
+        implode(", ", $sectionAliases);
+
+      // initialize array of total counts
+      $totals = [];
+      $dao = CRM_Core_DAO::executeQuery($query);
+      while ($dao->fetch()) {
+
+        // let $this->_alterDisplay translate any integer ids to human-readable values.
+        $rows[0] = $dao->toArray();
+        $this->alterDisplay($rows);
+        $row = $rows[0];
+
+        // add totals for all permutations of section values
+        $values = [];
+        $i = 1;
+        $aliasCount = count($sectionAliases);
+        foreach ($sectionAliases as $alias) {
+          $values[] = $row[$alias];
+          $key = implode(CRM_Core_DAO::VALUE_SEPARATOR, $values);
+          if ($i == $aliasCount) {
+            // the last alias is the lowest-level section header; use count as-is
+            $totals[$key] = sprintf('%s payments of total : $%s', $dao->ct, $dao->totalamount);
+          }
+          else {
+            // other aliases are higher level; roll count into their total
+            $totals[$key] += $dao->ct;
+          }
+        }
+      }
+      $this->assign('sectionTotals', $totals);
     }
   }
 
