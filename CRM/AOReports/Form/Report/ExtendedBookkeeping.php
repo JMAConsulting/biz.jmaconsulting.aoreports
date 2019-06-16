@@ -121,7 +121,6 @@ class CRM_AOReports_Form_Report_ExtendedBookkeeping extends CRM_Report_Form_Cont
                     ON  fitem.entity_id = {$this->_aliases['civicrm_line_item']}.id AND fitem.entity_table = 'civicrm_line_item'
               ";
 
-    if ($this->isTableSelected('civicrm_batch')) {
       $this->_from .= "LEFT JOIN civicrm_entity_batch ent_batch
                     ON  {$this->_aliases['civicrm_financial_trxn']}.id = ent_batch.entity_id AND ent_batch.entity_table = 'civicrm_financial_trxn'
               LEFT JOIN civicrm_batch batch
@@ -133,7 +132,6 @@ class CRM_AOReports_Form_Report_ExtendedBookkeeping extends CRM_Report_Form_Cont
       if (!empty($this->_params['prior_batch_date_value'])) {
         $this->_from .= " AND ee.is_automatic = 1 ";
       }
-    }
     $this->_from .= "
     LEFT JOIN civicrm_line_item li ON li.contribution_id = contribution_civireport.id
     LEFT JOIN civicrm_chapter_entity ce_from ON ce_from.entity_id = li.id AND ce_from.entity_table = 'civicrm_line_item'
@@ -179,7 +177,7 @@ class CRM_AOReports_Form_Report_ExtendedBookkeeping extends CRM_Report_Form_Cont
         $ifnulls[] = "ifnull($alias, '') as $alias";
       }
       $this->_select = "SELECT " . implode(", ", $ifnulls) . ", SUM(civicrm_entity_financial_trxn_amount) as totalamount";
-      $this->_select = CRM_Contact_BAO_Query::appendAnyValueToSelect($ifnulls, $sectionAliases);
+      //$this->_select = CRM_Contact_BAO_Query::appendAnyValueToSelect($ifnulls, $sectionAliases);
 
       // Group (un-limited) report by all aliases and get counts. This might
       // be done more efficiently when the contents of $sql are known, ie. by
