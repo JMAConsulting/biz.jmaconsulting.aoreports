@@ -21,11 +21,6 @@ class CRM_AOReports_Form_Report_ExtendedBookkeeping extends CRM_Report_Form_Cont
         '1' => ts('Yes'),
       ],
     ];
-    $this->_columns['civicrm_batch']['group_bys']['id'] = [
-      'name' => 'id',
-      'title' => ts('Batch ID'),
-      'dbAlias' => 'batch.id',
-    ];
     $this->_columns['civicrm_batch']['order_bys']['title'] = [
       'title' => ts('Batch title'),
       'default_weight' => '0',
@@ -206,7 +201,7 @@ class CRM_AOReports_Form_Report_ExtendedBookkeeping extends CRM_Report_Form_Cont
           $key = implode(CRM_Core_DAO::VALUE_SEPARATOR, $values);
           if ($i == $aliasCount) {
             // the last alias is the lowest-level section header; use count as-is
-            $totals[$key] = sprintf('%s payments of total : $%s', $dao->ct, $dao->totalamount);
+            $totals[$key] = sprintf('%s payment(s) of total : $%s', $dao->ct, $dao->totalamount);
           }
           else {
             // other aliases are higher level; roll count into their total
