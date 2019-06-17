@@ -5,6 +5,7 @@ class CRM_AOReports_Form_Report_ExtendedBatchDetail extends CRM_Report_Form_Cont
     parent::__construct();
     $this->_columns['civicrm_financial_trxn']['fields']['payment_id']['no_display'] = TRUE;
     $this->_columns['civicrm_financial_trxn']['fields']['card_type_id']['dbAlias'] = 'GROUP_CONCAT(DISTINCT financial_trxn_civireport.card_type_id)';
+    $this->_columns['civicrm_entity_financial_trxn']['fields']['amount']['title'] = ts('Actual Payment Total');
     $this->_columns['civicrm_easybatch_entity']['filters']['payment_processor_id'] = [
       'name' => 'payment_processor_id',
       'dbAlias' => 'easybatch_entity_civireport.payment_processor_id',
@@ -120,7 +121,7 @@ class CRM_AOReports_Form_Report_ExtendedBatchDetail extends CRM_Report_Form_Cont
         $row['civicrm_financial_trxn_card_type_id'] = explode(',', $row['civicrm_financial_trxn_card_type_id']);
         foreach ($row['civicrm_financial_trxn_card_type_id'] as $cardType) {
           if ($cardType == '') continue;
-          $ct = $this->getLabels($cardType, 'CRM_Financial_DAO_FinancialTrxn', 'card_type_id');
+          $ct[] = $this->getLabels($cardType, 'CRM_Financial_DAO_FinancialTrxn', 'card_type_id');
         }
         $rows[$rowNum]['civicrm_financial_trxn_card_type_id'] = implode(', ', $ct);
         $entryFound = TRUE;
