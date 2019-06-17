@@ -52,8 +52,8 @@ class CRM_AOReports_Form_Report_ExtendedBatchDetail extends CRM_Report_Form_Cont
               case 'debit_amount':
                 $select[] = " CASE
                             WHEN  ceft1.entity_id IS NOT NULL
-                            THEN ceft1.amount
-                            ELSE ceft.amount
+                            THEN SUM(ceft1.amount)
+                            ELSE SUM(ceft.amount)
                             END AS civicrm_entity_financial_trxn_{$fieldName} ";
                 break;
 
@@ -80,26 +80,13 @@ class CRM_AOReports_Form_Report_ExtendedBatchDetail extends CRM_Report_Form_Cont
     // Rearrange select clause
     $order = [
       'civicrm_batch_batch_id',
-      'civicrm_contribution_invoice_id',
-      'civicrm_contribution_contact_id',
-      'civicrm_financial_trxn_payment_id',
-      'civicrm_financial_trxn_trxn_date',
-      'civicrm_financial_account_debit_accounting_code',
-      'civicrm_financial_account_debit_name',
-      'civicrm_financial_account_debit_account_type_code',
-      'civicrm_financial_trxn_total_amount',
-      'civicrm_financial_trxn_trxn_id',
-      'civicrm_entity_financial_trxn_debit_amount',
-      'civicrm_financial_trxn_payment_instrument_id',
-      'civicrm_financial_trxn_check_number',
-      'civicrm_contribution_source',
-      'civicrm_financial_trxn_currency',
-      'civicrm_financial_trxn_status_id',
+      'civicrm_batch_title',
+      'civicrm_easybatch_entity_batch_date',
+      'civicrm_batch_total',
       'civicrm_entity_financial_trxn_amount',
-      'civicrm_financial_account_credit_accounting_code',
-      'civicrm_financial_account_credit_name',
-      'civicrm_financial_account_credit_account_type_code',
-      'civicrm_financial_item_description',
+      'civicrm_financial_trxn_card_type_id',
+      'civicrm_financial_trxn_payment_instrument_id',
+      'civicrm_financial_trxn_currency',
     ];
     $this->_columnHeaders = array_replace(array_flip($order), $this->_columnHeaders);
     unset($this->_columnHeaders['civicrm_contribution_contribution_id']);
