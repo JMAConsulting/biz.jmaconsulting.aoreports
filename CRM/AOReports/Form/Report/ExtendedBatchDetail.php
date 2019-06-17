@@ -112,7 +112,7 @@ class CRM_AOReports_Form_Report_ExtendedBatchDetail extends CRM_Report_Form_Cont
       }
       if (array_key_exists('civicrm_batch_batch_id', $row)) {
         $value = $row['civicrm_batch_batch_id'];
-        $url = CRM_Utils_System::url("civicrm/report/instance/75?", 'force=1&batch_id_value=' . $value);
+        $url = CRM_Utils_System::url("civicrm/report/instance/77?", 'force=1&batch_id_value=' . $value);
         $rows[$rowNum]['civicrm_batch_batch_id'] = "<a target='_blank' href=\"$url\">$value</a>";
         $rows[$rowNum]['civicrm_batch_batch_id_hover'] = ts('View Details of Batch transactions.');
       }

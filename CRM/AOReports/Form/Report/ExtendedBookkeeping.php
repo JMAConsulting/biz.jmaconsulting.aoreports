@@ -38,6 +38,8 @@ class CRM_AOReports_Form_Report_ExtendedBookkeeping extends CRM_Report_Form_Cont
     $this->_columns['civicrm_batch']['filters']['created_date'] = [
       'title' => ts('Batch Date'),
       'operatorType' => CRM_Report_Form::OP_DATE,
+      'type' => CRM_Utils_Type::T_DATE,
+      'name' => 'batch.created_date',
     ];
     $this->_columns['civicrm_financial_trxn']['filters']['payment_processor_id'] = [
       'name' => 'payment_processor_id',
