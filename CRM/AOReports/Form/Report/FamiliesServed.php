@@ -23,7 +23,7 @@ class CRM_AOReports_Form_Report_FamiliesServed extends CRM_Report_Form {
             'required' => TRUE,
           ),
           'family_count' => array(
-            'title' => ts('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'),
+            'title' => '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;',
             'required' => TRUE,
             'dbAlias' => "'New Families Served'",
           ),
