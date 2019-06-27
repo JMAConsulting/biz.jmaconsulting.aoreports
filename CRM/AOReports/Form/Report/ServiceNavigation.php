@@ -34,7 +34,7 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
       ],
     );
     $this->_columns['civicrm_contact']['fields']['family_count'] = array(
-      'title' => ts('YTD'),
+      'title' => ts('Region'),
       'required' => TRUE,
       'dbAlias' => "temp.region",
     );
