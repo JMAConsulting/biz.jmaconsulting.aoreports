@@ -13,6 +13,7 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
       'operatorType' => CRM_Report_Form::OP_SELECT,
       'options' => CRM_Core_OptionGroup::values('language_10'),
     );
+
     $this->_columns['civicrm_contact']['filters']['status_id'] = array(
       'name' => 'status_id',
       'dbAlias' => "temp.status_id",
@@ -21,8 +22,19 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
       'operatorType' => CRM_Report_Form::OP_SELECT,
       'options' => CRM_Core_PseudoConstant::activityStatus(),
     );
+    $this->_columns['civicrm_contact']['filters']['activity_type'] = array(
+      'name' => 'activity_type',
+      'dbAlias' => "1",
+      'title' => 'Activity Type',
+      'type' => CRM_Utils_Type::T_STRING,
+      'operatorType' => CRM_Report_Form::OP_SELECT,
+      'options' => [
+        CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'activity_type_id', 'Service Navigation Provision') => ts('Service Navigation Provision'),
+        CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'activity_type_id', 'Service Navigation Request') => ts('Service Navigation Request'),
+      ],
+    );
     $this->_columns['civicrm_contact']['fields']['family_count'] = array(
-      'title' => ts('&nbsp;&nbsp;&nbsp;YTD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'),
+      'title' => ts('YTD'),
       'required' => TRUE,
       'dbAlias' => "temp.region",
     );
@@ -38,8 +50,7 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
   }
 
   function from() {
-    $acgtivityTypeID = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'activity_type_id', 'Service Navigation Provision');
-    $tableName = E::getSNPActivityTableName($acgtivityTypeID);
+    $tableName = E::getSNPActivityTableName($this->_params['activity_type_value']);
     $this->_from = " FROM civicrm_contact {$this->_aliases['civicrm_contact']}
       INNER JOIN {$tableName} temp ON temp.parent_id = {$this->_aliases['civicrm_contact']}.id
       INNER JOIN civicrm_value_donation_cust_2 lang ON lang.entity_id = temp.parent_id AND lang.language_10 IS NOT NULL
