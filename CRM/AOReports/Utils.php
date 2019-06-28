@@ -24,6 +24,32 @@ class CRM_AOReports_Utils {
     return $tempTableName;
   }
 
+  public static function getSNPActivityAverageTime() {
+    $customField = civicrm_api3('CustomField', 'getsingle', ['id' => SNP_REGION_CF_ID]);
+    $SNPRegionColumnName = $customField['column_name'];
+    $customTableName = civicrm_api3('CustomGroup', 'getvalue', ['id' => $customField['custom_group_id'], 'return' => 'table_name']);
+    $activityTypeID1 = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'activity_type_id', 'Service Navigation Provision');
+    $activityTypeID2 = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'activity_type_id', 'Service Navigation Request');
+    $tempTableName = 'temp_snp_activity' . substr(sha1(rand()), 0, 7);
+    $sql = "
+    CREATE TEMPORARY TABLE $tempTableName DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci
+       SELECT DISTINCT rel.contact_id_b as parent_id, DATE(ca.activity_date_time) as dof, $SNPRegionColumnName as region, ca.status_id,
+       DATEDIFF(DATE(ca.activity_date_time), DATE(ca1.activity_date_time)) as timediff
+       FROM civicrm_case c
+       LEFT JOIN civicrm_case_activity cca ON cca.case_id = c.id
+       LEFT JOIN civicrm_activity ca ON ca.id = cca.activity_id AND ca1.activity_type_id = $activityTypeID1
+       LEFT JOIN civicrm_activity ca1 ON ca1.id = cca.activity_id AND ca1.activity_type_id = $activityTypeID2
+       LEFT JOIN civicrm_activity_contact cac ON ca.id = cac.activity_id
+       LEFT JOIN civicrm_relationship rel ON rel.contact_id_b = cac.contact_id AND rel.relationship_type_id IN (1, 4) AND cac.record_type_id = 3
+       LEFT JOIN $customTableName ct ON ct.entity_id = cac.contact_id
+    ";
+    CRM_Core_DAO::executeQuery($sql);
+    CRM_Core_DAO::executeQuery("CREATE INDEX ind_parent ON $tempTableName(parent_id)");
+    return $tempTableName;
+  }
+
+
+
   /**
   * Fetch new child whose is a 'Lead Family Member' + family has checked 'Does your child have an ASD diagnosis?'
   */
