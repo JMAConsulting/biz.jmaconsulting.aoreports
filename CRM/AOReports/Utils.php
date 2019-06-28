@@ -37,7 +37,7 @@ class CRM_AOReports_Utils {
        DATEDIFF(DATE(ca.activity_date_time), DATE(ca1.activity_date_time)) as timediff
        FROM civicrm_case c
        LEFT JOIN civicrm_case_activity cca ON cca.case_id = c.id
-       LEFT JOIN civicrm_activity ca ON ca.id = cca.activity_id AND ca1.activity_type_id = $activityTypeID1
+       LEFT JOIN civicrm_activity ca ON ca.id = cca.activity_id AND ca.activity_type_id = $activityTypeID1
        LEFT JOIN civicrm_activity ca1 ON ca1.id = cca.activity_id AND ca1.activity_type_id = $activityTypeID2
        LEFT JOIN civicrm_activity_contact cac ON ca.id = cac.activity_id
        LEFT JOIN civicrm_relationship rel ON rel.contact_id_b = cac.contact_id AND rel.relationship_type_id IN (1, 4) AND cac.record_type_id = 3
