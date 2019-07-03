@@ -34,14 +34,15 @@ class CRM_AOReports_Utils {
     $sql = "
     CREATE TEMPORARY TABLE $tempTableName DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci
        SELECT DISTINCT rel.contact_id_b as parent_id, DATE(ca.activity_date_time) as dof, $SNPRegionColumnName as region, ca.status_id,
-       DATEDIFF(DATE(ca.activity_date_time), DATE(ca1.activity_date_time)) as timediff
+       DATEDIFF(DATE(ca.activity_date_time), DATE(t.activity_date_time)) as timediff
        FROM civicrm_case c
        LEFT JOIN civicrm_case_activity cca ON cca.case_id = c.id
        LEFT JOIN civicrm_activity ca ON ca.id = cca.activity_id AND ca.activity_type_id = $activityTypeID1
-       LEFT JOIN civicrm_activity ca1 ON ca1.id = cca.activity_id AND ca1.activity_type_id = $activityTypeID2
+       LEFT JOIN (SELECT a.*, ca.case_id FROM civicrm_activity a INNER JOIN civicrm_case_activity ca ON ca.activity_id = a.id AND a.activity_type_id = $activityTypeID2) t ON t.case_id = cca.case_id
        LEFT JOIN civicrm_activity_contact cac ON ca.id = cac.activity_id
        LEFT JOIN civicrm_relationship rel ON rel.contact_id_b = cac.contact_id AND rel.relationship_type_id IN (1, 4) AND cac.record_type_id = 3
        LEFT JOIN $customTableName ct ON ct.entity_id = cac.contact_id
+       WHERE rel.contact_id_b IS NOT NULL
     ";
     CRM_Core_DAO::executeQuery($sql);
     CRM_Core_DAO::executeQuery("CREATE INDEX ind_parent ON $tempTableName(parent_id)");
