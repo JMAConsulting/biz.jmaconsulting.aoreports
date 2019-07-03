@@ -10,7 +10,7 @@ class CRM_AOReports_Form_Report_FamiliesServedByRegion extends CRM_AOReports_For
       'dbAlias' => "temp.region",
       'title' => 'Region',
       'operatorType' => CRM_Report_Form::OP_MULTISELECT,
-      'options' => ['' => '- select -'] + CRM_Core_OptionGroup::values('service_region_20190320122604'),
+      'options' => ['' => '- select -'] + CRM_Core_OptionGroup::values('chapter_20180619153429'),
     );
   }
 
@@ -23,7 +23,7 @@ class CRM_AOReports_Form_Report_FamiliesServedByRegion extends CRM_AOReports_For
     $newRows = [];
     $defaultYear = '';
 
-    $regions = CRM_Core_OptionGroup::values('service_region_20190320122604');
+    $regions = CRM_Core_OptionGroup::values('chapter_20180619153429');
     foreach ($regions as $value => $name) {
       $newRows[$value] = [
         'civicrm_contact_total' => 1,

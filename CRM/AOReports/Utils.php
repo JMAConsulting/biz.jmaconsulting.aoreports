@@ -59,6 +59,10 @@ class CRM_AOReports_Utils {
     $DOFColumnName = $customField['column_name'];
     $customTableName = civicrm_api3('CustomGroup', 'getvalue', ['id' => $customField['custom_group_id'], 'return' => 'table_name']);
 
+    $customField = civicrm_api3('CustomField', 'getsingle', ['id' => EVENT_CHAPTER_REGION]);
+    $CRColumnName = $customField['column_name'];
+    $CRcustomTableName = civicrm_api3('CustomGroup', 'getvalue', ['id' => $customField['custom_group_id'], 'return' => 'table_name']);
+
     $clauses = [];
     if ($leadFamilyMember) {
       $columnName = civicrm_api3('CustomField', 'getsingle', ['id' => LEAD_FAMILY_MEMBER_CF_ID])['column_name'];
@@ -82,9 +86,12 @@ class CRM_AOReports_Utils {
     CRM_Core_DAO::executeQuery('DROP TEMPORARY TABLE IF EXISTS ' . $tempTableName);
     $sql = "
       CREATE TEMPORARY TABLE $tempTableName DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci
-       SELECT DISTINCT ct.entity_id as new_child_id, rel.contact_id_b as parent_id, $DOFColumnName as dof
+       SELECT DISTINCT ct.entity_id as new_child_id, rel.contact_id_b as parent_id, $DOFColumnName as dof, $CRColumnName as region
        FROM $customTableName ct
        INNER JOIN civicrm_relationship rel ON rel.contact_id_a = ct.entity_id AND rel.relationship_type_id IN (1, 4)
+       LEFT JOIN civicrm_participant p ON p.contact_id = rel.contact_id_b
+       LEFT JOIN civicrm_event e ON e.id = p.event_id
+       LEFT JOIN $CRcustomTableName ct1 ON ct1.entity_id = e.id
        WHERE $whereClause
     ";
     CRM_Core_DAO::executeQuery($sql);
