@@ -5,6 +5,13 @@ class CRM_AOReports_Form_Report_FamiliesServedByRegion extends CRM_AOReports_For
 
   function __construct() {
     parent::__construct();
+    $this->_columns['civicrm_contact']['fields']['family_count']['title'] = 'Region';
+    $this->_columns['civicrm_contact']['fields']['region'] = array(
+      'name' => 'region',
+      'required' => TRUE,
+      'dbAlias' => "temp.region",
+      'title' => 'Region',
+    );
     $this->_columns['civicrm_contact']['filters']['region'] = array(
       'name' => 'region',
       'dbAlias' => "temp.region",
@@ -46,12 +53,16 @@ class CRM_AOReports_Form_Report_FamiliesServedByRegion extends CRM_AOReports_For
       ];
     }
 
-    foreach ($newRows as $key => $row) {
-      foreach ($rows as &$row) {
-        if (strstr($row['civicrm_contact_family_count'], $key)) {
-          $newRows[$key]['civicrm_contact_quarter'] = $row['civicrm_contact_quarter'];
-          $newRows[$key]["civicrm_contact_q{$row['civicrm_contact_quarter']}"] = $row['civicrm_contact_total'];
+    foreach ($rows as &$row) {
+      $values = explode(CRM_Core_DAO::VALUE_SEPARATOR,
+        substr($row['civicrm_contact_region'], 1, -1)
+      );
+      foreach ($values as $value) {
+        if (!in_array($value, array_keys($newRows))) {
+          $newRows[$value]['civicrm_contact_family_count'] = ts('Number of Families Served on %1 Region', [1 => $value]);
         }
+        $newRows[$value]['civicrm_contact_quarter'] = $row['civicrm_contact_quarter'];
+        $newRows[$value]["civicrm_contact_q{$row['civicrm_contact_quarter']}"] = $row['civicrm_contact_total'];
       }
     }
 
@@ -61,6 +72,7 @@ class CRM_AOReports_Form_Report_FamiliesServedByRegion extends CRM_AOReports_For
 
     unset($this->_columnHeaders["civicrm_contact_total"]);
     unset($this->_columnHeaders["civicrm_contact_quarter"]);
+    unset($this->_columnHeaders["civicrm_contact_region"]);
 
     $rows = $newRows;
   }
