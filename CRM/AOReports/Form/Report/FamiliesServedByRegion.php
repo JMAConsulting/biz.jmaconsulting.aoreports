@@ -1,5 +1,5 @@
 <?php
-use CRM_AOReports_ExtensionUtil as E;
+use CRM_AOReports_Utils as E;
 
 class CRM_AOReports_Form_Report_FamiliesServedByRegion extends CRM_AOReports_Form_Report_FamiliesServed {
 
