@@ -15,6 +15,13 @@ class CRM_AOReports_Form_Report_FamiliesServedByRegion extends CRM_AOReports_For
     );
   }
 
+  function from() {
+    $tableName = E::getNewChildContactTableNameByRegion();
+    $this->_from = " FROM civicrm_contact {$this->_aliases['civicrm_contact']}
+      INNER JOIN {$tableName} temp ON temp.new_child_id = {$this->_aliases['civicrm_contact']}.id
+    ";
+  }
+
   function groupBy() {
     $this->_groupBy = "GROUP BY temp.region, QUARTER(temp.dof)";
   }
