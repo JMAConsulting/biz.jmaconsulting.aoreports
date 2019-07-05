@@ -22,6 +22,49 @@ class CRM_AOReports_Form_Report_FamiliesServedByRegion extends CRM_AOReports_For
     );
   }
 
+  function where() {
+    $clauses = array();
+    foreach ($this->_columns as $tableName => $table) {
+      if (array_key_exists('filters', $table)) {
+        foreach ($table['filters'] as $fieldName => $field) {
+          if ($fieldName == 'region') {
+            continue;
+          }
+          $clause = NULL;
+          if (CRM_Utils_Array::value('operatorType', $field) & CRM_Utils_Type::T_DATE) {
+            $relative = CRM_Utils_Array::value("{$fieldName}_relative", $this->_params);
+            $from     = CRM_Utils_Array::value("{$fieldName}_from", $this->_params);
+            $to       = CRM_Utils_Array::value("{$fieldName}_to", $this->_params);
+
+            $this->_dateClause = $clause = $this->dateClause($field['name'], $relative, $from, $to, $field['type']);
+          }
+          else {
+            $op = CRM_Utils_Array::value("{$fieldName}_op", $this->_params);
+            if ($op) {
+              $clause = $this->whereClause($field,
+                $op,
+                CRM_Utils_Array::value("{$fieldName}_value", $this->_params),
+                CRM_Utils_Array::value("{$fieldName}_min", $this->_params),
+                CRM_Utils_Array::value("{$fieldName}_max", $this->_params)
+              );
+            }
+          }
+
+          if (!empty($clause)) {
+            $clauses[] = $clause;
+          }
+        }
+      }
+    }
+
+    if (empty($clauses)) {
+      $this->_where = "WHERE ( 1 ) ";
+    }
+    else {
+      $this->_where = "WHERE " . implode(' AND ', $clauses);
+    }
+  }
+
   function from() {
     $tableName = E::getNewChildContactTableNameByRegion();
     $this->_from = " FROM civicrm_contact {$this->_aliases['civicrm_contact']}
@@ -39,6 +82,13 @@ class CRM_AOReports_Form_Report_FamiliesServedByRegion extends CRM_AOReports_For
     $defaultYear = '';
 
     $regions = CRM_Core_OptionGroup::values('chapter_20180619153429');
+    if (!empty($this->_params['region_value'])) {
+      foreach	($regions as $k => $v) {
+        if (!in_array($k, $this->_params['region_value'])) {
+          unset($regions[$k]);
+        }
+      }
+    }
     foreach ($regions as $value => $name) {
       $newRows[$value] = [
         'civicrm_contact_total' => 1,
@@ -58,7 +108,7 @@ class CRM_AOReports_Form_Report_FamiliesServedByRegion extends CRM_AOReports_For
         substr($row['civicrm_contact_region'], 1, -1)
       );
       foreach ($values as $value) {
-        if (!in_array($value, array_keys($newRows))) {
+        if (!in_array($value, array_keys($newRows)) && empty($this->_params['region_value'])) {
           $newRows[$value]['civicrm_contact_family_count'] = ts('Number of Families Served on %1 Region', [1 => $value]);
         }
         $newRows[$value]['civicrm_contact_quarter'] = $row['civicrm_contact_quarter'];
