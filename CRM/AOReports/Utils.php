@@ -141,7 +141,7 @@ class CRM_AOReports_Utils {
     INNER JOIN civicrm_relationship r ON r.contact_id_b = p.contact_id AND r.relationship_type_id IN (1,4)
     INNER JOIN $customTableName ct ON ct.entity_id = r.contact_id_b
     INNER JOIN civicrm_activity_contact cac ON cac.contact_id = ct.entity_id
-    INNER JOIN civicrm_activity ca ON ca.id = cac.activity_id AND cac.activity_type_id = $activityTypeID
+    INNER JOIN civicrm_activity ca ON ca.id = cac.activity_id AND ca.activity_type_id = $activityTypeID
     ";
 
     CRM_Core_DAO::executeQuery($sql);
