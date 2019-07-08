@@ -127,6 +127,10 @@ class CRM_AOReports_Utils {
     $CRColumnName = $customField['column_name'];
     $CRcustomTableName = civicrm_api3('CustomGroup', 'getvalue', ['id' => $customField['custom_group_id'], 'return' => 'table_name']);
 
+    $customField = civicrm_api3('CustomField', 'getsingle', ['id' => DIAGNOSIS_ON_FILE_CF_ID]);
+    $DOFColumnName = $customField['column_name'];
+    $customTableName = civicrm_api3('CustomGroup', 'getvalue', ['id' => $customField['custom_group_id'], 'return' => 'table_name']);
+
     $tempTableName = 'temp_snp_activity' . substr(sha1(rand()), 0, 7);
     $sql = "
     CREATE TEMPORARY TABLE $tempTableName DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci
