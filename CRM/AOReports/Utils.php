@@ -130,8 +130,7 @@ class CRM_AOReports_Utils {
     $tempTableName = 'temp_snp_activity' . substr(sha1(rand()), 0, 7);
     $sql = "
     CREATE TEMPORARY TABLE $tempTableName DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci
-    SELECT DISTINCT ct.entity_id as new_child_id, r.contact_id_b as parent_id, DATE(ca.activity_date_time) as dof, $CRColumnName as region
-    rel.contact_id_b as parent_id, DATE(ca.activity_date_time) as dof, $SNPRegionColumnName as region, ca.status_id
+    SELECT DISTINCT ct.entity_id as new_child_id, r.contact_id_b as parent_id, DATE(ca.activity_date_time) as dof, $CRColumnName as region, ca.status_id
     FROM $CRcustomTableName ec
     LEFT JOIN civicrm_event e ON e.id = ec.entity_id
     LEFT JOIN civicrm_participant p ON p.event_id =  e.id
