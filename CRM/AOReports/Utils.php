@@ -121,6 +121,30 @@ class CRM_AOReports_Utils {
     return $tempTableName;
   }
 
+  public static function getSNPActivitybyMinistryRegion() {
+    $activityTypeID = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'activity_type_id', 'Service Navigation Provision');
+    $customField = civicrm_api3('CustomField', 'getsingle', ['id' => EVENT_CHAPTER_REGION]);
+    $CRColumnName = $customField['column_name'];
+    $CRcustomTableName = civicrm_api3('CustomGroup', 'getvalue', ['id' => $customField['custom_group_id'], 'return' => 'table_name']);
+
+    $tempTableName = 'temp_snp_activity' . substr(sha1(rand()), 0, 7);
+    $sql = "
+    CREATE TEMPORARY TABLE $tempTableName DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci
+    SELECT DISTINCT ct.entity_id as new_child_id, r.contact_id_b as parent_id, DATE(ca.activity_date_time) as dof, $CRColumnName as region
+    rel.contact_id_b as parent_id, DATE(ca.activity_date_time) as dof, $SNPRegionColumnName as region, ca.status_id
+    FROM $CRcustomTableName ec
+    LEFT JOIN civicrm_event e ON e.id = ec.entity_id
+    LEFT JOIN civicrm_participant p ON p.event_id =  e.id
+    INNER JOIN civicrm_relationship r ON r.contact_id_b = p.contact_id AND r.relationship_type_id IN (1,4)
+    INNER JOIN $customTableName ct ON ct.entity_id = r.contact_id_b
+    INNER JOIN civicrm_activity_contact cac ON cac.contact_id = ct.entity_id
+    INNER JOIN civicrm_activity ca ON ca.id = cac.activity_id AND cac.activity_type_id = $activityTypeID
+    ";
+
+    CRM_Core_DAO::executeQuery($sql);
+    CRM_Core_DAO::executeQuery("CREATE INDEX ind_parent ON $tempTableName(parent_id)");
+    return $tempTableName;
+  }
 
   public static function getNewChildFromClause($entityTable, $entityID = 'id') {
     list($customTableName, $customFieldName) = self::getnewChildTableAndColumn();
