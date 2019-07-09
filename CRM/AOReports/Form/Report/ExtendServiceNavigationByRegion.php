@@ -26,7 +26,7 @@ class CRM_AOReports_Form_Report_ExtendServiceNavigationByRegion extends CRM_AORe
   function alterDisplay(&$rows) {
     parent::alterDisplay($rows);
     foreach ($rows as &$row) {
-      $row['civicrm_contact_family_count'] = str_replace('Number of Families Served on', 'Number of Families waiting to be connected on', $row['civicrm_contact_family_count']);
+      $row['civicrm_contact_family_count'] = str_replace('Number of Families Served on', 'Number of Families waiting to be connected in', $row['civicrm_contact_family_count']);
     }
   }
 
