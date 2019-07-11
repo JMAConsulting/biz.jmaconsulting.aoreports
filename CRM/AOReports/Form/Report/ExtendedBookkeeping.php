@@ -52,6 +52,18 @@ class CRM_AOReports_Form_Report_ExtendedBookkeeping extends CRM_Report_Form_Cont
         '3' => ts('Moneris'),
       ],
     ];
+    $this->_columns['civicrm_financial_trxn']['filters']['is_payment'] = [
+      'name' => 'is_payment',
+      'dbAlias' => 'financial_trxn_civireport.is_payment',
+      'title' => ts('Is Payment?'),
+      'type' => CRM_Utils_Type::T_INT,
+      'operatorType' => CRM_Report_Form::OP_SELECT,
+      'options' => [
+        '' => ts('- none -')
+        1 => ts('Yes'),
+        0 => ts('No'),
+      ],
+    ];
 
     $this->_columns['civicrm_chapter_entity']['fields']['chapter_code_from'] = array(
       'name' => 'chapter_code_from',
