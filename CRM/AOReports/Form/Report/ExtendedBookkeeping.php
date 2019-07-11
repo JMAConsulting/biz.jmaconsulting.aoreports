@@ -17,6 +17,7 @@ class CRM_AOReports_Form_Report_ExtendedBookkeeping extends CRM_Report_Form_Cont
       'type' => CRM_Utils_Type::T_INT,
       'dbAlias' => '(1)',
       'options' => [
+        '' => '- none - ',
         '0' => ts('No'),
         '1' => ts('Yes'),
       ],
