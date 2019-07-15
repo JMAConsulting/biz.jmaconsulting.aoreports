@@ -12,7 +12,7 @@ class CRM_AOReports_Form_Report_ExtendContributionDetails extends CRM_Report_For
       'title' => ts('Limit to auto batches?'),
       'operatorType' => CRM_Report_Form::OP_SELECT,
       'type' => CRM_Utils_Type::T_INT,
-      'dbAlias' => '(1)',
+      'dbAlias' => 'ee.is_automatic',
       'options' => [
         '' => '- none -',
         '0' => ts('No'),
