@@ -5,20 +5,26 @@ class CRM_AOReports_Form_Report_ExtendContributionDetails extends CRM_Report_For
 
   public function __construct() {
     parent::__construct();
+    $this->_columns['civicrm_batch']['filters']['bid']['dbAlias'] = 'batch_civireport.id';
+    $this->_columns['civicrm_batch']['fields']['batch_id']['dbAlias'] = 'batch_civireport.id';
+
+    $this->_columns['civicrm_batch']['filters']['bid'] = ;
     $this->_columns['civicrm_batch']['filters']['prior_batch_date'] = [
       'title' => ts('Limit to auto batches?'),
       'operatorType' => CRM_Report_Form::OP_SELECT,
       'type' => CRM_Utils_Type::T_INT,
-      'dbAlias' => 'ee.batch_id',
+      'dbAlias' => '(1)',
       'options' => [
         '' => '- none -',
-        'nll' => ts('Is empty (Null)'),
-        'nnll' => ts('Is not empty (Null)'),
+        '0' => ts('Yes'),
+        '1' => ts('No'),
       ],
     ];
     $this->_columns['civicrm_batch']['filters']['created_date'] = [
       'title' => ts('Batch Date'),
       'operatorType' => CRM_Report_Form::OP_DATE,
+      'type' => CRM_Utils_Type::T_DATE,
+      'dbAlias' => 'batch_civireport.created_date',
     ];
   }
 
