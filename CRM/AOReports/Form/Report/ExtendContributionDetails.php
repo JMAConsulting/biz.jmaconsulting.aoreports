@@ -15,8 +15,8 @@ class CRM_AOReports_Form_Report_ExtendContributionDetails extends CRM_Report_For
       'dbAlias' => '(1)',
       'options' => [
         '' => '- none -',
-        '0' => ts('Yes'),
-        '1' => ts('No'),
+        '0' => ts('No'),
+        '1' => ts('Yes'),
       ],
     ];
     $this->_columns['civicrm_batch']['filters']['created_date'] = [
