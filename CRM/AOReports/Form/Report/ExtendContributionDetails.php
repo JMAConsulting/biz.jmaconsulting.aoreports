@@ -9,10 +9,11 @@ class CRM_AOReports_Form_Report_ExtendContributionDetails extends CRM_Report_For
       'title' => ts('Limit to auto batches?'),
       'operatorType' => CRM_Report_Form::OP_SELECT,
       'type' => CRM_Utils_Type::T_INT,
-      'dbAlias' => '(1)',
+      'dbAlias' => 'ee.batch_id',
       'options' => [
-        '0' => ts('No'),
-        '1' => ts('Yes'),
+        '' => '- none -',
+        'nll' => ts('Is empty (Null)'),
+        'nnll' => ts('Is not empty (Null)'),
       ],
     ];
     $this->_columns['civicrm_batch']['filters']['created_date'] = [
@@ -52,9 +53,11 @@ class CRM_AOReports_Form_Report_ExtendContributionDetails extends CRM_Report_For
         LEFT JOIN civicrm_entity_financial_trxn eft
           ON eft.entity_id = {$this->_aliases['civicrm_contribution']}.id AND
             eft.entity_table = 'civicrm_contribution'
-        LEFT JOIN civicrm_entity_batch {$this->_aliases['civicrm_batch']}
-          ON ({$this->_aliases['civicrm_batch']}.entity_id = eft.financial_trxn_id
-          AND {$this->_aliases['civicrm_batch']}.entity_table = 'civicrm_financial_trxn')";
+        LEFT JOIN civicrm_entity_batch eb
+          ON (eb.entity_id = eft.financial_trxn_id
+          AND eb.entity_table = 'civicrm_financial_trxn')
+          LEFT JOIN civicrm_batch {$this->_aliases['civicrm_batch']} ON {$this->_aliases['civicrm_batch']}.id = eb.batch_id
+          ";
 
         if (!empty($this->_params['prior_batch_date_value'])) {
           $this->_from .= "
