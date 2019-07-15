@@ -8,7 +8,6 @@ class CRM_AOReports_Form_Report_ExtendContributionDetails extends CRM_Report_For
     $this->_columns['civicrm_batch']['filters']['bid']['dbAlias'] = 'batch_civireport.id';
     $this->_columns['civicrm_batch']['fields']['batch_id']['dbAlias'] = 'batch_civireport.id';
 
-    $this->_columns['civicrm_batch']['filters']['bid'] = ;
     $this->_columns['civicrm_batch']['filters']['prior_batch_date'] = [
       'title' => ts('Limit to auto batches?'),
       'operatorType' => CRM_Report_Form::OP_SELECT,
