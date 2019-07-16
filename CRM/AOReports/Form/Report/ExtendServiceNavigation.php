@@ -82,9 +82,17 @@ class CRM_AOReports_Form_Report_ExtendServiceNavigation extends CRM_AOReports_Fo
 
     $regions = CRM_Core_OptionGroup::values('service_region_20190320122604');
     foreach ($regions as $value => $name) {
+      $title =  ts('SNPNFS %1 Count of unique parents/caregiver contacts who received SNP services', [1 => $name]);
+      if ($this->_params['time_value'] == 2) {
+        $title = ts('Average number of time families waited to be connected for SNP services in %1 region', [1 => $name]);
+      }
+      elseif ($this->_params['time_value'] == 1) {
+        $title = ts('Average number of days families waited to be connected for SNP services in %1 region', [1 => $name]);
+      }
+
       $newRows[$value] = [
         'civicrm_contact_total' => 1,
-        'civicrm_contact_family_count' => ts('SNPNFS %1 Count of unique parents/caregiver contacts who received SNP services', [1 => $name]),
+        'civicrm_contact_family_count' => $title,
         'civicrm_contact_year' => '',
         'civicrm_contact_quarter' => NULL,
         'civicrm_contact_q1' => 0,
