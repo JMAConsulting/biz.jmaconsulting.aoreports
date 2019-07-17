@@ -5,6 +5,7 @@ class CRM_AOReports_Form_Report_ExtendServiceNavigation extends CRM_AOReports_Fo
 
   function __construct() {
     parent::__construct();
+    unset($this->_columns['civicrm_contact']['filters']['language_10']);
     $this->_columns['civicrm_contact']['fields']['time_diff'] = array(
       'title' => ts('Time Diff'),
       'required' => TRUE,
@@ -22,13 +23,17 @@ class CRM_AOReports_Form_Report_ExtendServiceNavigation extends CRM_AOReports_Fo
         2 => ts('In Hours'),
       ],
     );
+    $this->_columns['civicrm_contact']['fields']['q1']['title'] = ts('Q1 2019');
+    $this->_columns['civicrm_contact']['fields']['q2']['title'] = ts('Q2 2019');
+    $this->_columns['civicrm_contact']['fields']['q3']['title'] = ts('Q3 2019');
+    $this->_columns['civicrm_contact']['fields']['q4']['title'] = ts('Q4 2019');
+    $this->_columns['civicrm_contact']['fields']['total_count']['title'] = ts('YTD 2019');
   }
 
   function from() {
     $tableName = E::getSNPActivityAverageTime();
     $this->_from = " FROM civicrm_contact {$this->_aliases['civicrm_contact']}
       INNER JOIN {$tableName} temp ON temp.parent_id = {$this->_aliases['civicrm_contact']}.id
-      INNER JOIN civicrm_value_donation_cust_2 lang ON lang.entity_id = temp.parent_id AND lang.language_10 IS NOT NULL
     ";
   }
 
