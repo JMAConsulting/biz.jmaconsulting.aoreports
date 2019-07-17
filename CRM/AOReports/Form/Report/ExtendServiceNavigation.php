@@ -108,8 +108,8 @@ class CRM_AOReports_Form_Report_ExtendServiceNavigation extends CRM_AOReports_Fo
         if (strstr($row['civicrm_contact_family_count'], $key)) {
           $newRows[$key]['civicrm_contact_quarter'] = $row['civicrm_contact_quarter'];
           $newRows[$key]["civicrm_contact_q{$row['civicrm_contact_quarter']}"] = $row['civicrm_contact_total'] == 0 ? 0 : round(($row['civicrm_contact_time_diff'] / $row['civicrm_contact_total']));
-          if ($this->_params['time_value'] == 2) {
-            $newRows[$key]["civicrm_contact_q{$row['civicrm_contact_quarter']}"] *= 24;
+          if ($this->_params['time_value'] == 1) {
+            $newRows[$key]["civicrm_contact_q{$row['civicrm_contact_quarter']}"] = $newRows[$key]["civicrm_contact_q{$row['civicrm_contact_quarter']}"] / 24;
           }
         }
       }

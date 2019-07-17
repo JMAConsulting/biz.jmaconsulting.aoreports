@@ -28,22 +28,27 @@ class CRM_AOReports_Utils {
     $customField = civicrm_api3('CustomField', 'getsingle', ['id' => SNP_REGION_CF_ID]);
     $SNPRegionColumnName = $customField['column_name'];
     $customTableName = civicrm_api3('CustomGroup', 'getvalue', ['id' => $customField['custom_group_id'], 'return' => 'table_name']);
-    $activityTypeID1 = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'activity_type_id', 'Service Navigation Provision');
-    $activityTypeID2 = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'activity_type_id', 'Service Navigation Request');
+    $activityTypeID = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'activity_type_id', 'Service Navigation Provision');
     $tempTableName = 'temp_snp_activity' . substr(sha1(rand()), 0, 7);
+
     $sql = "
     CREATE TEMPORARY TABLE $tempTableName DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci
-       SELECT DISTINCT rel.contact_id_b as parent_id, DATE(ca.activity_date_time) as dof, $SNPRegionColumnName as region, ca.status_id,
-       DATEDIFF(DATE(ca.activity_date_time), DATE(t.activity_date_time)) as timediff
-       FROM civicrm_case c
-       LEFT JOIN civicrm_case_activity cca ON cca.case_id = c.id
-       LEFT JOIN civicrm_activity ca ON ca.id = cca.activity_id AND ca.activity_type_id = $activityTypeID1
-       LEFT JOIN (SELECT a.*, ca.case_id FROM civicrm_activity a INNER JOIN civicrm_case_activity ca ON ca.activity_id = a.id AND a.activity_type_id = $activityTypeID2) t ON t.case_id = cca.case_id
-       LEFT JOIN civicrm_activity_contact cac ON ca.id = cac.activity_id
-       LEFT JOIN civicrm_relationship rel ON rel.contact_id_b = cac.contact_id AND rel.relationship_type_id IN (1, 4) AND cac.record_type_id = 3
-       LEFT JOIN $customTableName ct ON ct.entity_id = cac.contact_id
-       WHERE rel.contact_id_b IS NOT NULL
-    ";
+    SELECT DISTINCT lfm.entity_id as parent_id, DATE(a.activity_date_time) as dof, $SNPRegionColumnName as region, a.status_id,
+    CASE pc.duration_331
+    WHEN 1 THEN 2.5
+    WHEN 2 THEN 10.0
+    WHEN 3 THEN 22.5
+    WHEN 4 THEN 45
+    WHEN 5 THEN 90
+    ELSE 0 END AS timediff
+FROM civicrm_activity a
+INNER JOIN civicrm_activity_contact ac where a.id = ac.activity_id AND ac.record_type_id = 3 AND a.activity_type_id = $activityTypeID
+INNER JOIN civicrm_contact c on ac.contact_id = c.id
+INNER JOIN civicrm_value_newsletter_cu_3 lfm on c.id = lfm.entity_id AND lfm.lead_family_member__28 = 1
+INNER JOIN civicrm_value_parent_consul_10 pc on a.id = pc.entity_id
+LEFT JOIN $customTableName ct ON ct.entity_id = cac.contact_id
+WHERE a.activity_type_id = $activityTypeID AND YEAR(a.activity_date_time) = YEAR() ";
+
     CRM_Core_DAO::executeQuery($sql);
     CRM_Core_DAO::executeQuery("CREATE INDEX ind_parent ON $tempTableName(parent_id)");
     return $tempTableName;
