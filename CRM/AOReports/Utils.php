@@ -42,7 +42,7 @@ class CRM_AOReports_Utils {
     WHEN 5 THEN 90
     ELSE 0 END AS timediff
 FROM civicrm_activity a
-INNER JOIN civicrm_activity_contact ac where a.id = ac.activity_id AND ac.record_type_id = 3 AND a.activity_type_id = $activityTypeID
+INNER JOIN civicrm_activity_contact ac ON a.id = ac.activity_id AND ac.record_type_id = 3 AND a.activity_type_id = $activityTypeID
 INNER JOIN civicrm_contact c on ac.contact_id = c.id
 INNER JOIN civicrm_value_newsletter_cu_3 lfm on c.id = lfm.entity_id AND lfm.lead_family_member__28 = 1
 INNER JOIN civicrm_value_parent_consul_10 pc on a.id = pc.entity_id
