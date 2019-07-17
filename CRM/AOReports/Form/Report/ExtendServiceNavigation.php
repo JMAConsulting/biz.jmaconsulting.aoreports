@@ -31,7 +31,7 @@ class CRM_AOReports_Form_Report_ExtendServiceNavigation extends CRM_AOReports_Fo
   }
 
   function from() {
-    $tableName = E::getSNPActivityAverageTime();
+    $tableName = E::getSNPActivityAverageTime($this);
     $this->_from = " FROM civicrm_contact {$this->_aliases['civicrm_contact']}
       INNER JOIN {$tableName} temp ON temp.parent_id = {$this->_aliases['civicrm_contact']}.id
     ";

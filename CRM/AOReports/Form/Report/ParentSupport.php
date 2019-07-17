@@ -129,7 +129,7 @@ class CRM_AOReports_Form_Report_ParentSupport extends CRM_Report_Form {
           else {
             if ($fieldName == 'new_child' && $this->_params['new_child_value'] != NULL) {
               $op = ($this->_params['new_child_value'] != 1) ? 'NOT IN' : 'IN';
-              $clauses[] = " ac.contact_id $op ( SELECT parent_id FROM " . E::getNewChildContactTableName(NULL, NULL, TRUE) . " ) ";
+              $clauses[] = " ac.contact_id $op ( SELECT parent_id FROM " . E::getNewChildContactTableName(NULL, NULL, TRUE, $this) . " ) ";
               continue;
             }
             $op = CRM_Utils_Array::value("{$fieldName}_op", $this->_params);

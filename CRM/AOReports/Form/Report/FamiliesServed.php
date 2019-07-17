@@ -104,7 +104,7 @@ class CRM_AOReports_Form_Report_FamiliesServed extends CRM_Report_Form {
   }
 
   function from() {
-    $tableName = E::getNewChildContactTableName();
+    $tableName = E::getNewChildContactTableName(NULL, NULL, FALSE, $this);
     $this->_from = " FROM civicrm_contact {$this->_aliases['civicrm_contact']}
       INNER JOIN {$tableName} temp ON temp.new_child_id = {$this->_aliases['civicrm_contact']}.id
       INNER JOIN civicrm_value_donation_cust_2 lang ON lang.entity_id = temp.new_child_id AND lang.language_10 IS NOT NULL

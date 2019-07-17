@@ -16,7 +16,7 @@ class CRM_AOReports_Form_Report_ExtendServiceNavigationByRegion extends CRM_AORe
   }
 
   function from() {
-    $tableName = E::getSNPActivitybyMinistryRegion();
+    $tableName = E::getSNPActivitybyMinistryRegion($this);
     $this->_from = " FROM civicrm_contact {$this->_aliases['civicrm_contact']}
       INNER JOIN {$tableName} temp ON temp.parent_id = {$this->_aliases['civicrm_contact']}.id
       INNER JOIN civicrm_value_donation_cust_2 lang ON lang.entity_id = temp.parent_id AND lang.language_10 IS NOT NULL

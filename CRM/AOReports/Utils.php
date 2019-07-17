@@ -4,7 +4,7 @@ require_once __DIR__ . '../../../ao.variables.php';
 
 class CRM_AOReports_Utils {
 
-  public static function getSNPActivityTableName($activityTypeID) {
+  public static function getSNPActivityTableName($activityTypeID, &$form) {
     $customField = civicrm_api3('CustomField', 'getsingle', ['id' => SNP_REGION_CF_ID]);
     $SNPRegionColumnName = $customField['column_name'];
     $customTableName = civicrm_api3('CustomGroup', 'getvalue', ['id' => $customField['custom_group_id'], 'return' => 'table_name']);
@@ -19,12 +19,13 @@ class CRM_AOReports_Utils {
        LEFT JOIN civicrm_relationship rel ON rel.contact_id_b = cac.contact_id AND rel.relationship_type_id IN (1, 4) AND cac.record_type_id = 3
        LEFT JOIN $customTableName ct ON ct.entity_id = cac.contact_id
     ";
+    $form->addToDeveloperTab($sql);
     CRM_Core_DAO::executeQuery($sql);
     CRM_Core_DAO::executeQuery("CREATE INDEX ind_parent ON $tempTableName(parent_id)");
     return $tempTableName;
   }
 
-  public static function getSNPActivityAverageTime() {
+  public static function getSNPActivityAverageTime(&$form) {
     $customField = civicrm_api3('CustomField', 'getsingle', ['id' => SNP_REGION_CF_ID]);
     $SNPRegionColumnName = $customField['column_name'];
     $customTableName = civicrm_api3('CustomGroup', 'getvalue', ['id' => $customField['custom_group_id'], 'return' => 'table_name']);
@@ -49,8 +50,8 @@ INNER JOIN civicrm_value_newsletter_cu_3 lfm on c.id = lfm.entity_id AND lfm.lea
 INNER JOIN civicrm_value_parent_consul_10 pc on a.id = pc.entity_id
 LEFT JOIN $customTableName ct ON ct.entity_id = ac.contact_id
 WHERE YEAR(a.activity_date_time) = 2019 ";
-
     CRM_Core_DAO::executeQuery($sql);
+    $form->addToDeveloperTab($sql);
     CRM_Core_DAO::executeQuery("CREATE INDEX ind_parent ON $tempTableName(parent_id)");
     return $tempTableName;
   }
@@ -60,7 +61,7 @@ WHERE YEAR(a.activity_date_time) = 2019 ";
   /**
   * Fetch new child whose is a 'Lead Family Member' + family has checked 'Does your child have an ASD diagnosis?'
   */
-  public static function getNewChildContactTableName($from = NULL, $to = NULL, $leadFamilyMember = FALSE) {
+  public static function getNewChildContactTableName($from = NULL, $to = NULL, $leadFamilyMember = FALSE, &$form) {
     $customField = civicrm_api3('CustomField', 'getsingle', ['id' => DIAGNOSIS_ON_FILE_CF_ID]);
     $DOFColumnName = $customField['column_name'];
     $customTableName = civicrm_api3('CustomGroup', 'getvalue', ['id' => $customField['custom_group_id'], 'return' => 'table_name']);
@@ -94,6 +95,7 @@ WHERE YEAR(a.activity_date_time) = 2019 ";
        WHERE $whereClause
     ";
     CRM_Core_DAO::executeQuery($sql);
+    $form->addToDeveloperTab($sql);
     CRM_Core_DAO::executeQuery("CREATE INDEX ind_new_child ON $tempTableName(new_child_id)");
     CRM_Core_DAO::executeQuery("CREATE INDEX ind_parent ON $tempTableName(parent_id)");
 
@@ -101,7 +103,7 @@ WHERE YEAR(a.activity_date_time) = 2019 ";
   }
 
 
-  public static function getNewChildContactTableNameByRegion() {
+  public static function getNewChildContactTableNameByRegion(&$form) {
     $customField = civicrm_api3('CustomField', 'getsingle', ['id' => DIAGNOSIS_ON_FILE_CF_ID]);
     $DOFColumnName = $customField['column_name'];
     $customTableName = civicrm_api3('CustomGroup', 'getvalue', ['id' => $customField['custom_group_id'], 'return' => 'table_name']);
@@ -123,11 +125,12 @@ WHERE YEAR(a.activity_date_time) = 2019 ";
     ";
 
     CRM_Core_DAO::executeQuery($sql);
+    $form->addToDeveloperTab($sql);
     CRM_Core_DAO::executeQuery("CREATE INDEX ind_parent ON $tempTableName(parent_id)");
     return $tempTableName;
   }
 
-  public static function getSNPActivitybyMinistryRegion() {
+  public static function getSNPActivitybyMinistryRegion(&$form) {
     $activityTypeID = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'activity_type_id', 'Service Navigation Provision');
     $customField = civicrm_api3('CustomField', 'getsingle', ['id' => EVENT_CHAPTER_REGION]);
     $CRColumnName = $customField['column_name'];
@@ -151,6 +154,7 @@ WHERE YEAR(a.activity_date_time) = 2019 ";
     ";
 
     CRM_Core_DAO::executeQuery($sql);
+    $form->addToDeveloperTab($sql);
     CRM_Core_DAO::executeQuery("CREATE INDEX ind_parent ON $tempTableName(parent_id)");
     return $tempTableName;
   }
