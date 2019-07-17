@@ -47,7 +47,7 @@ INNER JOIN civicrm_activity_contact ac ON a.id = ac.activity_id AND ac.record_ty
 INNER JOIN civicrm_contact c on ac.contact_id = c.id
 INNER JOIN civicrm_value_newsletter_cu_3 lfm on c.id = lfm.entity_id AND lfm.lead_family_member__28 = 1
 INNER JOIN civicrm_value_parent_consul_10 pc on a.id = pc.entity_id
-LEFT JOIN $customTableName ct ON ct.entity_id = cac.contact_id
+LEFT JOIN $customTableName ct ON ct.entity_id = ac.contact_id
 WHERE YEAR(a.activity_date_time) = 2019 ";
 
     CRM_Core_DAO::executeQuery($sql);
