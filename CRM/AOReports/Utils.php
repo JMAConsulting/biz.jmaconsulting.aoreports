@@ -11,14 +11,18 @@ class CRM_AOReports_Utils {
     $tempTableName = 'temp_snp_activity' . substr(sha1(rand()), 0, 7);
 
     CRM_Core_DAO::executeQuery('DROP TEMPORARY TABLE IF EXISTS ' . $tempTableName);
+
     $sql = "
-      CREATE TEMPORARY TABLE $tempTableName DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci
-       SELECT DISTINCT rel.contact_id_b as parent_id, DATE(ca.activity_date_time) as dof, $SNPRegionColumnName as region, ca.status_id
-       FROM civicrm_activity ca
-       LEFT JOIN civicrm_activity_contact cac ON ca.id = cac.activity_id AND ca.activity_type_id = $activityTypeID
-       LEFT JOIN civicrm_relationship rel ON rel.contact_id_b = cac.contact_id AND rel.relationship_type_id IN (1, 4) AND cac.record_type_id = 3
-       LEFT JOIN $customTableName ct ON ct.entity_id = cac.contact_id
-    ";
+    CREATE TEMPORARY TABLE $tempTableName DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci
+    SELECT DISTINCT rel.contact_id_b as parent_id, DATE(a.activity_date_time) as dof, $SNPRegionColumnName as region, a.status_id
+    FROM civicrm_activity a
+    INNER JOIN civicrm_activity_contact ac ON a.id = ac.activity_id AND ac.record_type_id = 3 AND a.activity_type_id = $activityTypeID
+    INNER JOIN civicrm_contact c on ac.contact_id = c.id
+    INNER JOIN civicrm_value_newsletter_cu_3 lfm on c.id = lfm.entity_id AND lfm.lead_family_member__28 = 1
+    INNER JOIN civicrm_relationship rel ON rel.contact_id_b = lfm.entity_id AND rel.relationship_type_id IN (1, 4)
+    INNER JOIN civicrm_value_parent_consul_10 pc on a.id = pc.entity_id
+    LEFT JOIN $customTableName ct ON ct.entity_id = ac.contact_id ";
+
     $form->addToDeveloperTab($sql);
     CRM_Core_DAO::executeQuery($sql);
     CRM_Core_DAO::executeQuery("CREATE INDEX ind_parent ON $tempTableName(parent_id)");
@@ -147,9 +151,9 @@ WHERE YEAR(a.activity_date_time) = 2019 ";
     FROM $CRcustomTableName ec
     LEFT JOIN civicrm_event e ON e.id = ec.entity_id
     LEFT JOIN civicrm_participant p ON p.event_id =  e.id
-    INNER JOIN civicrm_relationship r ON r.contact_id_b = p.contact_id AND r.relationship_type_id IN (1,4)
-    INNER JOIN $customTableName ct ON ct.entity_id = r.contact_id_b
-    INNER JOIN civicrm_activity_contact cac ON cac.contact_id = ct.entity_id
+    INNER JOIN civicrm_value_newsletter_cu_3 lfm on p.contact_id = lfm.entity_id AND lfm.lead_family_member__28 = 1
+    INNER JOIN civicrm_relationship r ON r.contact_id_b = lfm.entity_id AND r.relationship_type_id IN (1,4)
+    INNER JOIN civicrm_activity_contact cac ON cac.contact_id = lfm.entity_id
     INNER JOIN civicrm_activity ca ON ca.id = cac.activity_id AND ca.activity_type_id = $activityTypeID
     ";
 
