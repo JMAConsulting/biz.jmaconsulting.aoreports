@@ -92,7 +92,7 @@ class CRM_AOReports_Form_Report_FamiliesServedByRegion extends CRM_AOReports_For
     foreach ($regions as $value => $name) {
       $newRows[$value] = [
         'civicrm_contact_total' => 1,
-        'civicrm_contact_family_count' => ts('Number of Families Served on %1 Region', [1 => $name]),
+        'civicrm_contact_family_count' => $name,
         'civicrm_contact_year' => '',
         'civicrm_contact_quarter' => NULL,
         'civicrm_contact_q1' => 0,

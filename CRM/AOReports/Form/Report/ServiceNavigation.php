@@ -113,7 +113,7 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
     foreach ($regions as $value => $name) {
       $newRows[$value] = [
         'civicrm_contact_total' => 1,
-        'civicrm_contact_family_count' => ts('SNPNFS %1 Count of unique parents/caregiver contacts who received SNP services', [1 => $name]),
+        'civicrm_contact_family_count' => $name,
         'civicrm_contact_year' => '',
         'civicrm_contact_quarter' => NULL,
         'civicrm_contact_q1' => 0,
