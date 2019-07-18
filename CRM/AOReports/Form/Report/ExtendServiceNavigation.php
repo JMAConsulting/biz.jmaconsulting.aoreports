@@ -112,8 +112,17 @@ class CRM_AOReports_Form_Report_ExtendServiceNavigation extends CRM_AOReports_Fo
       }
     }
 
-    foreach ($newRows as $key => $row) {
-      $newRows[$key]["civicrm_contact_total_count"] = $newRows[$key]["civicrm_contact_q1"] + $newRows[$key]["civicrm_contact_q2"] + $newRows[$key]["civicrm_contact_q3"] + $newRows[$key]["civicrm_contact_q4"];
+    $sql = "{$this->_select} {$this->_from} {$this->_where} GROUP BY temp.region";
+    $this->addToDeveloperTab($sql);
+    $dao = CRM_Core_DAO::executeQuery($sql);
+    while ($dao->fetch()) {
+      if (!in_array($dao->civicrm_contact_family_count, array_keys($newRows))) {
+        continue;
+      }
+      $newRows[$dao->civicrm_contact_family_count]["civicrm_contact_total_count"] = $dao->civicrm_contact_time_diff;
+      if ($dao->civicrm_contact_total > 0) {
+        $newRows[$dao->civicrm_contact_family_count]["civicrm_contact_total_count"] = round(($dao->civicrm_contact_time_diff / $dao->civicrm_contact_total) , 2);
+      }
     }
 
     unset($this->_columnHeaders["civicrm_contact_total"]);
