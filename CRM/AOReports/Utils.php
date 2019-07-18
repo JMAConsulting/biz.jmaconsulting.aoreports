@@ -125,7 +125,7 @@ WHERE YEAR(a.activity_date_time) = 2019 ";
     LEFT JOIN civicrm_event e ON e.id = ec.entity_id
     LEFT JOIN civicrm_participant p ON p.event_id =  e.id
     INNER JOIN civicrm_relationship r ON r.contact_id_b = p.contact_id AND r.relationship_type_id IN (1,4)
-    INNER JOIN $customTableName ct ON ct.entity_id = r.contact_id_b
+    INNER JOIN $customTableName ct ON ct.entity_id = r.contact_id_a AND ct.lead_family_member__28 = 1
     ";
 
     CRM_Core_DAO::executeQuery($sql);
