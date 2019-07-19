@@ -19,7 +19,7 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
       'dbAlias' => "temp.status_id",
       'title' => 'Service Navigation Provision Activity Status',
       'type' => CRM_Utils_Type::T_STRING,
-      'operatorType' => CRM_Report_Form::OP_SELECT,
+      'operatorType' => CRM_Report_Form::OP_MULTISELECT,
       'options' => CRM_Core_PseudoConstant::activityStatus(),
     );
     $this->_columns['civicrm_contact']['filters']['activity_type'] = array(
