@@ -62,24 +62,9 @@ class CRM_AOReports_Form_Report_SNPWAITDAY extends CRM_Report_Form {
   }
 
   function alterDisplay(&$rows) {
-    $originalSQL = $this->buildQuery(TRUE);
-    $newRows = [];
-    $defaultYear = '';
-
-    $regions = CRM_Core_OptionGroup::values('service_region_20190320122604');
-    foreach ($regions as $value => $name) {
-      $newRows[$value] = [
-        'civicrm_contact_total' => 1,
-        'civicrm_contact_family_count' => $name,
-        'civicrm_contact_time_diff' => 0,
-      ];
-    }
-
-    foreach ($newRows as $key => $row) {
-      foreach ($rows as &$row) {
-        if (strstr($row['civicrm_contact_family_count'], $key)) {
-          $newRows[$key]['civicrm_contact_time_diff'] = $row['civicrm_contact_time_diff'];
-        }
+    foreach ($rows as $key => &$row) {
+      if (CRM_Utils_System::isNull($row['civicrm_contact_family_count'])) {
+        unset($rows[$key]);
       }
     }
 
