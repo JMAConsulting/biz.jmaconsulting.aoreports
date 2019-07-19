@@ -69,8 +69,6 @@ class CRM_AOReports_Form_Report_SNPWAITDAY extends CRM_Report_Form {
     }
 
     unset($this->_columnHeaders["civicrm_contact_total"]);
-
-    $rows = $newRows;
   }
 
 }
