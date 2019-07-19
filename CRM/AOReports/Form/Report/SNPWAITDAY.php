@@ -62,12 +62,6 @@ class CRM_AOReports_Form_Report_SNPWAITDAY extends CRM_Report_Form {
   }
 
   function alterDisplay(&$rows) {
-    foreach ($rows as $key => &$row) {
-      if (CRM_Utils_System::isNull($row['civicrm_contact_family_count'])) {
-        unset($rows[$key]);
-      }
-    }
-
     unset($this->_columnHeaders["civicrm_contact_total"]);
   }
 
