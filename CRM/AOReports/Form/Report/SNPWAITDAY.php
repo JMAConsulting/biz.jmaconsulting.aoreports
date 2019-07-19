@@ -21,7 +21,7 @@ class CRM_AOReports_Form_Report_SNPWAITDAY extends CRM_Report_Form {
           ),
           'time_diff' => array(
             'title' => ts('Waiting Days'),
-            'dbAlias' => 'AVG(temp.time_diff)',
+            'dbAlias' => 'ROUND(AVG(temp.time_diff))',
             'required' => TRUE,
           ),
         ),
