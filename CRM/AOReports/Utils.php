@@ -62,8 +62,6 @@ WHERE YEAR(a.activity_date_time) = 2019 ";
     return $tempTableName;
   }
 
-
-
   /**
   * Fetch new child whose is a 'Lead Family Member' + family has checked 'Does your child have an ASD diagnosis?'
   */
@@ -107,7 +105,6 @@ WHERE YEAR(a.activity_date_time) = 2019 ";
 
     return $tempTableName;
   }
-
 
   public static function getNewChildContactTableNameByRegion(&$form) {
     $customField = civicrm_api3('CustomField', 'getsingle', ['id' => DIAGNOSIS_ON_FILE_CF_ID]);

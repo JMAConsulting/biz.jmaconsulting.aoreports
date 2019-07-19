@@ -11,7 +11,7 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
       'title' => 'Language',
       'type' => CRM_Utils_Type::T_STRING,
       'operatorType' => CRM_Report_Form::OP_SELECT,
-      'options' => CRM_Core_OptionGroup::values('language_10'),
+      'options' => CRM_Core_OptionGroup::values('language_20180621140924'),
     );
 
     $this->_columns['civicrm_contact']['filters']['status_id'] = array(
@@ -72,6 +72,9 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
             $to       = CRM_Utils_Array::value("{$fieldName}_to", $this->_params);
 
             $this->_dateClause = $clause = $this->dateClause($field['name'], $relative, $from, $to, $field['type']);
+          }
+          elseif ($fieldName == 'language_10' && !empty(CRM_Utils_Array::value("{$fieldName}_value", $this->_params))) {
+            $clause = "lang.language_10  LIKE '%" .  CRM_Utils_Array::value("{$fieldName}_value", $this->_params) . "%'";
           }
           else {
             $op = CRM_Utils_Array::value("{$fieldName}_op", $this->_params);

@@ -12,17 +12,6 @@ class CRM_AOReports_Form_Report_ExtendServiceNavigation extends CRM_AOReports_Fo
       'dbAlias' => "SUM(temp.timediff)",
     );
 
-    $this->_columns['civicrm_contact']['filters']['time'] = array(
-      'name' => 'time',
-      'dbAlias' => "1",
-      'title' => 'Waiting Time',
-      'type' => CRM_Utils_Type::T_INT,
-      'operatorType' => CRM_Report_Form::OP_SELECT,
-      'options' => [
-        1 => ts('In Days'),
-        2 => ts('In Hours'),
-      ],
-    );
     $this->_columns['civicrm_contact']['fields']['q1']['title'] = ts('Q1 2019');
     $this->_columns['civicrm_contact']['fields']['q2']['title'] = ts('Q2 2019');
     $this->_columns['civicrm_contact']['fields']['q3']['title'] = ts('Q3 2019');
@@ -104,10 +93,7 @@ class CRM_AOReports_Form_Report_ExtendServiceNavigation extends CRM_AOReports_Fo
       foreach ($rows as &$row) {
         if (strstr($row['civicrm_contact_family_count'], $key)) {
           $newRows[$key]['civicrm_contact_quarter'] = $row['civicrm_contact_quarter'];
-          $newRows[$key]["civicrm_contact_q{$row['civicrm_contact_quarter']}"] = $row['civicrm_contact_total'] == 0 ? 0 : round(($row['civicrm_contact_time_diff'] / $row['civicrm_contact_total']));
-          if ($this->_params['time_value'] == 1) {
-            $newRows[$key]["civicrm_contact_q{$row['civicrm_contact_quarter']}"] = $newRows[$key]["civicrm_contact_q{$row['civicrm_contact_quarter']}"] / 24;
-          }
+          $newRows[$key]["civicrm_contact_q{$row['civicrm_contact_quarter']}"] = $row['civicrm_contact_total'] == 0 ? 0 : round(($row['civicrm_contact_time_diff'] / $row['civicrm_contact_total']), 2);
         }
       }
     }
