@@ -57,6 +57,10 @@ class CRM_AOReports_Form_Report_SNPWAITDAY extends CRM_Report_Form {
     ";
   }
 
+  function groupBy() {
+    $this->_groupBy = "GROUP BY temp.region";
+  }
+
   function alterDisplay(&$rows) {
     $originalSQL = $this->buildQuery(TRUE);
     $newRows = [];
