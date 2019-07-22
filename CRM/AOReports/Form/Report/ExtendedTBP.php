@@ -218,6 +218,7 @@ class CRM_AOReports_Form_Report_ExtendedTBP extends CRM_CloseAccountingPeriod_Fo
                IFNULL(ROUND(SUM(financial_trxn_civireport.credit ),2), 0) as credit_total,
                IFNULL(ROUND(SUM(financial_trxn_civireport.debit ),2), 0) as debit_total
                FROM financial_trxn_civireport
+               INNER JOIN civicrm_financial_account financial_account_civireport ON financial_trxn_civireport.financial_account_id = financial_account_civireport.id
             GROUP BY financial_account_id
 
         ";
