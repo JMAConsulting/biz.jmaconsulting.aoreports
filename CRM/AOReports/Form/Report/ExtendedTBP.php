@@ -221,7 +221,7 @@ class CRM_AOReports_Form_Report_ExtendedTBP extends CRM_CloseAccountingPeriod_Fo
             GROUP BY financial_account_id
 
         ";
-
+    $dao = CRM_Core_DAO::executeQuery($sql);
     $totalDebitAmount = $totalCreditAmount = $totalCount = 0;
     while ($dao->fetch()) {
       $totalDebitAmount += $dao->debit_total;
