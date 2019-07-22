@@ -52,7 +52,7 @@ class CRM_AOReports_Form_Report_ExtendedTBP extends CRM_CloseAccountingPeriod_Fo
       $tempTable5,
       ] as $tempTable) {
         $sql = "CREATE TEMPORARY TABLE $tempTable (
-          id int PRIMARY KEY AUTO_INCREMENT,
+          id int,
           fid int,
           credit float(10,2),
           debit float(10,2),
@@ -143,7 +143,7 @@ class CRM_AOReports_Form_Report_ExtendedTBP extends CRM_CloseAccountingPeriod_Fo
 
     CRM_Core_DAO::executeQuery('DROP TEMPORARY TABLE IF EXISTS financial_trxn_civireport');
     $sql = "
-    INSERT INTO financial_trxn_civireport (id, fid, credit, debit, financial_account_id, chapter_from, chapter_to, fund_from, fund_to)
+    CREATE TEMPORARY TABLE financial_trxn_civireport DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci
     SELECT * FROM $tempTable1
    UNION
     SELECT * FROM $tempTable2
