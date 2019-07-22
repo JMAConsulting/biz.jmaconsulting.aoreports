@@ -210,6 +210,43 @@ class CRM_AOReports_Form_Report_ExtendedTBP extends CRM_CloseAccountingPeriod_Fo
     );
   }
 
+  public function statistics(&$rows) {
+    $statistics = parent::statistics($rows);
+
+    $sql = "
+        SELECT COUNT(DISTINCT financial_trxn_civireport.fid) as count,
+               IFNULL(ROUND(SUM(financial_trxn_civireport.credit ),2), 0) as credit_total,
+               IFNULL(ROUND(SUM(financial_trxn_civireport.credit ),2), 0) as debit_total
+               FROM financial_trxn_civireport
+            GROUP BY financial_account_id
+
+        ";
+
+    $totalDebitAmount = $totalCreditAmount = $totalCount = 0;
+    while ($dao->fetch()) {
+      $totalDebitAmount += $dao->debit_total;
+      $totalCreditAmount += $dao->credit_total;
+      $totalCount += $dao->count;
+    }
+
+    $statistics['counts']['debit'] = [
+      'title' => ts('Total Debit Amount'),
+      'value' => CRM_Utils_Money::format($totalDebitAmount, 'CAD'),
+      'type' => CRM_Utils_Type::T_STRING,
+    ];
+    $statistics['counts']['credit'] = [
+      'title' => ts('Total Credit Amount'),
+      'value' => CRM_Utils_Money::format($totalCreditAmount, 'CAD'),
+      'type' => CRM_Utils_Type::T_STRING,
+    ];
+    $statistics['counts']['count'] = [
+      'title' => ts('Total Transactions'),
+      'value' => $totalCount,
+    ];
+
+    return $statistics;
+  }
+
 
 
 }
