@@ -38,23 +38,35 @@ class CRM_AOReports_Form_Report_ExtendedTBP extends CRM_CloseAccountingPeriod_Fo
       $financialBalanceField = 'current_period_opening_balance';
     }
 
-    CRM_Core_DAO::executeQuery('DROP TEMPORARY TABLE IF EXISTS financial_trxn_civireport');
-    $sql = "CREATE TEMPORARY TABLE financial_trxn_civireport (
-      id int PRIMARY KEY AUTO_INCREMENT,
-      fid int,
-      credit float(10,2),
-      debit float(10,2),
-      financial_account_id int,
-      chapter_from varchar(64),
-      chapter_to varchar(64),
-      fund_from varchar(64),
-      fund_to varchar(64)
-    ) ENGINE=InnoDB";
-    CRM_Core_DAO::executeQuery($sql);
-    $this->addToDeveloperTab($sql);
+    $tempTable1 = 'temp_' . substr(sha1(rand()), 0, 7);
+    $tempTable2 = 'temp_' . substr(sha1(rand()), 0, 7);
+    $tempTable3 = 'temp_' . substr(sha1(rand()), 0, 7);
+    $tempTable4 = 'temp_' . substr(sha1(rand()), 0, 7);
+    $tempTable5 = 'temp_' . substr(sha1(rand()), 0, 7);
+
+    foreach ([
+      $tempTable1,
+      $tempTable2,
+      $tempTable3,
+      $tempTable4,
+      $tempTable5,
+      ] as $tempTable) {
+        $sql = "CREATE TEMPORARY TABLE $tempTable (
+          id int PRIMARY KEY AUTO_INCREMENT,
+          fid int,
+          credit float(10,2),
+          debit float(10,2),
+          financial_account_id int,
+          chapter_from varchar(64),
+          chapter_to varchar(64),
+          fund_from varchar(64),
+          fund_to varchar(64)
+        ) ENGINE=InnoDB";
+        CRM_Core_DAO::executeQuery($sql);
+    }
 
     $sql = "
-    INSERT IGNORE INTO financial_trxn_civireport(id, fid, credit, debit, financial_account_id, chapter_from, chapter_to, fund_from, fund_to)
+    INSERT INTO $tempTable1(id, fid, credit, debit, financial_account_id, chapter_from, chapter_to, fund_from, fund_to)
     SELECT cft1.id, 0 as fid, 0 AS credit, cft1.total_amount AS debit,
       cft1.to_financial_account_id AS financial_account_id,
       '' AS chapter_from, ce.chapter_code AS chapter_to, '' AS fund_from, ce.fund_code AS fund_to
@@ -67,7 +79,7 @@ class CRM_AOReports_Form_Report_ExtendedTBP extends CRM_CloseAccountingPeriod_Fo
     $this->addToDeveloperTab($sql);
 
     $sql = "
-    INSERT IGNORE INTO financial_trxn_civireport(id, fid, credit, debit, financial_account_id, chapter_from, chapter_to, fund_from, fund_to)
+    INSERT INTO $tempTable2(id, fid, credit, debit, financial_account_id, chapter_from, chapter_to, fund_from, fund_to)
     SELECT cft2.id, 0 as fid, cft2.total_amount AS credit, 0 AS debit, cft2.from_financial_account_id,
     ce1.chapter_code AS chapter_from, '' AS chapter_to, ce1.fund_code AS fund_from, '' AS fund_to
       FROM civicrm_financial_trxn cft2
@@ -81,7 +93,7 @@ class CRM_AOReports_Form_Report_ExtendedTBP extends CRM_CloseAccountingPeriod_Fo
     $this->addToDeveloperTab($sql);
 
     $sql = "
-    INSERT IGNORE INTO financial_trxn_civireport(id, fid, credit, debit, financial_account_id, chapter_from, chapter_to, fund_from, fund_to)
+    INSERT INTO $tempTable3(id, fid, credit, debit, financial_account_id, chapter_from, chapter_to, fund_from, fund_to)
     SELECT cft3.id, cfi3.id, 0 AS credit, cfi3.amount AS debit, cfi3.financial_account_id,
     '' AS chapter_from, ce2.chapter_code AS chapter_to, '' AS fund_from, ce2.fund_code AS fund_to
       FROM civicrm_financial_item cfi3
@@ -97,7 +109,7 @@ class CRM_AOReports_Form_Report_ExtendedTBP extends CRM_CloseAccountingPeriod_Fo
     $this->addToDeveloperTab($sql);
 
     $sql = "
-    INSERT IGNORE INTO financial_trxn_civireport(id, fid, credit, debit, financial_account_id, chapter_from, chapter_to, fund_from, fund_to)
+    INSERT INTO $tempTable4(id, fid, credit, debit, financial_account_id, chapter_from, chapter_to, fund_from, fund_to)
     SELECT cft4.id, cfi4.id,  cfi4.amount AS credit, 0 AS debit, cfi4.financial_account_id,
     ce3.chapter_code AS chapter_from, '' AS chapter_to, ce3.fund_code AS fund_from, '' AS fund_to
       FROM civicrm_financial_item cfi4
@@ -113,7 +125,7 @@ class CRM_AOReports_Form_Report_ExtendedTBP extends CRM_CloseAccountingPeriod_Fo
     $this->addToDeveloperTab($sql);
 
     $sql = "
-    INSERT IGNORE INTO financial_trxn_civireport(id, fid, credit, debit, financial_account_id, chapter_from, chapter_to, fund_from, fund_to)
+    INSERT INTO $tempTable5(id, fid, credit, debit, financial_account_id, chapter_from, chapter_to, fund_from, fund_to)
     SELECT 0 as tid, 0 as fid, IF (financial_account_type_id = " . array_search('Liability', $financialAccountType) . ", {$financialBalanceField}, 0) AS credit, IF (financial_account_type_id = " . array_search('Asset', $financialAccountType) . ", {$financialBalanceField}, 0) AS debit, cfa5.id,
               IF (financial_account_type_id = " . array_search('Liability', $financialAccountType) . ", cec.chapter_code, '') AS chapter_from,
               IF (financial_account_type_id = " . array_search('Asset', $financialAccountType) . ", ced.chapter_code, '') AS chapter_to,
@@ -125,6 +137,22 @@ class CRM_AOReports_Form_Report_ExtendedTBP extends CRM_CloseAccountingPeriod_Fo
       INNER JOIN civicrm_entity_financial_trxn ceft5 ON cfa5.id = ceft5.entity_id AND ceft5.entity_table = 'civicrm_financial_item'
       LEFT JOIN civicrm_chapter_entity ced ON ced.entity_id = ceft5.financial_trxn_id AND ced.entity_table = 'civicrm_financial_trxn'
       WHERE cfa5.financial_account_type_id IN (" . implode(', ', $financialAccountTypes) . ") AND {$financialBalanceField} <> 0
+    ";
+    CRM_Core_DAO::executeQuery($sql);
+    $this->addToDeveloperTab($sql);
+
+    CRM_Core_DAO::executeQuery('DROP TEMPORARY TABLE IF EXISTS financial_trxn_civireport');
+    $sql = "
+    INSERT INTO financial_trxn_civireport (id, fid, credit, debit, financial_account_id, chapter_from, chapter_to, fund_from, fund_to)
+    SELECT * FROM $tempTable1
+   UNION
+    SELECT * FROM $tempTable2
+    UNION
+    SELECT * FROM $tempTable3
+   UNION
+    SELECT * FROM $tempTable4
+   UNION
+    SELECT * FROM $tempTable5
     ";
     CRM_Core_DAO::executeQuery($sql);
     $this->addToDeveloperTab($sql);
