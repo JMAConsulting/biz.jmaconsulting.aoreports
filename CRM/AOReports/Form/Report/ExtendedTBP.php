@@ -216,7 +216,7 @@ class CRM_AOReports_Form_Report_ExtendedTBP extends CRM_CloseAccountingPeriod_Fo
     $sql = "
         SELECT COUNT(DISTINCT financial_trxn_civireport.fid) as count,
                IFNULL(ROUND(SUM(financial_trxn_civireport.credit ),2), 0) as credit_total,
-               IFNULL(ROUND(SUM(financial_trxn_civireport.credit ),2), 0) as debit_total
+               IFNULL(ROUND(SUM(financial_trxn_civireport.debit ),2), 0) as debit_total
                FROM financial_trxn_civireport
             GROUP BY financial_account_id
 
