@@ -154,7 +154,7 @@ WHERE YEAR(a.activity_date_time) = 2019 ";
     INNER JOIN civicrm_relationship r ON r.contact_id_b = lfm.entity_id AND r.relationship_type_id = 1
     INNER JOIN civicrm_activity_contact cac ON cac.contact_id = lfm.entity_id
     INNER JOIN civicrm_activity ca ON ca.id = cac.activity_id AND ca.activity_type_id IN (70, 137)
-    WHERE YEAR(a.activity_date_time) = 2019
+    WHERE YEAR(ca.activity_date_time) = 2019
     ";
 
     CRM_Core_DAO::executeQuery($sql);
