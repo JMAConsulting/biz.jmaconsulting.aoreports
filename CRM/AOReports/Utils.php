@@ -4,11 +4,13 @@ require_once __DIR__ . '../../../ao.variables.php';
 
 class CRM_AOReports_Utils {
 
-  public static function getSNPActivityTableName($activityTypeID, &$form) {
+  public static function getSNPActivityTableName($activityTypeID, &$form, $ignoreStatus = FALSE) {
     $customField = civicrm_api3('CustomField', 'getsingle', ['id' => SNP_REGION_CF_ID]);
     $SNPRegionColumnName = $customField['column_name'];
     $customTableName = civicrm_api3('CustomGroup', 'getvalue', ['id' => $customField['custom_group_id'], 'return' => 'table_name']);
     $tempTableName = 'temp_snp_activity' . substr(sha1(rand()), 0, 7);
+
+    $status = $ignoreStatus ? " a.status_id = 2 " : '(1)';
 
     CRM_Core_DAO::executeQuery('DROP TEMPORARY TABLE IF EXISTS ' . $tempTableName);
 
@@ -22,7 +24,7 @@ FROM civicrm_activity a
     INNER JOIN civicrm_relationship rel ON rel.contact_id_b = c.id
     INNER JOIN civicrm_value_newsletter_cu_3 lfm on rel.contact_id_a = lfm.entity_id
   LEFT JOIN civicrm_value_chapters_and__18 ct ON ct.entity_id = ac.contact_id
-WHERE YEAR(a.activity_date_time) = 2019 AND ac.record_type_id = 3 AND rel.relationship_type_id = 1 AND c.is_deleted = 0 AND lfm.lead_family_member__28 = 1 AND a.activity_type_id = 137 AND a.status_id = 2 AND a.is_deleted = 0
+WHERE YEAR(a.activity_date_time) = 2019 AND ac.record_type_id = 3 AND rel.relationship_type_id = 1 AND c.is_deleted = 0 AND lfm.lead_family_member__28 = 1 AND a.activity_type_id = 137 AND $status AND a.is_deleted = 0
 GROUP BY lfm.entity_id
     ";
 
