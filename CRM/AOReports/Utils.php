@@ -16,7 +16,7 @@ class CRM_AOReports_Utils {
     CREATE TEMPORARY TABLE $tempTableName DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci
     SELECT DISTINCT rel.contact_id_b as parent_id, DATE(a.activity_date_time) as dof, $SNPRegionColumnName as region, a.status_id
     FROM civicrm_activity a
-    INNER JOIN civicrm_activity_contact ac ON a.id = ac.activity_id AND ac.record_type_id = 3 AND a.activity_type_id IN (70, 137)
+    INNER JOIN civicrm_activity_contact ac ON a.id = ac.activity_id AND ac.record_type_id = 3 AND a.activity_type_id IN (70, 137) AND a.is_deleted = 0
     INNER JOIN civicrm_contact c on ac.contact_id = c.id
     INNER JOIN civicrm_relationship rel ON rel.contact_id_b = c.id AND rel.relationship_type_id = 1
     INNER JOIN civicrm_value_newsletter_cu_3 lfm on rel.contact_id_a = lfm.entity_id AND lfm.lead_family_member__28 = 1
@@ -50,7 +50,7 @@ class CRM_AOReports_Utils {
     ELSE 0 END
     AS timediff
 FROM civicrm_activity a
-INNER JOIN civicrm_activity_contact ac ON a.id = ac.activity_id AND ac.record_type_id = 3 AND a.activity_type_id IN (70, 137)
+INNER JOIN civicrm_activity_contact ac ON a.id = ac.activity_id AND ac.record_type_id = 3 AND a.activity_type_id IN (70, 137) AND a.is_deleted = 0
 INNER JOIN civicrm_contact c on ac.contact_id = c.id
 INNER JOIN civicrm_value_newsletter_cu_3 lfm on c.id = lfm.entity_id AND lfm.lead_family_member__28 = 1
 INNER JOIN civicrm_value_parent_consul_10 pc on a.id = pc.entity_id
@@ -154,7 +154,7 @@ WHERE YEAR(a.activity_date_time) = 2019 ";
       INNER JOIN civicrm_value_newsletter_cu_3 lfm on r.contact_id_a = lfm.entity_id AND lfm.lead_family_member__28 = 1
       INNER JOIN civicrm_activity_contact cac ON cac.contact_id = r.contact_id_b AND cac.record_type_id = 3
       INNER JOIN civicrm_contact c ON c.id = cac.contact_id AND c.is_deleted = 0
-      INNER JOIN civicrm_activity ca ON ca.id = cac.activity_id AND ca.activity_type_id IN (70, 137)
+      INNER JOIN civicrm_activity ca ON ca.id = cac.activity_id AND ca.activity_type_id IN (70, 137) AND a.is_deleted = 0
     WHERE YEAR(ca.activity_date_time) = 2019
     ";
 
