@@ -148,12 +148,13 @@ WHERE YEAR(a.activity_date_time) = 2019 ";
     CREATE TEMPORARY TABLE $tempTableName DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci
     SELECT DISTINCT lfm.entity_id as new_child_id, r.contact_id_b as parent_id, DATE(ca.activity_date_time) as dof, $CRColumnName as region, ca.status_id
     FROM $CRcustomTableName ec
-    LEFT JOIN civicrm_event e ON e.id = ec.entity_id
-    LEFT JOIN civicrm_participant p ON p.event_id =  e.id
-    INNER JOIN civicrm_value_newsletter_cu_3 lfm on p.contact_id = lfm.entity_id AND lfm.lead_family_member__28 = 1
-    INNER JOIN civicrm_relationship r ON r.contact_id_b = lfm.entity_id AND r.relationship_type_id = 1
-    INNER JOIN civicrm_activity_contact cac ON cac.contact_id = lfm.entity_id
-    INNER JOIN civicrm_activity ca ON ca.id = cac.activity_id AND ca.activity_type_id IN (70, 137)
+      LEFT JOIN civicrm_event e ON e.id = ec.entity_id
+      LEFT JOIN civicrm_participant p ON p.event_id =  e.id
+      INNER JOIN civicrm_value_newsletter_cu_3 lfm on p.contact_id = lfm.entity_id AND lfm.lead_family_member__28 = 1
+      INNER JOIN civicrm_relationship r ON r.contact_id_a = lfm.entity_id AND r.relationship_type_id = 1
+      INNER JOIN civicrm_activity_contact cac ON cac.contact_id = r.contact_id_b AND cac.record_type_id = 2
+      INNER JOIN civicrm_contact c ON c.id = cac.contact_id AND c.is_deleted = 0
+      INNER JOIN civicrm_activity ca ON ca.id = cac.activity_id AND ca.activity_type_id IN (70, 137)
     WHERE YEAR(ca.activity_date_time) = 2019
     ";
 
