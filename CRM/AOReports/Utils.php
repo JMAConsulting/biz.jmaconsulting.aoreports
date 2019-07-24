@@ -150,8 +150,8 @@ WHERE YEAR(a.activity_date_time) = 2019 ";
     FROM $CRcustomTableName ec
       LEFT JOIN civicrm_event e ON e.id = ec.entity_id
       LEFT JOIN civicrm_participant p ON p.event_id =  e.id
-      INNER JOIN civicrm_value_newsletter_cu_3 lfm on p.contact_id = lfm.entity_id AND lfm.lead_family_member__28 = 1
-      INNER JOIN civicrm_relationship r ON r.contact_id_a = lfm.entity_id AND r.relationship_type_id = 1
+      INNER JOIN civicrm_relationship r ON r.contact_id_b = p.contact_id AND r.relationship_type_id = 1
+      INNER JOIN civicrm_value_newsletter_cu_3 lfm on r.contact_id_a = lfm.entity_id AND lfm.lead_family_member__28 = 1
       INNER JOIN civicrm_activity_contact cac ON cac.contact_id = r.contact_id_b AND cac.record_type_id = 2
       INNER JOIN civicrm_contact c ON c.id = cac.contact_id AND c.is_deleted = 0
       INNER JOIN civicrm_activity ca ON ca.id = cac.activity_id AND ca.activity_type_id IN (70, 137)
