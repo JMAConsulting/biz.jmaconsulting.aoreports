@@ -23,7 +23,7 @@ FROM civicrm_activity a
     INNER JOIN civicrm_value_newsletter_cu_3 lfm on rel.contact_id_a = lfm.entity_id
     INNER JOIN civicrm_value_parent_consul_10 pc on a.id = pc.entity_id
   LEFT JOIN civicrm_value_chapters_and__18 ct ON ct.entity_id = ac.contact_id
-WHERE YEAR(a.activity_date_time) = 2019 AND cc.case_type_id = 1 AND ac.record_type_id = 3 AND rel.relationship_type_id = 1 AND c.is_deleted = 0 AND lfm.lead_family_member__28 = 1
+WHERE YEAR(a.activity_date_time) = 2019 AND ac.record_type_id = 3 AND rel.relationship_type_id = 1 AND c.is_deleted = 0 AND lfm.lead_family_member__28 = 1
 GROUP BY lfm.entity_id
     ";
 
