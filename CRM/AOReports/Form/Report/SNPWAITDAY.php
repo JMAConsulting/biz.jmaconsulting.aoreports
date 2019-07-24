@@ -8,20 +8,52 @@ class CRM_AOReports_Form_Report_SNPWAITDAY extends CRM_Report_Form {
       'civicrm_contact' => array(
         'dao' => 'CRM_Contact_DAO_Contact',
         'fields' => array(
-          'total' => array(
-            'title' => ts('Contact ID'),
-            'dbAlias' => 'COUNT(DISTINCT contact_civireport.id)',
-            'display' => FALSE,
-            'required' => TRUE,
-          ),
           'family_count' => array(
             'title' => ts('Region'),
             'required' => TRUE,
             'dbAlias' => "temp.region",
           ),
+          'quarter' => array(
+            'title' => ts('Quarter'),
+            'dbAlias' => 'QUARTER(temp.dof)',
+            'required' => TRUE,
+          ),
+          'q1' => array(
+            'extends' => 'Activity',
+            'name' => 'q1',
+            'required' => TRUE,
+            'title' => 'Q1',
+            'dbAlias' => "0",
+          ),
+          'q2' => array(
+            'extends' => 'Activity',
+            'name' => 'q2',
+            'required' => TRUE,
+            'title' => 'Q2',
+            'dbAlias' => "0",
+          ),
+          'q3' => array(
+            'extends' => 'Activity',
+            'name' => 'q3',
+            'required' => TRUE,
+            'title' => 'Q3',
+            'dbAlias' => "0",
+          ),
+          'q4' => array(
+            'extends' => 'Activity',
+            'name' => 'q3',
+            'required' => TRUE,
+            'title' => 'Q4',
+            'dbAlias' => "0",
+          ),
           'time_diff' => array(
             'title' => ts('Waiting Days'),
             'dbAlias' => 'ROUND(AVG(temp.time_diff), 2)',
+            'required' => TRUE,
+          ),
+          'total' => array(
+            'title' => ts('Total count'),
+            'dbAlias' => 'COUNT(DISTINCT contact_civireport.id)',
             'required' => TRUE,
           ),
         ),
@@ -44,7 +76,8 @@ class CRM_AOReports_Form_Report_SNPWAITDAY extends CRM_Report_Form {
     $this->_from = "
     FROM civicrm_contact {$this->_aliases['civicrm_contact']}
     INNER JOIN (
-      SELECT rac.contact_id, service_region_776, pa.status_id, DATEDIFF( MAX(pa.activity_date_time), MIN(ra.activity_date_time)) AS time_diff, r.service_region_776 AS region
+      SELECT rac.contact_id, service_region_776, pa.status_id, DATEDIFF( MAX(pa.activity_date_time), MIN(ra.activity_date_time)) AS time_diff, r.service_region_776 AS region,
+      ra.activity_date_time as dof
       FROM civicrm_case_activity rca
       INNER JOIN civicrm_activity ra ON rca.activity_id=ra.id AND ra.is_deleted = 0 AND ra.activity_type_id = 136
       INNER JOIN civicrm_activity_contact rac ON ra.id=rac.activity_id AND rac.record_type_id = 3
@@ -58,11 +91,55 @@ class CRM_AOReports_Form_Report_SNPWAITDAY extends CRM_Report_Form {
   }
 
   function groupBy() {
-    $this->_groupBy = "GROUP BY temp.region";
+    $this->_groupBy = "GROUP BY temp.region, QUARTER(temp.dof)";
   }
 
   function alterDisplay(&$rows) {
-    unset($this->_columnHeaders["civicrm_contact_total"]);
+    $originalSQL = $this->buildQuery(TRUE);
+    $newRows = [];
+    $defaultYear = '';
+
+    $regions = CRM_Core_OptionGroup::values('service_region_20190320122604');
+    foreach ($regions as $value => $name) {
+      $newRows[$value] = [
+        'civicrm_contact_family_count' => $name,
+        'civicrm_contact_quarter' => NULL,
+        'civicrm_contact_q1' => 0,
+        'civicrm_contact_q2' => 0,
+        'civicrm_contact_q3' => 0,
+        'civicrm_contact_q4' => 0,
+        'civicrm_contact_time_diff' => 0,
+        'civicrm_contact_total' => 1,
+      ];
+    }
+    $newRows['no-region'] = [
+      'civicrm_contact_family_count' => 'Unknown',
+      'civicrm_contact_quarter' => NULL,
+      'civicrm_contact_q1' => 0,
+      'civicrm_contact_q2' => 0,
+      'civicrm_contact_q3' => 0,
+      'civicrm_contact_q4' => 0,
+      'civicrm_contact_time_diff' => 0,
+      'civicrm_contact_total' => 1,
+    ];
+
+
+    foreach ($newRows as $key => $row) {
+      foreach ($rows as &$row) {
+        if (strstr($row['civicrm_contact_family_count'], $key)) {
+          $newRows[$key]['civicrm_contact_quarter'] = $row['civicrm_contact_quarter'];
+          $newRows[$key]["civicrm_contact_q{$row['civicrm_contact_quarter']}"] = $row['civicrm_contact_time_diff'];
+        }
+        elseif ($row['civicrm_contact_family_count'] == '') {
+          $newRows['no-region']['civicrm_contact_quarter'] = $row['civicrm_contact_quarter'];
+          $newRows['no-region']["civicrm_contact_q{$row['civicrm_contact_quarter']}"] = $row['civicrm_contact_time_diff'];
+        }
+      }
+    }
+
+    unset($this->_columnHeaders["civicrm_contact_quarter"]);
+
+    $rows = $newRows;
   }
 
 }
