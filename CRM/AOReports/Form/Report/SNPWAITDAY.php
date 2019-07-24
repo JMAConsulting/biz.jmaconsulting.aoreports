@@ -120,7 +120,7 @@ class CRM_AOReports_Form_Report_SNPWAITDAY extends CRM_Report_Form {
       'civicrm_contact_q3' => 0,
       'civicrm_contact_q4' => 0,
       'civicrm_contact_time_diff' => 0,
-      'civicrm_contact_total' => 1,
+      'civicrm_contact_total' => 0,
     ];
 
 
@@ -129,17 +129,30 @@ class CRM_AOReports_Form_Report_SNPWAITDAY extends CRM_Report_Form {
         if (strstr($row['civicrm_contact_family_count'], $key)) {
           $newRows[$key]['civicrm_contact_quarter'] = $row['civicrm_contact_quarter'];
           $newRows[$key]["civicrm_contact_q{$row['civicrm_contact_quarter']}"] = $row['civicrm_contact_time_diff'];
+          $newRows[$key]['civicrm_contact_total'] += $row['civicrm_contact_total'];
         }
         elseif ($row['civicrm_contact_family_count'] == '') {
           $newRows['no-region']['civicrm_contact_quarter'] = $row['civicrm_contact_quarter'];
           $newRows['no-region']["civicrm_contact_q{$row['civicrm_contact_quarter']}"] = $row['civicrm_contact_time_diff'];
+          $newRows['no-region']['civicrm_contact_total'] += $row['civicrm_contact_total'];
         }
       }
     }
 
     unset($this->_columnHeaders["civicrm_contact_quarter"]);
+    unset($this->_columnHeaders["civicrm_contact_time_diff"]);
 
     $rows = $newRows;
   }
+
+  public function buildInstanceAndButtons() {
+    parent::buildInstanceAndButtons();
+    CRM_Core_Resources::singleton()->addScript(
+    "CRM.$(function($) {
+      $('.report-layout td.report-label').removeClass('report-label');
+    });"
+    );
+  }
+
 
 }
