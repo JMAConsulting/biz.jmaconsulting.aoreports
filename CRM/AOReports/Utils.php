@@ -14,7 +14,7 @@ class CRM_AOReports_Utils {
 
     $sql = "
     CREATE TEMPORARY TABLE $tempTableName DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci
-    SELECT lfm.entity_id as lead_family_member_id, rel.contact_id_b as parent_id, DATE(a.activity_date_time) as dof, service_region_776 as region, a.status_id
+    SELECT lfm.entity_id as lead_family_member_id, DATE(a.activity_date_time) as dof, service_region_776 as region, a.status_id
 FROM civicrm_activity a
     INNER JOIN civicrm_case_activity ca ON a.id = ca.activity_id
     INNER JOIN civicrm_activity_contact ac ON ac.activity_id = ca.activity_id
@@ -23,7 +23,7 @@ FROM civicrm_activity a
     INNER JOIN civicrm_value_newsletter_cu_3 lfm on rel.contact_id_a = lfm.entity_id
     INNER JOIN civicrm_value_parent_consul_10 pc on a.id = pc.entity_id
   LEFT JOIN civicrm_value_chapters_and__18 ct ON ct.entity_id = ac.contact_id
-WHERE YEAR(a.activity_date_time) = 2019 AND ac.record_type_id = 3 AND rel.relationship_type_id = 1 AND c.is_deleted = 0 AND lfm.lead_family_member__28 = 1
+WHERE YEAR(a.activity_date_time) = 2019 AND ac.record_type_id = 3 AND rel.relationship_type_id = 1 AND c.is_deleted = 0 AND lfm.lead_family_member__28 = 1 AND a.activity_type_id = 137 AND a.status_id = 2 AND a.is_deleted = 0
 GROUP BY lfm.entity_id
     ";
 
