@@ -17,8 +17,7 @@ class CRM_AOReports_Utils {
     SELECT lfm.entity_id as lead_family_member_id, DATE(a.activity_date_time) as dof, service_region_776 as region, a.status_id
 FROM civicrm_activity a
     INNER JOIN civicrm_case_activity ca ON a.id = ca.activity_id
-   INNER JOIN civicrm_case cc ON cc.id = ca.case_id
-    INNER JOIN civicrm_activity_contact ac ON ac.contact_id
+    INNER JOIN civicrm_activity_contact ac ON ac.activity_id = ca.activity_id
     INNER JOIN civicrm_contact c on ac.contact_id = c.id
     INNER JOIN civicrm_relationship rel ON rel.contact_id_b = c.id
     INNER JOIN civicrm_value_newsletter_cu_3 lfm on rel.contact_id_a = lfm.entity_id
