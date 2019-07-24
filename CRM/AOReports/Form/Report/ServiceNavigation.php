@@ -126,6 +126,18 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
         'civicrm_contact_total_count' => 0,
       ];
     }
+    $newRows['no-region'] = [
+      'civicrm_contact_total' => 1,
+      'civicrm_contact_family_count' => 'Unknown',
+      'civicrm_contact_year' => '',
+      'civicrm_contact_quarter' => NULL,
+      'civicrm_contact_q1' => 0,
+      'civicrm_contact_q2' => 0,
+      'civicrm_contact_q3' => 0,
+      'civicrm_contact_q4' => 0,
+      'civicrm_contact_total_count' => 0,
+    ];
+
 
     foreach ($newRows as $key => $row) {
       foreach ($rows as &$row) {
@@ -133,6 +145,10 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
           $newRows[$key]['civicrm_contact_quarter'] = $row['civicrm_contact_quarter'];
           $newRows[$key]["civicrm_contact_q{$row['civicrm_contact_quarter']}"] = $row['civicrm_contact_total'];
         }
+      }
+      else {
+        $newRows['no-region']['civicrm_contact_quarter'] = $row['civicrm_contact_quarter'];
+        $newRows['no-region']["civicrm_contact_q{$row['civicrm_contact_quarter']}"] = $row['civicrm_contact_total'];
       }
     }
 
