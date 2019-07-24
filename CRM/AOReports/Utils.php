@@ -14,7 +14,7 @@ class CRM_AOReports_Utils {
 
     $sql = "
     CREATE TEMPORARY TABLE $tempTableName DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci
-    SELECT lfm.entity_id as lead_family_member_id, DATE(a.activity_date_time) as dof, service_region_776 as region, a.status_id
+    SELECT lfm.entity_id as lead_family_member_id, rel.contact_id_b as parent_id, DATE(a.activity_date_time) as dof, service_region_776 as region, a.status_id
 FROM civicrm_activity a
     INNER JOIN civicrm_case_activity ca ON a.id = ca.activity_id
     INNER JOIN civicrm_activity_contact ac ON ac.activity_id = ca.activity_id
