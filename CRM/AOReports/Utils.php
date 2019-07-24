@@ -156,7 +156,7 @@ WHERE YEAR(a.activity_date_time) = 2019 AND lfm.lead_family_member__28 = 1 AND a
       INNER JOIN civicrm_activity_contact cac ON cac.contact_id = r.contact_id_b
       INNER JOIN civicrm_contact c ON c.id = cac.contact_id
       INNER JOIN civicrm_activity ca ON ca.id = cac.activity_id
-    WHERE YEAR(ca.activity_date_time) = 2019 AND r.relationship_type_id = 1 AND lfm.lead_family_member__28 = 1 AND ca.activity_type_id IN (70, 137) AND a.is_deleted = 0 AND c.is_deleted = 0 AND cac.record_type_id = 3
+    WHERE YEAR(ca.activity_date_time) = 2019 AND r.relationship_type_id = 1 AND lfm.lead_family_member__28 = 1 AND ca.activity_type_id IN (70, 137) AND ca.is_deleted = 0 AND c.is_deleted = 0 AND cac.record_type_id = 3
     ";
 
     CRM_Core_DAO::executeQuery($sql);
