@@ -145,7 +145,7 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
           $newRows[$key]['civicrm_contact_quarter'] = $row['civicrm_contact_quarter'];
           $newRows[$key]["civicrm_contact_q{$row['civicrm_contact_quarter']}"] = $row['civicrm_contact_total'];
         }
-        else {
+        elseif ($row['civicrm_contact_family_count'] == '') {
           $newRows['no-region']['civicrm_contact_quarter'] = $row['civicrm_contact_quarter'];
           $newRows['no-region']["civicrm_contact_q{$row['civicrm_contact_quarter']}"] = $row['civicrm_contact_total'];
         }
