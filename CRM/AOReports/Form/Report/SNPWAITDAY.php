@@ -89,6 +89,10 @@ FROM (
       'civicrm_contact_family_q4' => 0,
     ];
     foreach ($rows as $key => $row) {
+      $rows[$key]['civicrm_contact_q1'] = $row['civicrm_contact_q1'] ?: 0;
+      $rows[$key]['civicrm_contact_q2'] = $row['civicrm_contact_q2'] ?: 0;
+      $rows[$key]['civicrm_contact_q3'] = $row['civicrm_contact_q3'] ?: 0;
+      $rows[$key]['civicrm_contact_q4'] = $row['civicrm_contact_q4'] ?: 0;
       $lastRow['civicrm_contact_q1'] += round(($row['civicrm_contact_q1'] / 5), 2);
       $lastRow['civicrm_contact_q2'] += round(($row['civicrm_contact_q2'] / 5), 2);
       $lastRow['civicrm_contact_q3'] += round(($row['civicrm_contact_q3'] / 5), 2);
