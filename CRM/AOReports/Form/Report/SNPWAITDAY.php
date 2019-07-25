@@ -18,28 +18,28 @@ class CRM_AOReports_Form_Report_SNPWAITDAY extends CRM_Report_Form {
             'name' => 'q1',
             'required' => TRUE,
             'title' => 'Q1',
-            'dbAlias' => "ROUND(AVG(SQ2.Q1), 2)",
+            'dbAlias' => "IF(SQ2.Q1 IS NULL, 0, ROUND(AVG(SQ2.Q1), 2))",
           ),
           'q2' => array(
             'extends' => 'Activity',
             'name' => 'q2',
             'required' => TRUE,
             'title' => 'Q2',
-            'dbAlias' => "ROUND(AVG(SQ2.Q2), 2)",
+            'dbAlias' => "IF(SQ2.Q2 IS NULL, 0, ROUND(AVG(SQ2.Q2), 2))",
           ),
           'q3' => array(
             'extends' => 'Activity',
             'name' => 'q3',
             'required' => TRUE,
             'title' => 'Q3',
-            'dbAlias' => "ROUND(AVG(SQ2.Q3), 2)",
+            'dbAlias' => "IF(SQ2.Q3 IS NULL, 0, ROUND(AVG(SQ2.Q3), 2))",
           ),
           'q4' => array(
             'extends' => 'Activity',
             'name' => 'q3',
             'required' => TRUE,
             'title' => 'Q4',
-            'dbAlias' => "ROUND(AVG(SQ2.Q4), 2)",
+            'dbAlias' => "IF(SQ2.Q4 IS NULL, 0, ROUND(AVG(SQ2.Q4), 2))",
           ),
           'total' => array(
             'title' => ts('Total count'),
@@ -81,6 +81,11 @@ FROM (
   }
 
   function alterDisplay(&$rows) {
+    foreach ($rows as $key => $row) {
+      if (empty($row['civicrm_contact_family_count']) {
+        $rows[$key]['civicrm_contact_family_count'] = "<b>Total</b>";
+      }
+    }
   }
 
   public function buildInstanceAndButtons() {
