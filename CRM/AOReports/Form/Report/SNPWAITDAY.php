@@ -71,32 +71,31 @@ FROM (
         INNER JOIN civicrm_case_activity pca ON rca.case_id=pca.case_id
         INNER JOIN civicrm_activity pa ON pca.activity_id=pa.id
         LEFT JOIN civicrm_value_chapters_and__18 r ON rac.contact_id=r.entity_id
-      WHERE ra.is_deleted = 0 AND ra.activity_type_id = 136 AND rac.record_type_id = 3 AND pa.is_deleted=0 AND pa.activity_type_id=137 AND pa.status_id='2' AND pa.is_current_revision = 1
+      WHERE ra.is_deleted = 0 AND ra.activity_type_id = 136 AND rac.record_type_id = 3 AND pa.is_deleted=0 AND pa.activity_type_id=137 AND pa.status_id='2' AND ra.is_current_revision = 1 AND pa.is_current_revision = 1
       GROUP BY rca.case_id) AS SQ
     ) AS SQ2 ";
   }
 
   function groupBy() {
-    $this->_groupBy = " GROUP BY SQ2.region WITH ROLLUP ";
+    $this->_groupBy = " GROUP BY SQ2.region ";
   }
 
   function alterDisplay(&$rows) {
-    $newRows = $lastRow = [];
+    $lastRow = [
+      'civicrm_contact_family_count' => "<b>Total</b>",
+      'civicrm_contact_family_q1' => 0,
+      'civicrm_contact_family_q2' => 0,
+      'civicrm_contact_family_q3' => 0,
+      'civicrm_contact_family_q4' => 0,
+    ];
     foreach ($rows as $key => $row) {
-      if (empty($row['civicrm_contact_family_count'])) {
-        $row['civicrm_contact_family_count'] = "Total";
-        foreach ($row as $k => $v) {
-          $rows[$key][$k] = sprintf('<b>%s</b>', $v);
-        }
-        $lastRow = $rows[$key];
-      }
-      else {
-        $newRows[$row['civicrm_contact_family_count']] = $row;
-      }
+      $lastRow['civicrm_contact_q1'] += $row['civicrm_contact_q1'];
+      $lastRow['civicrm_contact_q2'] += $row['civicrm_contact_q2'];
+      $lastRow['civicrm_contact_q3'] += $row['civicrm_contact_q3'];
+      $lastRow['civicrm_contact_q4'] += $row['civicrm_contact_q4'];
+      $lastRow['civicrm_contact_total'] += $row['civicrm_contact_total'];
     }
-    ksort($newRows);
-    $newRows[] = $lastRow;
-    $rows = $newRows;
+    $rows[] = $lastRow;
   }
 
   public function buildInstanceAndButtons() {
