@@ -53,12 +53,15 @@ GROUP BY lfm.entity_id
     WHEN 5 THEN 90
     ELSE 0 END
     AS timediff
-FROM civicrm_activity a
-INNER JOIN civicrm_activity_contact ac ON a.id = ac.activity_id
-INNER JOIN civicrm_contact c on ac.contact_id = c.id
-INNER JOIN civicrm_value_newsletter_cu_3 lfm on c.id = lfm.entity_id
-LEFT JOIN civicrm_value_parent_consul_10 pc on a.id = pc.entity_id
-LEFT JOIN $customTableName ct ON ct.entity_id = ac.contact_id
+    FROM civicrm_activity a
+      INNER JOIN civicrm_case_activity ca ON a.id = ca.activity_id
+      INNER JOIN civicrm_activity_contact ac ON ac.activity_id = ca.activity_id
+      INNER JOIN civicrm_contact c on ac.contact_id = c.id
+      INNER JOIN civicrm_relationship rel ON rel.contact_id_b = c.id
+      INNER JOIN civicrm_value_newsletter_cu_3 lfm on rel.contact_id_a = lfm.entity_id
+      LEFT JOIN civicrm_value_parent_consul_10 pc on a.id = pc.entity_id
+      LEFT JOIN civicrm_value_chapters_and__18 ct ON ct.entity_id = ac.contact_id
+
 WHERE YEAR(a.activity_date_time) = 2019 AND lfm.lead_family_member__28 = 1 AND ac.record_type_id = 3 AND a.activity_type_id IN (70, 137) AND a.is_current_revision = 1 AND a.is_deleted = 0 AND c.is_deleted = 0 ";
     CRM_Core_DAO::executeQuery($sql);
     $form->addToDeveloperTab($sql);
