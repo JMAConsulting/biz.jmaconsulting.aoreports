@@ -70,7 +70,6 @@ class CRM_AOReports_Form_Report_ExtendServiceNavigation extends CRM_AOReports_Fo
   }
 
   function alterDisplay(&$rows) {
-    $originalSQL = $this->buildQuery(TRUE);
     $newRows = [];
     $defaultYear = '';
 
