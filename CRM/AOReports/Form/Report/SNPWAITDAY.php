@@ -88,7 +88,7 @@ FROM (
         foreach ($row as $k => $v) {
           $rows[$key][$k] = sprintf('<b>%s</b>', $v);
         }
-        $lastRow = $row;
+        $lastRow = $rows[$key];
       }
       else {
         $newRows[$row['civicrm_contact_family_count']] = $row;
