@@ -59,7 +59,7 @@ INNER JOIN civicrm_contact c on ac.contact_id = c.id
 INNER JOIN civicrm_value_newsletter_cu_3 lfm on c.id = lfm.entity_id
 LEFT JOIN civicrm_value_parent_consul_10 pc on a.id = pc.entity_id
 LEFT JOIN $customTableName ct ON ct.entity_id = ac.contact_id
-WHERE YEAR(a.activity_date_time) = 2019 AND lfm.lead_family_member__28 = 1 AND ac.record_type_id = 3 AND a.activity_type_id IN (70, 137) AND a.is_deleted = 0 AND c.is_deleted = 0 ";
+WHERE YEAR(a.activity_date_time) = 2019 AND lfm.lead_family_member__28 = 1 AND ac.record_type_id = 3 AND a.activity_type_id IN (70, 137) AND a.is_current_revision = 1 AND a.is_deleted = 0 AND c.is_deleted = 0 ";
     CRM_Core_DAO::executeQuery($sql);
     $form->addToDeveloperTab($sql);
     CRM_Core_DAO::executeQuery("CREATE INDEX ind_parent ON $tempTableName(parent_id)");
@@ -152,7 +152,7 @@ WHERE YEAR(a.activity_date_time) = 2019 AND lfm.lead_family_member__28 = 1 AND a
       INNER JOIN civicrm_activity ca ON ca.id = cac.activity_id
       LEFT JOIN civicrm_value_chapters_and__18 ct ON ct.entity_id = cac.contact_id
 
-    WHERE YEAR(ca.activity_date_time) = 2019 AND r.relationship_type_id = 1 AND lfm.lead_family_member__28 = 1 AND ca.activity_type_id IN (70, 137) AND ca.is_deleted = 0 AND c.is_deleted = 0 AND cac.record_type_id = 3
+    WHERE YEAR(ca.activity_date_time) = 2019 AND r.relationship_type_id = 1 AND lfm.lead_family_member__28 = 1 AND ca.activity_type_id IN (70, 137) AND ca.is_current_revision = 1 AND ca.is_deleted = 0 AND c.is_deleted = 0 AND cac.record_type_id = 3
     ";
 
     CRM_Core_DAO::executeQuery($sql);

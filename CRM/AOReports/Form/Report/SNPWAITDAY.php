@@ -71,7 +71,7 @@ FROM (
         INNER JOIN civicrm_case_activity pca ON rca.case_id=pca.case_id
         INNER JOIN civicrm_activity pa ON pca.activity_id=pa.id
         LEFT JOIN civicrm_value_chapters_and__18 r ON rac.contact_id=r.entity_id
-      WHERE ra.is_deleted = 0 AND ra.activity_type_id = 136 AND rac.record_type_id = 3 AND pa.is_deleted=0 AND pa.activity_type_id=137 AND pa.status_id='2'
+      WHERE ra.is_deleted = 0 AND ra.activity_type_id = 136 AND rac.record_type_id = 3 AND pa.is_deleted=0 AND pa.activity_type_id=137 AND pa.status_id='2' AND pa.is_current_revision = 1
       GROUP BY rca.case_id) AS SQ
     ) AS SQ2 ";
   }
@@ -81,6 +81,7 @@ FROM (
   }
 
   function alterDisplay(&$rows) {
+    $newRows = [];
     foreach ($rows as $key => $row) {
       if (empty($row['civicrm_contact_family_count'])) {
         $row['civicrm_contact_family_count'] = "Total";
@@ -88,7 +89,10 @@ FROM (
           $rows[$key][$k] = sprintf('<b>%s</b>', $v);
         }
       }
+      $newRows[$row['civicrm_contact_family_count']] = $row;
     }
+    ksort($newRows);
+    $rows = $newRows;
   }
 
   public function buildInstanceAndButtons() {
