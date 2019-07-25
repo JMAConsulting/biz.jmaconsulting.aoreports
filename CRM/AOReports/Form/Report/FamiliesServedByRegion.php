@@ -109,7 +109,7 @@ class CRM_AOReports_Form_Report_FamiliesServedByRegion extends CRM_AOReports_For
       );
       foreach ($values as $value) {
         if (!in_array($value, array_keys($newRows)) && empty($this->_params['region_value'])) {
-          $newRows[$value]['civicrm_contact_family_count'] = ts('Number of Families Served on %1 Region', [1 => $value]);
+          $newRows[$value]['civicrm_contact_family_count'] = $value;
         }
         if (!empty($this->_params['region_value']) && !in_array($value, array_keys($newRows))) {
           continue;
