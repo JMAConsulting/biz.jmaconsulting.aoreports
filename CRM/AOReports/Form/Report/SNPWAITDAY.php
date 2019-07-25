@@ -81,17 +81,21 @@ FROM (
   }
 
   function alterDisplay(&$rows) {
-    $newRows = [];
+    $newRows = $lastRow = [];
     foreach ($rows as $key => $row) {
       if (empty($row['civicrm_contact_family_count'])) {
         $row['civicrm_contact_family_count'] = "Total";
         foreach ($row as $k => $v) {
           $rows[$key][$k] = sprintf('<b>%s</b>', $v);
         }
+        $lastRow = $row;
       }
-      $newRows[$row['civicrm_contact_family_count']] = $row;
+      else {
+        $newRows[$row['civicrm_contact_family_count']] = $row;
+      }
     }
     ksort($newRows);
+    $newRows[] = $lastRow;
     $rows = $newRows;
   }
 
