@@ -4,13 +4,14 @@ require_once __DIR__ . '../../../ao.variables.php';
 
 class CRM_AOReports_Utils {
 
-  public static function getSNPActivityTableName($activityTypeID, &$form, $ignoreStatus = FALSE) {
+  public static function getSNPActivityTableName($activityTypeID, &$form, $statuses = NULL) {
+    $ignoreStatus = empty($statuses);
     $customField = civicrm_api3('CustomField', 'getsingle', ['id' => SNP_REGION_CF_ID]);
     $SNPRegionColumnName = $customField['column_name'];
     $customTableName = civicrm_api3('CustomGroup', 'getvalue', ['id' => $customField['custom_group_id'], 'return' => 'table_name']);
     $tempTableName = 'temp_snp_activity' . substr(sha1(rand()), 0, 7);
 
-    $status = $ignoreStatus ? " a.status_id = 2 " : '(1)';
+    $status = $ignoreStatus ? " a.status_id = 2 " : 'a.status_id IN ('. implode(',', $statuses) . ')';
 
     CRM_Core_DAO::executeQuery('DROP TEMPORARY TABLE IF EXISTS ' . $tempTableName);
 
