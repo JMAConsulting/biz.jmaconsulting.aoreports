@@ -77,7 +77,6 @@ class CRM_AOReports_Form_Report_FamiliesServedByRegion extends CRM_AOReports_For
   }
 
   function alterDisplay(&$rows) {
-    $originalSQL = $this->buildQuery(TRUE);
     $newRows = [];
     $defaultYear = '';
 
@@ -93,20 +92,33 @@ class CRM_AOReports_Form_Report_FamiliesServedByRegion extends CRM_AOReports_For
       $newRows[$value] = [
         'civicrm_contact_total' => 1,
         'civicrm_contact_family_count' => $name,
-        'civicrm_contact_year' => '',
         'civicrm_contact_quarter' => NULL,
         'civicrm_contact_q1' => 0,
         'civicrm_contact_q2' => 0,
         'civicrm_contact_q3' => 0,
         'civicrm_contact_q4' => 0,
-        'civicrm_contact_total_count' => 0,
       ];
     }
+    $newRows['no-region'] = [
+      'civicrm_contact_total' => 1,
+      'civicrm_contact_family_count' => 'Unknown',
+      'civicrm_contact_quarter' => NULL,
+      'civicrm_contact_q1' => 0,
+      'civicrm_contact_q2' => 0,
+      'civicrm_contact_q3' => 0,
+      'civicrm_contact_q4' => 0,
+    ];
 
-    foreach ($newRows as $key => $row) {
+    foreach ($newRows as $key => $r) {
       foreach ($rows as &$row) {
-        $newRows[$key]['civicrm_contact_quarter'] = $row['civicrm_contact_quarter'];
-        $newRows[$key]["civicrm_contact_q{$row['civicrm_contact_quarter']}"] += $row['civicrm_contact_total'];
+        if ($key == $row['civicrm_contact_region']) {
+          $newRows[$key]['civicrm_contact_quarter'] = $row['civicrm_contact_quarter'];
+          $newRows[$key]["civicrm_contact_q{$row['civicrm_contact_quarter']}"] += $row['civicrm_contact_total'];
+        }
+        elseif ($row['civicrm_contact_region'] == '') {
+          $newRows['no-region']['civicrm_contact_quarter'] = $row['civicrm_contact_quarter'];
+          $newRows['no-region']["civicrm_contact_q{$row['civicrm_contact_quarter']}"] += $row['civicrm_contact_total'];
+        }
       }
     }
 
