@@ -82,7 +82,7 @@ FROM (
 
   function alterDisplay(&$rows) {
     foreach ($rows as $key => $row) {
-      if (empty($row['civicrm_contact_family_count']) {
+      if (empty($row['civicrm_contact_family_count'])) {
         $rows[$key]['civicrm_contact_family_count'] = "<b>Total</b>";
       }
     }
