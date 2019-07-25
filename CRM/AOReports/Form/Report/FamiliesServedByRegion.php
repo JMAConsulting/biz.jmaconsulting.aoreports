@@ -103,19 +103,12 @@ class CRM_AOReports_Form_Report_FamiliesServedByRegion extends CRM_AOReports_For
       ];
     }
 
-    foreach ($rows as &$row) {
-      $values = explode(CRM_Core_DAO::VALUE_SEPARATOR,
-        substr($row['civicrm_contact_region'], 1, -1)
-      );
-      foreach ($values as $value) {
-        if (!in_array($value, array_keys($newRows)) && empty($this->_params['region_value'])) {
-          $newRows[$value]['civicrm_contact_family_count'] = $value;
+    foreach ($newRows as $key => $row) {
+      foreach ($rows as &$row) {
+        if (strstr($row['civicrm_contact_family_count'], $key)) {
+          $newRows[$key]['civicrm_contact_quarter'] = $row['civicrm_contact_quarter'];
+          $newRows[$key]["civicrm_contact_q{$row['civicrm_contact_quarter']}"] = $row['civicrm_contact_total'] ?: 0;
         }
-        if (!empty($this->_params['region_value']) && !in_array($value, array_keys($newRows))) {
-          continue;
-        }
-        $newRows[$value]['civicrm_contact_quarter'] = $row['civicrm_contact_quarter'];
-        $newRows[$value]["civicrm_contact_q{$row['civicrm_contact_quarter']}"] = $row['civicrm_contact_total'];
       }
     }
 
