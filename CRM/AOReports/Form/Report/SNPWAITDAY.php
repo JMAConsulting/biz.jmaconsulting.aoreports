@@ -89,12 +89,13 @@ FROM (
       'civicrm_contact_family_q4' => 0,
     ];
     foreach ($rows as $key => $row) {
-      $lastRow['civicrm_contact_q1'] += $row['civicrm_contact_q1'];
-      $lastRow['civicrm_contact_q2'] += $row['civicrm_contact_q2'];
-      $lastRow['civicrm_contact_q3'] += $row['civicrm_contact_q3'];
-      $lastRow['civicrm_contact_q4'] += $row['civicrm_contact_q4'];
+      $lastRow['civicrm_contact_q1'] += round(($row['civicrm_contact_q1'] / 5), 2);
+      $lastRow['civicrm_contact_q2'] += round(($row['civicrm_contact_q2'] / 5), 2);
+      $lastRow['civicrm_contact_q3'] += round(($row['civicrm_contact_q3'] / 5), 2);
+      $lastRow['civicrm_contact_q4'] += round(($row['civicrm_contact_q4'] / 5), 2);
       $lastRow['civicrm_contact_total'] += $row['civicrm_contact_total'];
     }
+
     $rows[] = $lastRow;
   }
 
