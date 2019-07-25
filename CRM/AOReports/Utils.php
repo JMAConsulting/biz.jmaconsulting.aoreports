@@ -17,13 +17,13 @@ class CRM_AOReports_Utils {
     $sql = "
     CREATE TEMPORARY TABLE $tempTableName DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci
     SELECT lfm.entity_id as lead_family_member_id, rel.contact_id_b as parent_id, DATE(a.activity_date_time) as dof, service_region_776 as region, a.status_id
-FROM civicrm_activity a
-    INNER JOIN civicrm_case_activity ca ON a.id = ca.activity_id
-    INNER JOIN civicrm_activity_contact ac ON ac.activity_id = ca.activity_id
-    INNER JOIN civicrm_contact c on ac.contact_id = c.id
-    INNER JOIN civicrm_relationship rel ON rel.contact_id_b = c.id
-    INNER JOIN civicrm_value_newsletter_cu_3 lfm on rel.contact_id_a = lfm.entity_id
-  LEFT JOIN civicrm_value_chapters_and__18 ct ON ct.entity_id = ac.contact_id
+    FROM civicrm_activity a
+      INNER JOIN civicrm_case_activity ca ON a.id = ca.activity_id
+      INNER JOIN civicrm_activity_contact ac ON ac.activity_id = ca.activity_id
+      INNER JOIN civicrm_contact c on ac.contact_id = c.id
+      INNER JOIN civicrm_relationship rel ON rel.contact_id_b = c.id
+      INNER JOIN civicrm_value_newsletter_cu_3 lfm on rel.contact_id_a = lfm.entity_id
+      LEFT JOIN civicrm_value_chapters_and__18 ct ON ct.entity_id = ac.contact_id
 WHERE YEAR(a.activity_date_time) = 2019 AND ac.record_type_id = 3 AND rel.relationship_type_id = 1 AND c.is_deleted = 0 AND lfm.lead_family_member__28 = 1 AND a.activity_type_id = 137 AND $status AND a.is_deleted = 0
 GROUP BY lfm.entity_id
     ";
@@ -138,26 +138,19 @@ WHERE YEAR(a.activity_date_time) = 2019 AND lfm.lead_family_member__28 = 1 AND a
 
   public static function getSNPActivitybyMinistryRegion(&$form) {
     $activityTypeID = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'activity_type_id', 'Service Navigation Provision');
-    $customField = civicrm_api3('CustomField', 'getsingle', ['id' => EVENT_CHAPTER_REGION]);
-    $CRColumnName = $customField['column_name'];
-    $CRcustomTableName = civicrm_api3('CustomGroup', 'getvalue', ['id' => $customField['custom_group_id'], 'return' => 'table_name']);
-
-    $customField = civicrm_api3('CustomField', 'getsingle', ['id' => DIAGNOSIS_ON_FILE_CF_ID]);
-    $DOFColumnName = $customField['column_name'];
-    $customTableName = civicrm_api3('CustomGroup', 'getvalue', ['id' => $customField['custom_group_id'], 'return' => 'table_name']);
 
     $tempTableName = 'temp_snp_activity' . substr(sha1(rand()), 0, 7);
     $sql = "
     CREATE TEMPORARY TABLE $tempTableName DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci
-    SELECT DISTINCT lfm.entity_id as new_child_id, r.contact_id_b as parent_id, DATE(ca.activity_date_time) as dof, $CRColumnName as region, ca.status_id
-    FROM $CRcustomTableName ec
-      LEFT JOIN civicrm_event e ON e.id = ec.entity_id
-      LEFT JOIN civicrm_participant p ON p.event_id =  e.id
-      INNER JOIN civicrm_relationship r ON r.contact_id_b = p.contact_id
-      INNER JOIN civicrm_value_newsletter_cu_3 lfm on r.contact_id_a = lfm.entity_id
+    SELECT DISTINCT lfm.entity_id as new_child_id, r.contact_id_b as parent_id, DATE(ca.activity_date_time) as dof, service_region_776 as region, ca.status_id
+    FROM
+      civicrm_relationship r
+      INNER JOIN civicrm_value_newsletter_cu_3 lfm ON r.contact_id_a = lfm.entity_id
       INNER JOIN civicrm_activity_contact cac ON cac.contact_id = r.contact_id_b
       INNER JOIN civicrm_contact c ON c.id = cac.contact_id
       INNER JOIN civicrm_activity ca ON ca.id = cac.activity_id
+      LEFT JOIN civicrm_value_chapters_and__18 ct ON ct.entity_id = cac.contact_id
+
     WHERE YEAR(ca.activity_date_time) = 2019 AND r.relationship_type_id = 1 AND lfm.lead_family_member__28 = 1 AND ca.activity_type_id IN (70, 137) AND ca.is_deleted = 0 AND c.is_deleted = 0 AND cac.record_type_id = 3
     ";
 
