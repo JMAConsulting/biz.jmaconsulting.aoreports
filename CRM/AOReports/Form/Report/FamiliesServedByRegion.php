@@ -105,10 +105,8 @@ class CRM_AOReports_Form_Report_FamiliesServedByRegion extends CRM_AOReports_For
 
     foreach ($newRows as $key => $row) {
       foreach ($rows as &$row) {
-        if (strstr($row['civicrm_contact_family_count'], $key)) {
-          $newRows[$key]['civicrm_contact_quarter'] = $row['civicrm_contact_quarter'];
-          $newRows[$key]["civicrm_contact_q{$row['civicrm_contact_quarter']}"] = $row['civicrm_contact_total'] ?: 0;
-        }
+        $newRows[$key]['civicrm_contact_quarter'] = $row['civicrm_contact_quarter'];
+        $newRows[$key]["civicrm_contact_q{$row['civicrm_contact_quarter']}"] += $row['civicrm_contact_total'];
       }
     }
 
