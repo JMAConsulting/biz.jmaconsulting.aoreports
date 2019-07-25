@@ -11,7 +11,7 @@ class CRM_AOReports_Utils {
     $customTableName = civicrm_api3('CustomGroup', 'getvalue', ['id' => $customField['custom_group_id'], 'return' => 'table_name']);
     $tempTableName = 'temp_snp_activity' . substr(sha1(rand()), 0, 7);
 
-    $status = $ignoreStatus ? " a.status_id = 2 " : 'a.status_id IN ('. implode(',', $statuses) . ')';
+    $status = $ignoreStatus ? " a.status_id = 2 " : 'a.status_id NOT IN ('. implode(',', $statuses) . ')';
 
     CRM_Core_DAO::executeQuery('DROP TEMPORARY TABLE IF EXISTS ' . $tempTableName);
 
