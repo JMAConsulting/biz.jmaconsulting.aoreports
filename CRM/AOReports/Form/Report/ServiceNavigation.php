@@ -14,14 +14,6 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
       'options' => ['' => '-any-'] + CRM_Core_OptionGroup::values('language_20180621140924'),
     );
 
-    $this->_columns['civicrm_contact']['filters']['status_id'] = array(
-      'name' => 'status_id',
-      'dbAlias' => "temp.status_id",
-      'title' => 'Service Navigation Provision Activity Status',
-      'type' => CRM_Utils_Type::T_STRING,
-      'operatorType' => CRM_Report_Form::OP_MULTISELECT,
-      'options' => CRM_Core_PseudoConstant::activityStatus(),
-    );
     $this->_columns['civicrm_contact']['filters']['activity_type'] = array(
       'name' => 'activity_type',
       'dbAlias' => "1",
