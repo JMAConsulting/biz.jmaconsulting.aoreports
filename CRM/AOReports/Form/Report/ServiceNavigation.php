@@ -39,7 +39,7 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
 
     $this->_columns['civicrm_contact']['filters']['assignee'] = array(
       'name' => 'assignee',
-      'dbAlias' => "ac.id",
+      'dbAlias' => "ac.contact_id",
       'title' => 'Service Navigator',
       'type' => CRM_Utils_Type::T_INT,
       'operatorType' => CRM_Report_Form::OP_SELECT,
