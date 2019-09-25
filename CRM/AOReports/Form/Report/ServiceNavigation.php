@@ -5,6 +5,17 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
 
   function __construct() {
     parent::__construct();
+    $sql = "
+      SELECT DISTINCT cc.id, cc.display_name
+        FROM civicrm_activity_contact cac INNER JOIN civicrm_contact cc ON cc.id = cac.contact_id
+      AND cac.record_type_id = 2
+      INNER JOIN civicrm_activity ca ON ca.id = cac.activity_id AND ca.activity_type_id = 137 ";
+    $dao = CRM_Core_DAO::executeQuery($sql);
+    $contacts = [];
+    while($dao->fetch()) {
+      $contacts[$dao->id] = $dao->display_name;
+    }
+
     $this->_columns['civicrm_contact']['filters']['language_10'] = array(
       'name' => 'language_10',
       'dbAlias' => "lang.language_10",
@@ -26,11 +37,13 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
       ],
     );
 
-    $this->_columns['civicrm_contact']['filters']['activity_type'] = array(
+    $this->_columns['civicrm_contact']['filters']['assignee'] = array(
       'name' => 'assignee',
-      'dbAlias' => "ac.display_name",
-      'title' => 'Assignee Contact',
-      'type' => CRM_Utils_Type::T_STRING,
+      'dbAlias' => "ac.id",
+      'title' => 'Service Navigator',
+      'type' => CRM_Utils_Type::T_INT,
+      'operatorType' => CRM_Report_Form::OP_SELECT,
+      'options' => $contacts,
     );
 
     $this->_columns['civicrm_contact']['fields']['family_count'] = array(
@@ -53,7 +66,9 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
     $tableName = E::getSNPActivityTableName($this->_params['activity_type_value'], $this, $this->_params['status_id_value']);
     $this->_from = " FROM civicrm_contact {$this->_aliases['civicrm_contact']}
       INNER JOIN {$tableName} temp ON temp.parent_id = {$this->_aliases['civicrm_contact']}.id
-      INNER JOIN (SELECT cac.contact_id, cac.activity_id, cc.* FROM civicrm_activity_contact cac INNER JOIN civicrm_contact cc ON cc.id = cac.contact_id AND cac.record_type_id = 2) ac ON ac.activity_id = temp.activity_id
+      INNER JOIN (
+        SELECT cac.contact_id, cac.activity_id, cc.* FROM civicrm_activity_contact cac INNER JOIN civicrm_contact cc ON cc.id = cac.contact_id AND cac.record_type_id = 1
+      ) ac ON ac.activity_id = temp.activity_id
     ";
 
     if (!empty($this->_params['language_10_value'])) {
