@@ -25,6 +25,14 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
         CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'activity_type_id', 'Service Navigation Request') => ts('Service Navigation Request'),
       ],
     );
+
+    $this->_columns['civicrm_contact']['filters']['activity_type'] = array(
+      'name' => 'assignee',
+      'dbAlias' => "ac.display_name",
+      'title' => 'Assignee Contact',
+      'type' => CRM_Utils_Type::T_STRING,
+    );
+
     $this->_columns['civicrm_contact']['fields']['family_count'] = array(
       'title' => ts('Region'),
       'required' => TRUE,
@@ -45,6 +53,7 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
     $tableName = E::getSNPActivityTableName($this->_params['activity_type_value'], $this, $this->_params['status_id_value']);
     $this->_from = " FROM civicrm_contact {$this->_aliases['civicrm_contact']}
       INNER JOIN {$tableName} temp ON temp.parent_id = {$this->_aliases['civicrm_contact']}.id
+      INNER JOIN (SELECT cac.contact_id, cac.activity_id, cc.* FROM civicrm_activity_contact cac INNER JOIN civicrm_contact cc ON cc.id = cac.contact_id AND cac.record_type_id = 2) ac ON ac.activity_id = temp.activity_id
     ";
 
     if (!empty($this->_params['language_10_value'])) {
