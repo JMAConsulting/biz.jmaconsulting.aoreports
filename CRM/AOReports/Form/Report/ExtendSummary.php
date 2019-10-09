@@ -10,21 +10,33 @@ class CRM_AOReports_Form_Report_ExtendSummary extends CRM_Report_Form_Contact_Su
       'fields' => [
         'id' => [
           'no_display' => TRUE,
+          'required' => TRUE,
         ],
         'filters' => [
           'event_id' => array(
             'name' => 'event_id',
             'title' => ts('Event'),
-            'operatorType' => CRM_Report_Form::OP_ENTITYREF,
+            'options' => $this->getEventFilterOptions(),
+            'operatorType' => CRM_Report_Form::OP_MULTISELECT,
             'type' => CRM_Utils_Type::T_INT,
-            'attributes' => array(
-              'entity' => 'Event',
-              'select' => array('minimumInputLength' => 0),
-            ),
           ),
         ]
       ]
     ];
+  }
+
+  function getEventFilterOptions() {
+    $events = array();
+    $query = "
+        select id, start_date, title from civicrm_event
+        where (is_template IS NULL OR is_template = 0) AND is_active
+        order by title ASC, start_date
+    ";
+    $dao = CRM_Core_DAO::executeQuery($query);
+    while($dao->fetch()) {
+       $events[$dao->id] = "{$dao->title} - " . CRM_Utils_Date::customFormat(substr($dao->start_date, 0, 10)) . " (ID {$dao->id})";
+    }
+    return $events;
   }
 
   public function from() {
