@@ -12,16 +12,15 @@ class CRM_AOReports_Form_Report_ExtendSummary extends CRM_Report_Form_Contact_Su
           'no_display' => TRUE,
           'required' => TRUE,
         ],
-        'filters' => [
-          'event_id' => array(
-            'name' => 'event_id',
-            'title' => ts('Event'),
-            'options' => $this->getEventFilterOptions(),
-            'operatorType' => CRM_Report_Form::OP_MULTISELECT,
-            'type' => CRM_Utils_Type::T_INT,
-          ),
-        ]
       ]
+    ];
+    $this->_columns['civicrm_contact']['filters']['event_id'] = [
+      'name' => 'event_id',
+      'title' => ts('Event'),
+      'dbAlias' => 'participant_civireport.event_id',
+      'options' => $this->getEventFilterOptions(),
+      'operatorType' => CRM_Report_Form::OP_MULTISELECT,
+      'type' => CRM_Utils_Type::T_INT,
     ];
   }
 
