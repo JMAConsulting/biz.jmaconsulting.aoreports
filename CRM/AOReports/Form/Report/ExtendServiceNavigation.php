@@ -88,7 +88,7 @@ class CRM_AOReports_Form_Report_ExtendServiceNavigation extends CRM_AOReports_Fo
       ];
     }
 
-    foreach ($newRows as $key => $row) {
+    foreach ($newRows as $key => $row1) {
       foreach ($rows as &$row) {
         if (strstr($row['civicrm_contact_family_count'], $key)) {
           $newRows[$key]['civicrm_contact_quarter'] = $row['civicrm_contact_quarter'];

@@ -8,12 +8,19 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
     $sql = "
       SELECT DISTINCT cc.id, cc.display_name
         FROM civicrm_activity_contact cac INNER JOIN civicrm_contact cc ON cc.id = cac.contact_id
-      AND cac.record_type_id = 2
-      INNER JOIN civicrm_activity ca ON ca.id = cac.activity_id AND ca.activity_type_id = 137 ";
+        AND cac.record_type_id = 1
+        INNER JOIN civicrm_activity ca ON ca.id = cac.activity_id AND ca.activity_type_id = 137 ORDER BY cc.display_name ";
     $dao = CRM_Core_DAO::executeQuery($sql);
     $contacts = [];
     while($dao->fetch()) {
       $contacts[$dao->id] = $dao->display_name;
+    }
+    // Unset certain service navigators
+    $unsetIds = [118019, 108716, 108720];
+    foreach ($contacts as $id => $contact) {
+      if (in_array($id, $unsetIds)) {
+        unset($contacts[$id]);
+      }
     }
 
     $this->_columns['civicrm_contact']['filters']['language_10'] = array(
@@ -43,7 +50,7 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
       'title' => 'Service Navigator',
       'type' => CRM_Utils_Type::T_INT,
       'operatorType' => CRM_Report_Form::OP_SELECT,
-      'options' => $contacts,
+      'options' => ['' => '-any-'] + $contacts,
     );
 
     $this->_columns['civicrm_contact']['fields']['family_count'] = array(
@@ -160,7 +167,7 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
     ];
 
 
-    foreach ($newRows as $key => $row) {
+    foreach ($newRows as $key => $row1) {
       foreach ($rows as &$row) {
         if (strstr($row['civicrm_contact_family_count'], $key)) {
           $newRows[$key]['civicrm_contact_quarter'] = $row['civicrm_contact_quarter'];
