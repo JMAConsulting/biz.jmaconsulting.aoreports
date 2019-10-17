@@ -52,6 +52,12 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
       'operatorType' => CRM_Report_Form::OP_SELECT,
       'options' => ['' => '-any-'] + $contacts,
     );
+    $this->_columns['civicrm_contact']['filters']['status_id'] = array(
+      'name' => 'status_id',
+      'type' => CRM_Utils_Type::T_STRING,
+      'operatorType' => CRM_Report_Form::OP_MULTISELECT,
+      'options' => CRM_Core_PseudoConstant::activityStatus(),
+    );
 
     $this->_columns['civicrm_contact']['fields']['family_count'] = array(
       'title' => ts('Region'),
@@ -103,6 +109,9 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
           }
           elseif ($fieldName == 'language_10' && !empty(CRM_Utils_Array::value("{$fieldName}_value", $this->_params))) {
             $clause = "lang.language_10  LIKE '%" .  CRM_Utils_Array::value("{$fieldName}_value", $this->_params) . "%'";
+          }
+          elseif ($fieldName == 'status_id') {
+            continue;
           }
           else {
             $op = CRM_Utils_Array::value("{$fieldName}_op", $this->_params);
