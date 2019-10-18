@@ -39,7 +39,7 @@ class CRM_AOReports_Utils {
                   LEFT JOIN civicrm_value_chapters_and__18 ct ON ct.entity_id = ac.contact_id
                   INNER JOIN (
                     SELECT cac.contact_id, cac.activity_id, cc.* FROM civicrm_activity_contact cac INNER JOIN civicrm_contact cc ON cc.id = cac.contact_id AND cac.record_type_id = 1
-                  ) ac ON ac.activity_id = a.id
+                  ) ac1 ON ac1.activity_id = a.id
             WHERE YEAR(a.activity_date_time) = YEAR(CURRENT_DATE) AND a.is_current_revision = 1 AND ac.record_type_id = 3 AND rel.relationship_type_id = 1 AND c.is_deleted = 0 AND lfm.lead_family_member__28 = 1 AND a.activity_type_id = $activityTypeID AND $status AND a.is_deleted = 0
             GROUP BY lfm.entity_id
             ";
