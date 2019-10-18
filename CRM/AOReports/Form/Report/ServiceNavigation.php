@@ -37,7 +37,7 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
       'dbAlias' => "1",
       'title' => 'Activity Type',
       'type' => CRM_Utils_Type::T_STRING,
-      'operatorType' => CRM_Report_Form::OP_SELECT,
+      'operatorType' => CRM_Report_Form::OP_MULTISELECT,
       'options' => [
         CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'activity_type_id', 'Service Navigation Provision') => ts('Service Navigation Provision'),
         CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'activity_type_id', 'Service Navigation Request') => ts('Service Navigation Request'),

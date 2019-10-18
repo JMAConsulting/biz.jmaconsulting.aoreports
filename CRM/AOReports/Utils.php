@@ -4,7 +4,7 @@ require_once __DIR__ . '../../../ao.variables.php';
 
 class CRM_AOReports_Utils {
 
-  public static function getSNPActivityTableName($activityTypeID, &$form, $statuses = NULL, $operator) {
+  public static function getSNPActivityTableName($activityTypeIDs, &$form, $statuses = NULL, $operator) {
     $ops = [
       'in' => 'IN',
       'notin' => 'NOT IN',
@@ -18,7 +18,7 @@ class CRM_AOReports_Utils {
     $SNPRegionColumnName = $customField['column_name'];
     $customTableName = civicrm_api3('CustomGroup', 'getvalue', ['id' => $customField['custom_group_id'], 'return' => 'table_name']);
     $tempTableName = 'temp_snp_activity' . substr(sha1(rand()), 0, 7);
-    $activityTypeID = $activityTypeID ?: 137;
+    $activityTypeIDs = $activityTypeIDs ?: [137];
 
     $sql = [];
 
@@ -26,7 +26,7 @@ class CRM_AOReports_Utils {
 
     CRM_Core_DAO::executeQuery('DROP TEMPORARY TABLE IF EXISTS ' . $tempTableName);
 
-    foreach ([137, 138, 70, 5] as $activityTypeID) {
+    foreach ($activityTypeIDs as $activityTypeID) {
       if (in_array($activityTypeID, [137, 138])) {
               $sql['snp'] = "
                 SELECT lfm.entity_id as lead_family_member_id, rel.contact_id_b as parent_id, DATE(a.activity_date_time) as dof, service_region_776 as region, a.status_id, a.id as activity_id
