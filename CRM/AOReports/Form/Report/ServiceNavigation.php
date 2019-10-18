@@ -81,11 +81,15 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
   function from() {
     $tableName = E::getSNPActivityTableName($this->_params['activity_type_value'], $this, $this->_params['status_id_value'], $this->_params['status_id_op']);
     $this->_from = " FROM civicrm_contact {$this->_aliases['civicrm_contact']}
-      INNER JOIN {$tableName} temp ON temp.parent_id = {$this->_aliases['civicrm_contact']}.id
-      INNER JOIN (
-        SELECT cac.contact_id, cac.activity_id, cc.* FROM civicrm_activity_contact cac INNER JOIN civicrm_contact cc ON cc.id = cac.contact_id AND cac.record_type_id = 1
-      ) ac ON ac.activity_id = temp.activity_id
-    ";
+      INNER JOIN {$tableName} temp ON temp.parent_id = {$this->_aliases['civicrm_contact']}.id ";
+
+    if (!in_array($this->_params['activity_type_value'], [70, 5])) {
+        $this->_from .= "
+        INNER JOIN (
+          SELECT cac.contact_id, cac.activity_id, cc.* FROM civicrm_activity_contact cac INNER JOIN civicrm_contact cc ON cc.id = cac.contact_id AND cac.record_type_id = 1
+        ) ac ON ac.activity_id = temp.activity_id
+      ";
+    }
 
     if (!empty($this->_params['language_10_value'])) {
       $this->_from .= "
