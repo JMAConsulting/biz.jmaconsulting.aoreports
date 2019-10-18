@@ -4,7 +4,15 @@ require_once __DIR__ . '../../../ao.variables.php';
 
 class CRM_AOReports_Utils {
 
-  public static function getSNPActivityTableName($activityTypeID, &$form, $statuses = NULL) {
+  public static function getSNPActivityTableName($activityTypeID, &$form, $statuses = NULL, $operator) {
+    $ops = [
+      'in' => 'IN',
+      'notin' => 'NOT IN',
+      'nll' => 'IS EMPTY',
+      'nnll' => 'IS NOT EMPTY',
+    ];
+    $op = $ops[$operator];
+
     $ignoreStatus = empty($statuses);
     $customField = civicrm_api3('CustomField', 'getsingle', ['id' => SNP_REGION_CF_ID]);
     $SNPRegionColumnName = $customField['column_name'];
@@ -12,7 +20,7 @@ class CRM_AOReports_Utils {
     $tempTableName = 'temp_snp_activity' . substr(sha1(rand()), 0, 7);
     $activityTypeID = $activityTypeID ?: 137;
 
-    $status = $ignoreStatus ? " a.status_id = 2 " : 'a.status_id NOT IN ('. implode(',', $statuses) . ')';
+    $status = $ignoreStatus ? " a.status_id = 2 " : "a.status_id $op (". implode(',', $statuses) . ')';
 
     CRM_Core_DAO::executeQuery('DROP TEMPORARY TABLE IF EXISTS ' . $tempTableName);
 
@@ -26,9 +34,39 @@ class CRM_AOReports_Utils {
       INNER JOIN civicrm_relationship rel ON rel.contact_id_b = c.id
       INNER JOIN civicrm_value_newsletter_cu_3 lfm on rel.contact_id_a = lfm.entity_id
       LEFT JOIN civicrm_value_chapters_and__18 ct ON ct.entity_id = ac.contact_id
-WHERE YEAR(a.activity_date_time) = 2019 AND a.is_current_revision = 1 AND ac.record_type_id = 3 AND rel.relationship_type_id = 1 AND c.is_deleted = 0 AND lfm.lead_family_member__28 = 1 AND a.activity_type_id = $activityTypeID AND $status AND a.is_deleted = 0
+WHERE YEAR(a.activity_date_time) = YEAR(CURRENT_DATE) AND a.is_current_revision = 1 AND ac.record_type_id = 3 AND rel.relationship_type_id = 1 AND c.is_deleted = 0 AND lfm.lead_family_member__28 = 1 AND a.activity_type_id = $activityTypeID AND $status AND a.is_deleted = 0
 GROUP BY lfm.entity_id
     ";
+
+    if ($activityTypeID == 70) {
+      $sql = "
+      CREATE TEMPORARY TABLE $tempTableName DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci
+      SELECT lfm.entity_id as lead_family_member_id, rel.contact_id_b as parent_id, DATE(a.activity_date_time) as dof, service_region_776 as region, a.status_id, a.id as activity_id
+      FROM civicrm_activity a
+        INNER JOIN civicrm_activity_contact ac ON ac.activity_id = a.id
+        INNER JOIN civicrm_contact c on ac.contact_id = c.id
+        INNER JOIN civicrm_relationship rel ON rel.contact_id_b = c.id
+        INNER JOIN civicrm_value_newsletter_cu_3 lfm on rel.contact_id_a = lfm.entity_id
+        LEFT JOIN civicrm_value_chapters_and__18 ct ON ct.entity_id = ac.contact_id
+  WHERE YEAR(a.activity_date_time) = YEAR(CURRENT_DATE) AND a.is_current_revision = 1 AND ac.record_type_id = 3 AND rel.relationship_type_id = 1 AND c.is_deleted = 0 AND lfm.lead_family_member__28 = 1 AND a.activity_type_id = $activityTypeID AND $status AND a.is_deleted = 0
+  GROUP BY lfm.entity_id
+      ";
+    }
+    elseif ($activityTypeID == 5) {
+      $sql = "
+      CREATE TEMPORARY TABLE $tempTableName DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci
+      SELECT lfm.entity_id as lead_family_member_id, rel.contact_id_b as parent_id, DATE(a.activity_date_time) as dof, service_region_776 as region, a.status_id, a.id as activity_id
+      FROM civicrm_activity a
+        INNER JOIN civicrm_activity_contact ac ON ac.activity_id = a.id
+        INNER JOIN civicrm_contact c on ac.contact_id = c.id
+        INNER JOIN civicrm_participant p ON p.contact_id = ac.contact_id
+        INNER JOIN civicrm_relationship rel ON rel.contact_id_b = c.id
+        INNER JOIN civicrm_value_newsletter_cu_3 lfm on rel.contact_id_a = lfm.entity_id
+        LEFT JOIN civicrm_value_chapters_and__18 ct ON ct.entity_id = ac.contact_id
+  WHERE YEAR(a.activity_date_time) = YEAR(CURRENT_DATE) AND a.is_current_revision = 1 AND ac.record_type_id = 3 AND rel.relationship_type_id = 1 AND c.is_deleted = 0 AND lfm.lead_family_member__28 = 1 AND a.activity_type_id = $activityTypeID AND $status AND a.is_deleted = 0
+  GROUP BY lfm.entity_id
+      ";
+    }
 
     $form->addToDeveloperTab($sql);
     CRM_Core_DAO::executeQuery($sql);
