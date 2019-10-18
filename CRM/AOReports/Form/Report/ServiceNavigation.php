@@ -154,6 +154,7 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
 
     $regions = CRM_Core_OptionGroup::values('service_region_20190320122604');
     foreach ($regions as $value => $name) {
+      if ($name == 'Unknown') {continue;}
       $newRows[$value] = [
         'civicrm_contact_total' => 1,
         'civicrm_contact_family_count' => $name,
