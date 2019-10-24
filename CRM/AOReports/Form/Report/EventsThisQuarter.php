@@ -31,7 +31,7 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
           ),
           'event_type_id' => array(
             'title' => ts('Event Type'),
-            'no_display' => TRUE,
+            'no_display' => FALSE,
             'required' => TRUE,
           ),
           'event_start_date' => array(
@@ -80,6 +80,11 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
             'title' => ts('Event Start Date'),
             'operatorType' => CRM_Report_Form::OP_DATE,
             'alias' => 'event_civireport',
+          ),
+        ],
+        'order_bys' => [
+          'event_type_id' => array(
+            'title' => ts('Event Type'),
           ),
         ],
       ],
@@ -207,7 +212,13 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
     $checkList = array();
     $newRows = [];
     if ($this->_outputMode == 'csv') {
+      foreach ($rows as $rowNum => $row) {
+        $rows[$rowNum]['civicrm_event_event_type_id'] = CRM_Utils_Array::value($row['civicrm_event_event_type_id'], $eventType);
+      }
       return;
+    }
+    else {
+      unset($this->_columnHeaders['civicrm_event_event_type_id']);
     }
 
     foreach ($eventType as $id => $type) {
