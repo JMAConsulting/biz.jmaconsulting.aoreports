@@ -10,7 +10,7 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
   protected $_summary = NULL;
   protected $_add2groupSupported = FALSE;
   protected $addPaging = FALSE;
-  protected $_csvSupported = FALSE;
+  protected $_csvSupported = TRUE;
 
   protected $_customGroupExtends = array(
     'Event',
@@ -206,6 +206,9 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
     $entryFound = FALSE;
     $checkList = array();
     $newRows = [];
+    if ($this->_outputMode == 'csv') {
+      return;
+    }
 
     foreach ($eventType as $id => $type) {
       $newRows[$type] = [];
