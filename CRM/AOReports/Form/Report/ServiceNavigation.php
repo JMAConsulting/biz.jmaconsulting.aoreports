@@ -16,7 +16,7 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
       $contacts[$dao->id] = $dao->display_name;
     }
     // Unset certain service navigators
-    $unsetIds = [118019, 108716, 108720];
+    $unsetIds = [118019, 108716, 108720, 404318];
     foreach ($contacts as $id => $contact) {
       if (in_array($id, $unsetIds)) {
         unset($contacts[$id]);
