@@ -26,10 +26,10 @@ class CRM_AOReports_Utils {
 
     CRM_Core_DAO::executeQuery('DROP TEMPORARY TABLE IF EXISTS ' . $tempTableName);
 
-    foreach ($activityTypeIDs as $activityTypeID) {
+    foreach ((array)$activityTypeIDs as $activityTypeID) {
       if (in_array($activityTypeID, [137, 138])) {
               $sql['snp'] = "
-                SELECT lfm.entity_id as lead_family_member_id, rel.contact_id_b as parent_id, DATE(a.activity_date_time) as dof, service_region_776 as region, a.status_id, a.id as activity_id
+                SELECT ac1.contact_id as contact_id, lfm.entity_id as lead_family_member_id, rel.contact_id_b as parent_id, DATE(a.activity_date_time) as dof, service_region_776 as region, a.status_id, a.id as activity_id
                 FROM civicrm_activity a
                   INNER JOIN civicrm_case_activity ca ON a.id = ca.activity_id
                   INNER JOIN civicrm_activity_contact ac ON ac.activity_id = ca.activity_id
@@ -46,7 +46,7 @@ class CRM_AOReports_Utils {
       }
       elseif ($activityTypeID == 70) {
         $sql['ic'] = "
-        SELECT lfm.entity_id as lead_family_member_id, rel.contact_id_b as parent_id, DATE(a.activity_date_time) as dof, service_region_776 as region, a.status_id, a.id as activity_id
+        SELECT ac.contact_id as contact_id, lfm.entity_id as lead_family_member_id, rel.contact_id_b as parent_id, DATE(a.activity_date_time) as dof, service_region_776 as region, a.status_id, a.id as activity_id
         FROM civicrm_activity a
           INNER JOIN civicrm_activity_contact ac ON ac.activity_id = a.id
           INNER JOIN civicrm_contact c on ac.contact_id = c.id
@@ -59,7 +59,7 @@ class CRM_AOReports_Utils {
       }
       else {
         $sql['event'] = "
-        SELECT lfm.entity_id as lead_family_member_id, rel.contact_id_b as parent_id, DATE(a.activity_date_time) as dof, service_region_776 as region, a.status_id, a.id as activity_id
+        SELECT ac.contact_id as contact_id, lfm.entity_id as lead_family_member_id, rel.contact_id_b as parent_id, DATE(a.activity_date_time) as dof, service_region_776 as region, a.status_id, a.id as activity_id
         FROM civicrm_activity a
           INNER JOIN civicrm_activity_contact ac ON ac.activity_id = a.id
           INNER JOIN civicrm_contact c on ac.contact_id = c.id

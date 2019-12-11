@@ -9,7 +9,7 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
       SELECT DISTINCT cc.id, cc.display_name
         FROM civicrm_activity_contact cac INNER JOIN civicrm_contact cc ON cc.id = cac.contact_id
         AND cac.record_type_id = 1
-        INNER JOIN civicrm_activity ca ON ca.id = cac.activity_id AND ca.activity_type_id = 137 ORDER BY cc.display_name ";
+        INNER JOIN civicrm_activity ca ON ca.id = cac.activity_id AND ca.activity_type_id IN (136,137) ORDER BY cc.display_name ";
     $dao = CRM_Core_DAO::executeQuery($sql);
     $contacts = [];
     while($dao->fetch()) {
@@ -48,7 +48,7 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
 
     $this->_columns['civicrm_contact']['filters']['assignee'] = array(
       'name' => 'assignee',
-      'dbAlias' => "ac.contact_id",
+      'dbAlias' => "temp.contact_id",
       'title' => 'Service Navigator',
       'type' => CRM_Utils_Type::T_INT,
       'operatorType' => CRM_Report_Form::OP_SELECT,
