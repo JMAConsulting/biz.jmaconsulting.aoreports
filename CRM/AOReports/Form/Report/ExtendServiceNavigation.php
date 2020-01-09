@@ -12,15 +12,15 @@ class CRM_AOReports_Form_Report_ExtendServiceNavigation extends CRM_AOReports_Fo
       'dbAlias' => "SUM(temp.timediff)",
     );
 
-    $this->_columns['civicrm_contact']['fields']['q1']['title'] = ts('Q1 2019');
-    $this->_columns['civicrm_contact']['fields']['q2']['title'] = ts('Q2 2019');
-    $this->_columns['civicrm_contact']['fields']['q3']['title'] = ts('Q3 2019');
-    $this->_columns['civicrm_contact']['fields']['q4']['title'] = ts('Q4 2019');
-    $this->_columns['civicrm_contact']['fields']['total_count']['title'] = ts('YTD 2019');
+    $this->_columns['civicrm_contact']['fields']['q1']['title'] = ts('Q1');
+    $this->_columns['civicrm_contact']['fields']['q2']['title'] = ts('Q2');
+    $this->_columns['civicrm_contact']['fields']['q3']['title'] = ts('Q3');
+    $this->_columns['civicrm_contact']['fields']['q4']['title'] = ts('Q4');
+    $this->_columns['civicrm_contact']['fields']['total_count']['title'] = ts('YTD');
   }
 
   function from() {
-    $tableName = E::getSNPActivityAverageTime($this);
+    $tableName = E::getSNPActivityAverageTime($this, $this->_params['activity_date_time_value']);
     $this->_from = " FROM civicrm_contact {$this->_aliases['civicrm_contact']}
       INNER JOIN {$tableName} temp ON temp.parent_id = {$this->_aliases['civicrm_contact']}.id
     ";
@@ -32,7 +32,7 @@ class CRM_AOReports_Form_Report_ExtendServiceNavigation extends CRM_AOReports_Fo
       if (array_key_exists('filters', $table)) {
         foreach ($table['filters'] as $fieldName => $field) {
           $clause = NULL;
-          if (in_array($fieldName, ['activity_type', 'time'])) {
+          if (in_array($fieldName, ['activity_type', 'time', 'activity_date_time'])) {
             continue;
           }
           if (CRM_Utils_Array::value('operatorType', $field) & CRM_Utils_Type::T_DATE) {

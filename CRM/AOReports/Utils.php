@@ -93,7 +93,10 @@ class CRM_AOReports_Utils {
     return $tempTableName;
   }
 
-  public static function getSNPActivityAverageTime(&$form) {
+  public static function getSNPActivityAverageTime(&$form, $year = NULL) {
+    if (empty($year)) {
+      $year = date('Y');
+    }
     $customField = civicrm_api3('CustomField', 'getsingle', ['id' => SNP_REGION_CF_ID]);
     $SNPRegionColumnName = $customField['column_name'];
     $customTableName = civicrm_api3('CustomGroup', 'getvalue', ['id' => $customField['custom_group_id'], 'return' => 'table_name']);
@@ -120,7 +123,7 @@ class CRM_AOReports_Utils {
       LEFT JOIN civicrm_value_parent_consul_10 pc on a.id = pc.entity_id
       LEFT JOIN civicrm_value_chapters_and__18 ct ON ct.entity_id = ac.contact_id
 
-WHERE YEAR(a.activity_date_time) = 2019 AND lfm.lead_family_member__28 = 1 AND ac.record_type_id = 3 AND a.activity_type_id IN (70, 137) AND a.is_current_revision = 1 AND a.is_deleted = 0 AND c.is_deleted = 0 ";
+WHERE YEAR(a.activity_date_time) = {$year} AND lfm.lead_family_member__28 = 1 AND ac.record_type_id = 3 AND a.activity_type_id IN (70, 137) AND a.is_current_revision = 1 AND a.is_deleted = 0 AND c.is_deleted = 0 ";
     CRM_Core_DAO::executeQuery($sql);
     $form->addToDeveloperTab($sql);
     CRM_Core_DAO::executeQuery("CREATE INDEX ind_parent ON $tempTableName(parent_id)");
