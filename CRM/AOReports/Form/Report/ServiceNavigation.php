@@ -45,6 +45,15 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
         5 => ts('Event Registration'),
       ],
     );
+    $this->_columns['civicrm_contact']['filters']['activity_date_time'] = array(
+      'name' => 'activity_date_time',
+      'alias' => 'dof',
+      'title' => ts('Year'),
+      'required' => TRUE,
+      'type' => CRM_Utils_Type::T_INT,
+      'operatorType' => CRM_Report_Form::OP_SELECT,
+      'options' => array_combine(range(date('Y'), 2000), range(date('Y'), 2000)),
+    );
 
     $this->_columns['civicrm_contact']['filters']['assignee'] = array(
       'name' => 'assignee',
@@ -69,18 +78,19 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
       'dbAlias' => "temp.region",
     );
     $this->_columns['civicrm_contact']['fields']['total_count'] = array(
-      'title' => ts('YTD 2019'),
+      'title' => ts('YTD'),
       'required' => TRUE,
       'dbAlias' => "0",
     );
-    $this->_columns['civicrm_contact']['fields']['q1']['title'] = ts('Q1 2019');
-    $this->_columns['civicrm_contact']['fields']['q2']['title'] = ts('Q2 2019');
-    $this->_columns['civicrm_contact']['fields']['q3']['title'] = ts('Q3 2019');
-    $this->_columns['civicrm_contact']['fields']['q4']['title'] = ts('Q4 2019');
+
+    $this->_columns['civicrm_contact']['fields']['q1']['title'] = ts('Q1');
+    $this->_columns['civicrm_contact']['fields']['q2']['title'] = ts('Q2');
+    $this->_columns['civicrm_contact']['fields']['q3']['title'] = ts('Q3');
+    $this->_columns['civicrm_contact']['fields']['q4']['title'] = ts('Q4');
   }
 
   function from() {
-    $tableName = E::getSNPActivityTableName($this->_params['activity_type_value'], $this, $this->_params['status_id_value'], $this->_params['status_id_op']);
+    $tableName = E::getSNPActivityTableName($this->_params['activity_type_value'], $this, $this->_params['status_id_value'], $this->_params['status_id_op'], $this->_params['activity_date_time_value']);
     $this->_from = " FROM civicrm_contact {$this->_aliases['civicrm_contact']}
       INNER JOIN {$tableName} temp ON temp.parent_id = {$this->_aliases['civicrm_contact']}.id ";
 
@@ -97,7 +107,7 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
       if (array_key_exists('filters', $table)) {
         foreach ($table['filters'] as $fieldName => $field) {
           $clause = NULL;
-          if ($fieldName == 'activity_type') {
+          if ($fieldName == 'activity_type' || $fieldName == 'activity_date_time') {
             continue;
           }
           if (CRM_Utils_Array::value('operatorType', $field) & CRM_Utils_Type::T_DATE) {
