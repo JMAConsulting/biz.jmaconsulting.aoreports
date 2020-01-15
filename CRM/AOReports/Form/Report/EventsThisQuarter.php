@@ -17,8 +17,6 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
   );
   protected $_customGroupGroupBy = FALSE;
   protected $_eventTemplateCustomFieldID = 327;
-  protected $_volunteerID = 37;
-  protected $_professionalID = 36;
 
   function __construct() {
     $this->_columns = array(
@@ -42,30 +40,52 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
           ),
           'children' => array(
             'title' => ts('Children'),
-            'dbAlias' => 'COUNT(DISTINCT parent.contact_id_a)'
+            'dbAlias' => "(SELECT ROUND(COALESCE(SUM(qty), 0), 0)
+              FROM civicrm_line_item li
+               INNER JOIN civicrm_participant p ON li.entity_id = p.id AND li.entity_table = 'civicrm_participant'
+               INNER JOIN civicrm_participant_status_type pst ON pst.id = p.status_id AND pst.class = 'Positive'
+               INNER JOIN civicrm_price_field pf ON li.price_field_id = pf.id
+               WHERE p.event_id = event_civireport.id AND pf.name LIKE '%child%'
+             )",
           ),
           'parents' => array(
             'title' => ts('Parents'),
-            'dbAlias' => 'COUNT(DISTINCT parent.contact_id_b)'
+            'dbAlias' => "(SELECT ROUND(COALESCE(SUM(qty), 0), 0)
+              FROM civicrm_line_item li
+               INNER JOIN civicrm_participant p ON li.entity_id = p.id AND li.entity_table = 'civicrm_participant'
+               INNER JOIN civicrm_participant_status_type pst ON pst.id = p.status_id AND pst.class = 'Positive'
+               INNER JOIN civicrm_price_field pf ON li.price_field_id = pf.id
+               WHERE p.event_id = event_civireport.id AND pf.name LIKE '%parent%'
+             )",
           ),
           'siblings' => array(
             'title' => ts('Siblings / Friends'),
-            'dbAlias' => 'COUNT(sibling.contact_id_a)'
+            'dbAlias' => "(SELECT ROUND(COALESCE(SUM(qty), 0), 0)
+              FROM civicrm_line_item li
+               INNER JOIN civicrm_participant p ON li.entity_id = p.id AND li.entity_table = 'civicrm_participant'
+               INNER JOIN civicrm_participant_status_type pst ON pst.id = p.status_id AND pst.class = 'Positive'
+               INNER JOIN civicrm_price_field pf ON li.price_field_id = pf.id
+               WHERE p.event_id = event_civireport.id AND pf.name LIKE '%sibling%'
+             )",
           ),
           'professionals' => array(
             'title' => ts('Professionals'),
             'dbAlias' => "(SELECT ROUND(COALESCE(SUM(qty), 0), 0)
               FROM civicrm_line_item li
-               INNER JOIN civicrm_participant p ON li.entity_id = p.id AND li.entity_table = 'civicrm_participant' AND li.price_field_id = {$this->_professionalID}
-               WHERE p.event_id = event_civireport.id
+               INNER JOIN civicrm_participant p ON li.entity_id = p.id AND li.entity_table = 'civicrm_participant'
+               INNER JOIN civicrm_participant_status_type pst ON pst.id = p.status_id AND pst.class = 'Positive'
+               INNER JOIN civicrm_price_field pf ON li.price_field_id = pf.id
+               WHERE p.event_id = event_civireport.id AND pf.name LIKE '%professional%'
              )",
           ),
           'volunteers' => array(
             'title' => ts('Volunteers'),
             'dbAlias' => "(SELECT ROUND(COALESCE(SUM(qty), 0), 0)
               FROM civicrm_line_item li
-               INNER JOIN civicrm_participant p ON li.entity_id = p.id AND li.entity_table = 'civicrm_participant' AND li.price_field_id = {$this->_volunteerID}
-               WHERE p.event_id = event_civireport.id
+               INNER JOIN civicrm_participant p ON li.entity_id = p.id AND li.entity_table = 'civicrm_participant'
+               INNER JOIN civicrm_participant_status_type pst ON pst.id = p.status_id AND pst.class = 'Positive'
+               INNER JOIN civicrm_price_field pf ON li.price_field_id = pf.id
+               WHERE p.event_id = event_civireport.id AND pf.name LIKE '%volunteer%'
              )",
           ),
         ),
@@ -137,8 +157,6 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
     $this->_from = "
          FROM  civicrm_event {$this->_aliases['civicrm_event']}
                LEFT JOIN civicrm_participant {$this->_aliases['civicrm_participant']} ON {$this->_aliases['civicrm_participant']}.event_id = {$this->_aliases['civicrm_event']}.id
-               LEFT JOIN civicrm_relationship parent ON parent.contact_id_b = {$this->_aliases['civicrm_participant']}.contact_id AND parent.relationship_type_id = 1
-               LEFT JOIN civicrm_relationship sibling ON sibling.contact_id_a = {$this->_aliases['civicrm_participant']}.contact_id AND sibling.relationship_type_id = 4
                LEFT JOIN $customTableName temp ON temp.entity_id = {$this->_aliases['civicrm_event']}.id AND temp.{$columnName} IS NOT NULL
      ";
   }
