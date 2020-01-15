@@ -83,10 +83,10 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
       'dbAlias' => "0",
     );
 
-    $this->_columns['civicrm_contact']['fields']['q1']['title'] = ts('Q1');
-    $this->_columns['civicrm_contact']['fields']['q2']['title'] = ts('Q2');
-    $this->_columns['civicrm_contact']['fields']['q3']['title'] = ts('Q3');
-    $this->_columns['civicrm_contact']['fields']['q4']['title'] = ts('Q4');
+    $this->_columns['civicrm_contact']['fields']['q1']['title'] = ts('Jan-Mar');
+    $this->_columns['civicrm_contact']['fields']['q2']['title'] = ts('April-Jun');
+    $this->_columns['civicrm_contact']['fields']['q3']['title'] = ts('Jul-Sep');
+    $this->_columns['civicrm_contact']['fields']['q4']['title'] = ts('Oct-Dec');
   }
 
   function from() {

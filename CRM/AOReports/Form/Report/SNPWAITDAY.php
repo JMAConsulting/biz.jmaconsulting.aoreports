@@ -17,34 +17,44 @@ class CRM_AOReports_Form_Report_SNPWAITDAY extends CRM_Report_Form {
             'extends' => 'Activity',
             'name' => 'q1',
             'required' => TRUE,
-            'title' => 'Q1',
+            'title' => 'Jan-Mar',
             'dbAlias' => "ROUND(AVG(SQ2.Q1), 2)",
           ),
           'q2' => array(
             'extends' => 'Activity',
             'name' => 'q2',
             'required' => TRUE,
-            'title' => 'Q2',
+            'title' => 'April-Jun',
             'dbAlias' => "ROUND(AVG(SQ2.Q2), 2)",
           ),
           'q3' => array(
             'extends' => 'Activity',
             'name' => 'q3',
             'required' => TRUE,
-            'title' => 'Q3',
+            'title' => 'Jul-Sep',
             'dbAlias' => "ROUND(AVG(SQ2.Q3), 2)",
           ),
           'q4' => array(
             'extends' => 'Activity',
             'name' => 'q3',
             'required' => TRUE,
-            'title' => 'Q4',
+            'title' => 'Oct-Dec',
             'dbAlias' => "ROUND(AVG(SQ2.Q4), 2)",
           ),
           'total' => array(
             'title' => ts('Total count'),
             'dbAlias' => 'COUNT(SQ2.region)',
             'required' => TRUE,
+          ),
+        ),
+        'filters' => array(
+          'dof' => array(
+            'name' => 'dof',
+            'title' => 'Duration',
+            'dbAlias' => '(1)',
+            'default' => 'this.month',
+            'operatorType' => CRM_Report_Form::OP_DATE,
+            'type' => CRM_Utils_Type::T_DATE,
           ),
         ),
       ),
@@ -71,9 +81,35 @@ FROM (
         INNER JOIN civicrm_case_activity pca ON rca.case_id=pca.case_id
         INNER JOIN civicrm_activity pa ON pca.activity_id=pa.id
         LEFT JOIN civicrm_value_chapters_and__18 r ON rac.contact_id=r.entity_id
-      WHERE ra.is_deleted = 0 AND ra.activity_type_id = 136 AND rac.record_type_id = 3 AND pa.is_deleted=0 AND pa.activity_type_id=137 AND pa.status_id='2' AND ra.is_current_revision = 1 AND pa.is_current_revision = 1
+      WHERE ra.is_deleted = 0 AND ra.activity_type_id = 136 AND rac.record_type_id = 3 AND pa.is_deleted=0 AND pa.activity_type_id=137 AND pa.status_id='2' AND ra.is_current_revision = 1 AND pa.is_current_revision = 1 dateString
       GROUP BY rca.case_id) AS SQ
     ) AS SQ2 ";
+
+    $field = $this->_columns['civicrm_contact']['filters']['dof'];
+    if (CRM_Utils_Array::value('operatorType', $field) & CRM_Utils_Type::T_DATE) {
+      $fieldName = 'dof';
+      $relative = CRM_Utils_Array::value("{$fieldName}_relative", $this->_params);
+      $from     = CRM_Utils_Array::value("{$fieldName}_from", $this->_params);
+      $to       = CRM_Utils_Array::value("{$fieldName}_to", $this->_params);
+
+      $clause = [];
+      foreach (['ra.activity_date_time', 'pa.activity_date_time'] as $fieldName) {
+        $string = $this->dateClause($fieldName, $relative, $from, $to, $field['type']);
+        if ($string) {
+          $clause[] = $string;
+        }
+      }
+      if (!empty($clause)) {
+        $this->_from = str_replace('dateString', ' AND ' . implode('AND' , $clause), $this->_from);
+      }
+      else {
+        $this->_from = str_replace('dateString', 'AND (1)', $this->_from);
+      }
+    }
+  }
+
+  function where() {
+    $this->_where = "WHERE ( 1 ) ";
   }
 
   function groupBy() {
@@ -93,10 +129,10 @@ FROM (
       $rows[$key]['civicrm_contact_q2'] = $row['civicrm_contact_q2'] ?: 0;
       $rows[$key]['civicrm_contact_q3'] = $row['civicrm_contact_q3'] ?: 0;
       $rows[$key]['civicrm_contact_q4'] = $row['civicrm_contact_q4'] ?: 0;
-      $lastRow['civicrm_contact_q1'] += round(($row['civicrm_contact_q1'] / 5), 2);
-      $lastRow['civicrm_contact_q2'] += round(($row['civicrm_contact_q2'] / 5), 2);
-      $lastRow['civicrm_contact_q3'] += round(($row['civicrm_contact_q3'] / 5), 2);
-      $lastRow['civicrm_contact_q4'] += round(($row['civicrm_contact_q4'] / 5), 2);
+      $lastRow['civicrm_contact_q1'] += round(($row['civicrm_contact_q1'] / 6), 2);
+      $lastRow['civicrm_contact_q2'] += round(($row['civicrm_contact_q2'] / 6), 2);
+      $lastRow['civicrm_contact_q3'] += round(($row['civicrm_contact_q3'] / 6), 2);
+      $lastRow['civicrm_contact_q4'] += round(($row['civicrm_contact_q4'] / 6), 2);
       $lastRow['civicrm_contact_total'] += $row['civicrm_contact_total'];
     }
 
