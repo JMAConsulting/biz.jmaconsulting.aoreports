@@ -52,7 +52,7 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
       'required' => TRUE,
       'type' => CRM_Utils_Type::T_INT,
       'operatorType' => CRM_Report_Form::OP_SELECT,
-      'options' => array_combine(range(date('Y'), 2000), range(date('Y'), 2000)),
+      'options' => ['' => '-select-'] + array_combine(range(date('Y'), 2000), range(date('Y'), 2000)),
     );
 
     $this->_columns['civicrm_contact']['filters']['assignee'] = array(
