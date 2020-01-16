@@ -101,6 +101,10 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
             'operatorType' => CRM_Report_Form::OP_DATE,
             'alias' => 'event_civireport',
           ),
+          'is_active' => array(
+            'title' => ts('Is Active?'),
+            'type' => CRM_Utils_Type::T_BOOLEAN,
+          ),
         ],
         'order_bys' => [
           'event_type_id' => array(
