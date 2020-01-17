@@ -43,6 +43,7 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
           ),
           'is_public' => [
             'title' => ts('Is this ceremony open to public?'),
+            'type' => CRM_Utils_Type::T_BOOLEAN,
           ],
           'street_address' => [
             'title' => ts('Street Address'),
