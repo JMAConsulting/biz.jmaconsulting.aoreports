@@ -38,6 +38,32 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
           'title' => array(
             'title' => ts('Name'),
           ),
+          'description' => array(
+            'title' => ts('Description'),
+          ),
+          'is_public' => [
+            'title' => ts('Is this ceremony open to public?'),
+          ],
+          'street_address' => [
+            'title' => ts('Street Address'),
+            'dbAlias' => 'a.street_address',
+          ],
+          'city' => [
+            'title' => ts('City'),
+            'dbAlias' => 'a.city',
+          ],
+          'postal_code' => [
+            'title' => ts('Postal Code'),
+            'dbAlias' => 'CONCAT(a.postal_code_suffix, a.postal_code)',
+          ],
+          'first_name' => [
+            'title' => ts('Creator First Name'),
+            'dbAlias' => 'cc.first_name',
+          ],
+          'last_name' => [
+            'title' => ts('Creator Last Name'),
+            'dbAlias' => 'cc.last_name',
+          ],
           'children' => array(
             'title' => ts('Children'),
             'dbAlias' => "(SELECT ROUND(COALESCE(SUM(qty), 0), 0)
@@ -105,6 +131,36 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
             'title' => ts('Is Active?'),
             'type' => CRM_Utils_Type::T_BOOLEAN,
           ),
+          'first_name' => [
+            'dbAlias' => 'cc.first_name',
+            'title' => ts('Creator First Name'),
+            'operator' => 'like',
+            'type' => CRM_Report_Form::OP_STRING,
+          ],
+          'last_name' => [
+            'dbAlias' => 'cc.last_name',
+            'title' => ts('Creator Last Name'),
+            'operator' => 'like',
+            'type' => CRM_Report_Form::OP_STRING,
+          ],
+          'street_address' => [
+            'title' => ts('Street Address'),
+            'dbAlias' => 'a.street_address',
+            'operator' => 'like',
+            'type' => CRM_Report_Form::OP_STRING,
+          ],
+          'city' => [
+            'title' => ts('City'),
+            'dbAlias' => 'a.city',
+            'operator' => 'like',
+            'type' => CRM_Report_Form::OP_STRING,
+          ],
+          'postal_code' => [
+            'title' => ts('Postal Code'),
+            'alias' => 'civicrm_event_postal_code',
+            'operator' => 'like',
+            'type' => CRM_Report_Form::OP_STRING,
+          ],
         ],
         'order_bys' => [
           'event_type_id' => array(
@@ -162,6 +218,9 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
          FROM  civicrm_event {$this->_aliases['civicrm_event']}
                LEFT JOIN civicrm_participant {$this->_aliases['civicrm_participant']} ON {$this->_aliases['civicrm_participant']}.event_id = {$this->_aliases['civicrm_event']}.id
                LEFT JOIN $customTableName temp ON temp.entity_id = {$this->_aliases['civicrm_event']}.id AND temp.{$columnName} IS NOT NULL
+               LEFT JOIN civicrm_loc_block l ON l.id = {$this->_aliases['civicrm_event']}.loc_block_id
+               LEFT JOIN civicrm_address a ON a.id = l.address_id
+               LEFT JOIN civicrm_contact cc ON cc.id = {$this->_aliases['civicrm_event']}.created_id
      ";
   }
 
