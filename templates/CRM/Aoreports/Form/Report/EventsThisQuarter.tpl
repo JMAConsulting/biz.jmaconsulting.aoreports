@@ -69,7 +69,11 @@
                           {elseif $header.group_by eq 'YEAR'}
                               {$record.$field|crmDate:$config->dateformatYear}
                           {else}
-                              {$record.$field|truncate:10:''|crmDate}
+                              {if $field eq 'civicrm_event_event_start_date'}
+                                {$record.$field}
+                              {else}
+                                {$record.$field|truncate:10:''|crmDate}
+                              {/if}
                           {/if}
                         {else}
                           {$record.$field}
