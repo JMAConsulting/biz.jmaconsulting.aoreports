@@ -213,7 +213,7 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
     );
     parent::__construct();
     if (!empty($this->_columns['civicrm_value_flag_raising_66']) && !empty($this->_columns['civicrm_value_flag_raising_66']['fields']['custom_846'])) {
-      $this->_columns['civicrm_value_flag_raising_66']['fields']['custom_846']['type'] => CRM_Utils_Type::T_BOOLEAN;
+      $this->_columns['civicrm_value_flag_raising_66']['fields']['custom_846']['type'] = CRM_Utils_Type::T_BOOLEAN;
     }
   }
 
