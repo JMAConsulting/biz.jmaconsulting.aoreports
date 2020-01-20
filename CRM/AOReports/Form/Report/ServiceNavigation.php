@@ -186,6 +186,20 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
       'civicrm_contact_total_count' => 0,
     ];
 
+    // Process and then remove any rows where civicrm_contact_family_count is NULL adding the count onto the blank i.e. civicrm_contact_family_count = '' row.
+    $emptyq1 = $emptyq2 = $emptyq3 = $emptyq4 = 0;
+    foreach ($rows as $k => $v){
+      if (empty($v['civicrm_contact_family_count'])) {
+        $variable = 'emptyq' . $v['civicrm_contact_quarter'];
+        $$variable += $v['civicrm_contact_total'];
+        if ($v['civicrm_contact_family_count'] !== '') {
+          unset($rows[$k]);
+        }
+        else {
+          $rows[$k]['civicrm_contact_total'] = $$variable;
+        }
+      }
+    }
 
     foreach ($newRows as $key => $row1) {
       foreach ($rows as &$row) {
