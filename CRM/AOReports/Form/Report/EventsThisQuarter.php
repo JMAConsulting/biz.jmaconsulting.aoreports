@@ -313,6 +313,9 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
               $url = CRM_Utils_System::url("civicrm/event/manage/settings",
                 'reset=1&action=update&id=' . $row['civicrm_event_id']
               );
+              if ($column == 'civicrm_event_event_start_date') {
+                $row[$column] = CRM_Utils_Date::customFormat($row[$column]);
+              }
 
               $row[$column] = sprintf("<a href='%s' target='_blank'>%s</a>", $url, $row[$column]);
             }
