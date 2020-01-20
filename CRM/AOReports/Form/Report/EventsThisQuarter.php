@@ -65,6 +65,18 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
             'title' => ts('Creator Last Name'),
             'dbAlias' => 'cc.last_name',
           ],
+          'email_address' => [
+            'dbAlias' => 'e.email',
+            'title' => ts('Email Address of Submitter'),
+          ],
+          'phone' => [
+            'dbAlias' => 'p.phone',
+            'title' => ts('Phone of Submitter'),
+          ],
+          'mailing_address' => [
+            'dbAlias' => 'CONCAT(ca.street_address, "  ", ca.city)',
+            'title' => ts('Mailing Address of Submitter'),
+          ],
           'children' => array(
             'title' => ts('Children'),
             'dbAlias' => "(SELECT ROUND(COALESCE(SUM(qty), 0), 0)
@@ -141,6 +153,18 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
           'last_name' => [
             'dbAlias' => 'cc.last_name',
             'title' => ts('Creator Last Name'),
+            'operator' => 'like',
+            'type' => CRM_Report_Form::OP_STRING,
+          ],
+          'email_address' => [
+            'dbAlias' => 'e.email',
+            'title' => ts('Email Address of Submitter'),
+            'operator' => 'like',
+            'type' => CRM_Report_Form::OP_STRING,
+          ],
+          'email_address' => [
+            'dbAlias' => 'p.phone',
+            'title' => ts('Phone of Submitter'),
             'operator' => 'like',
             'type' => CRM_Report_Form::OP_STRING,
           ],
@@ -222,6 +246,9 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
                LEFT JOIN civicrm_loc_block l ON l.id = {$this->_aliases['civicrm_event']}.loc_block_id
                LEFT JOIN civicrm_address a ON a.id = l.address_id
                LEFT JOIN civicrm_contact cc ON cc.id = {$this->_aliases['civicrm_event']}.created_id
+               LEFT JOIN civicrm_address ca ON ca.contact_id = cc.id AND ca.is_primary = 1
+               LEFT JOIN civicrm_email e ON e.contact_id = cc.id AND ca.is_primary = 1
+               LEFT JOIN civicrm_phone p ON p.contact_id = cc.id AND ca.is_primary = 1
      ";
   }
 
