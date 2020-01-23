@@ -33,10 +33,10 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
             'required' => TRUE,
           ),
           'event_start_date' => array(
-            'title' => ts('Date'),
+            'title' => ts('Event Date and Time'),
           ),
           'title' => array(
-            'title' => ts('Name'),
+            'title' => ts('Name of Event'),
           ),
           'description' => array(
             'title' => ts('Description'),
@@ -45,16 +45,24 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
             'title' => ts('Is this ceremony open to public?'),
             'type' => CRM_Utils_Type::T_BOOLEAN,
           ],
+          'is_active' => array(
+            'title' => ts('Is Active?'),
+            'type' => CRM_Utils_Type::T_BOOLEAN,
+          ),
+          'name' => [
+            'title' => ts('Name of Event Location?'),
+            'dbAlias' => 'a.name',
+          ],
           'street_address' => [
-            'title' => ts('Street Address'),
+            'title' => ts('Event Street Address'),
             'dbAlias' => 'a.street_address',
           ],
           'city' => [
-            'title' => ts('City'),
+            'title' => ts('Event City'),
             'dbAlias' => 'a.city',
           ],
           'postal_code' => [
-            'title' => ts('Postal Code'),
+            'title' => ts('Event Postal Code'),
             'dbAlias' => 'CONCAT(a.postal_code_suffix, a.postal_code)',
           ],
           'first_name' => [
@@ -67,15 +75,15 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
           ],
           'email_address' => [
             'dbAlias' => 'e.email',
-            'title' => ts('Email Address of Submitter'),
+            'title' => ts('Creator Email Address'),
           ],
           'phone' => [
             'dbAlias' => 'p.phone',
-            'title' => ts('Phone of Submitter'),
+            'title' => ts('Creator Phone'),
           ],
           'mailing_address' => [
             'dbAlias' => 'CONCAT(ca.street_address, "  ", ca.city)',
-            'title' => ts('Mailing Address of Submitter'),
+            'title' => ts('Creator Mailing Address'),
           ],
           'children' => array(
             'title' => ts('Children'),
