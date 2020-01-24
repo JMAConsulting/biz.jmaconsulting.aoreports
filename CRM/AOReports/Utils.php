@@ -4,9 +4,10 @@ require_once __DIR__ . '../../../ao.variables.php';
 
 class CRM_AOReports_Utils {
 
-  public static function getSNPActivityTableName($activityTypeIDs, &$form, $statuses = NULL, $operator, $year = NULL) {
-    if (empty($year)) {
+  public static function getSNPActivityTableName($activityTypeIDs, &$form, $statuses = NULL, $operator, $yearWhere = NULL) {
+    if (empty($yearWhere)) {
       $year = date('Y');
+      $yearWhere = "YEAR(a.activity_date_time) = {$date}";
     }
     $ops = [
       'in' => 'IN',
@@ -43,7 +44,7 @@ class CRM_AOReports_Utils {
                   INNER JOIN (
                     SELECT cac.contact_id, cac.activity_id, cc.* FROM civicrm_activity_contact cac INNER JOIN civicrm_contact cc ON cc.id = cac.contact_id AND cac.record_type_id = 1
                   ) ac1 ON ac1.activity_id = a.id
-            WHERE YEAR(a.activity_date_time) = {$year} AND a.is_current_revision = 1 AND ac.record_type_id = 3 AND rel.relationship_type_id = 1 AND c.is_deleted = 0 AND lfm.lead_family_member__28 = 1 AND a.activity_type_id = $activityTypeID AND $status AND a.is_deleted = 0
+            WHERE $yearWhere AND a.is_current_revision = 1 AND ac.record_type_id = 3 AND rel.relationship_type_id = 1 AND c.is_deleted = 0 AND lfm.lead_family_member__28 = 1 AND a.activity_type_id = $activityTypeID AND $status AND a.is_deleted = 0
             GROUP BY lfm.entity_id
             ";
       }
@@ -56,7 +57,7 @@ class CRM_AOReports_Utils {
           INNER JOIN civicrm_relationship rel ON rel.contact_id_b = c.id
           INNER JOIN civicrm_value_newsletter_cu_3 lfm on rel.contact_id_a = lfm.entity_id
           LEFT JOIN civicrm_value_chapters_and__18 ct ON ct.entity_id = ac.contact_id
-    WHERE YEAR(a.activity_date_time) = {$year} AND a.is_current_revision = 1 AND ac.record_type_id = 3 AND rel.relationship_type_id = 1 AND c.is_deleted = 0 AND lfm.lead_family_member__28 = 1 AND a.activity_type_id = $activityTypeID AND $status AND a.is_deleted = 0
+    WHERE $yearWhere AND a.is_current_revision = 1 AND ac.record_type_id = 3 AND rel.relationship_type_id = 1 AND c.is_deleted = 0 AND lfm.lead_family_member__28 = 1 AND a.activity_type_id = $activityTypeID AND $status AND a.is_deleted = 0
     GROUP BY lfm.entity_id
         ";
       }
@@ -70,7 +71,7 @@ class CRM_AOReports_Utils {
           INNER JOIN civicrm_relationship rel ON rel.contact_id_b = c.id
           INNER JOIN civicrm_value_newsletter_cu_3 lfm on rel.contact_id_a = lfm.entity_id
           LEFT JOIN civicrm_value_chapters_and__18 ct ON ct.entity_id = ac.contact_id
-    WHERE YEAR(a.activity_date_time) = {$year} AND a.is_current_revision = 1 AND ac.record_type_id = 3 AND rel.relationship_type_id = 1 AND c.is_deleted = 0 AND lfm.lead_family_member__28 = 1 AND a.activity_type_id = $activityTypeID AND $status AND a.is_deleted = 0
+    WHERE $yearWhere AND a.is_current_revision = 1 AND ac.record_type_id = 3 AND rel.relationship_type_id = 1 AND c.is_deleted = 0 AND lfm.lead_family_member__28 = 1 AND a.activity_type_id = $activityTypeID AND $status AND a.is_deleted = 0
     GROUP BY lfm.entity_id
         ";
       }

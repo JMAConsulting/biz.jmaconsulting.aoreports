@@ -90,20 +90,17 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
   }
 
   function from() {
-    $year = FALSE;
     if (empty($this->_params['activity_date_time_value']) && (!empty($this->_params['dof_relative']) || !empty($this->_params['dof_from']) || !empty($this->_params['dof_to']))) {
-      $datefields = $this->getFromTo($this->_params['dof_relative'], $this->_params['dof_from'], $this->_params['dof_to']);
-      if (date('Y', strtotime($datefields[0])) == date('Y', strtotime($datefields[1]))) {
-        $year = date('Y', strtotime($datefields[0]));
-      }
-      else {
-        CRM_Core_Error::statusBounce('This report only allows for dates within the one year to be used please check your filters');
-      }
+      $tempTableWhere = $this->dateClause('dof', $this->_params['dof_relative'], $this->_params['dof_from'], $this->_params['dof_to'], CRM_Utils_Type::T_DATE + CRM_Utils_Type::T_TIME);
+    }
+    elseif (!empty($this->_params['activity_date_time_value'])) {
+      $tempTableWhere = "YEAR(a.activity_date_time) = {$this->_params['activity_date_time_value']}";
     }
     else {
-      $year = $this->_params['activity_date_time_value'];
+      $currentYear = date('Y');
+      $tempTableWhere = "YEAR(a.activity_date_time) = {$currentYear}";
     }
-    $tableName = E::getSNPActivityTableName($this->_params['activity_type_value'], $this, $this->_params['status_id_value'], $this->_params['status_id_op'], $year);
+    $tableName = E::getSNPActivityTableName($this->_params['activity_type_value'], $this, $this->_params['status_id_value'], $this->_params['status_id_op'], $tempTableWhere);
     $this->_from = " FROM civicrm_contact {$this->_aliases['civicrm_contact']}
       INNER JOIN {$tableName} temp ON temp.parent_id = {$this->_aliases['civicrm_contact']}.id ";
 
