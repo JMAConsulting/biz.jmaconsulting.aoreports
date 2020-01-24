@@ -91,7 +91,7 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
 
   function from() {
     if (empty($this->_params['activity_date_time_value']) && (!empty($this->_params['dof_relative']) || !empty($this->_params['dof_from']) || !empty($this->_params['dof_to']))) {
-      $tempTableWhere = $this->dateClause('dof', $this->_params['dof_relative'], $this->_params['dof_from'], $this->_params['dof_to'], CRM_Utils_Type::T_DATE + CRM_Utils_Type::T_TIME);
+      $tempTableWhere = $this->dateClause('a.activity_date_time', $this->_params['dof_relative'], $this->_params['dof_from'], $this->_params['dof_to'], CRM_Utils_Type::T_DATE + CRM_Utils_Type::T_TIME);
     }
     elseif (!empty($this->_params['activity_date_time_value'])) {
       $tempTableWhere = "YEAR(a.activity_date_time) = {$this->_params['activity_date_time_value']}";
