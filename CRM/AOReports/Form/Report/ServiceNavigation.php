@@ -75,7 +75,7 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
     $this->_columns['civicrm_contact']['fields']['family_count'] = array(
       'title' => ts('Region'),
       'required' => TRUE,
-      'dbAlias' => "temp.region",
+      'dbAlias' => "COALESCE(temp.region, '')",
     );
     $this->_columns['civicrm_contact']['fields']['total_count'] = array(
       'title' => ts('YTD'),
@@ -90,7 +90,17 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
   }
 
   function from() {
-    $tableName = E::getSNPActivityTableName($this->_params['activity_type_value'], $this, $this->_params['status_id_value'], $this->_params['status_id_op'], $this->_params['activity_date_time_value']);
+    if (empty($this->_params['activity_date_time_value']) && (!empty($this->_params['dof_relative']) || !empty($this->_params['dof_from']) || !empty($this->_params['dof_to']))) {
+      $tempTableWhere = $this->dateClause('a.activity_date_time', $this->_params['dof_relative'], $this->_params['dof_from'], $this->_params['dof_to'], CRM_Utils_Type::T_DATE + CRM_Utils_Type::T_TIME);
+    }
+    elseif (!empty($this->_params['activity_date_time_value'])) {
+      $tempTableWhere = "YEAR(a.activity_date_time) = {$this->_params['activity_date_time_value']}";
+    }
+    else {
+      $currentYear = date('Y');
+      $tempTableWhere = "YEAR(a.activity_date_time) = {$currentYear}";
+    }
+    $tableName = E::getSNPActivityTableName($this->_params['activity_type_value'], $this, $this->_params['status_id_value'], $this->_params['status_id_op'], $tempTableWhere);
     $this->_from = " FROM civicrm_contact {$this->_aliases['civicrm_contact']}
       INNER JOIN {$tableName} temp ON temp.parent_id = {$this->_aliases['civicrm_contact']}.id ";
 
@@ -151,7 +161,7 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
   }
 
   function groupBy() {
-    $this->_groupBy = "GROUP BY temp.region, QUARTER(temp.dof)";
+    $this->_groupBy = "GROUP BY COALESCE(temp.region, ''), QUARTER(temp.dof)";
   }
 
   function alterDisplay(&$rows) {
@@ -185,7 +195,6 @@ class CRM_AOReports_Form_Report_ServiceNavigation extends CRM_AOReports_Form_Rep
       'civicrm_contact_q4' => 0,
       'civicrm_contact_total_count' => 0,
     ];
-
 
     foreach ($newRows as $key => $row1) {
       foreach ($rows as &$row) {
