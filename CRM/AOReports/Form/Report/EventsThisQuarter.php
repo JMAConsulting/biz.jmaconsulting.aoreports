@@ -359,6 +359,10 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
             }
           }
 
+          if (isset($row['civicrm_value_flag_raising_66_custom_846']) && empty($row['civicrm_value_flag_raising_66_custom_846'])) {
+            $row['civicrm_value_flag_raising_66_custom_846'] = ts('No');
+          }
+
           $newRows[$type][$rowNum] = $row;
           unset($rows[$rowNum]);
         }
