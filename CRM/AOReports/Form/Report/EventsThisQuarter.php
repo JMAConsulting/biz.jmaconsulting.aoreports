@@ -334,6 +334,9 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
     if ($this->_outputMode == 'csv') {
       foreach ($rows as $rowNum => $row) {
         $rows[$rowNum]['civicrm_event_event_type_id'] = CRM_Utils_Array::value($row['civicrm_event_event_type_id'], $eventType);
+        if (isset($row['civicrm_value_flag_raising_66_custom_846']) && empty($row['civicrm_value_flag_raising_66_custom_846'])) {
+          $rows[$rowNum]['civicrm_value_flag_raising_66_custom_846'] = ts('No');
+        }
       }
       return;
     }
@@ -377,5 +380,63 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
   public function getTemplateFileName() {
     return 'CRM/Aoreports/Form/Report/EventsThisQuarter.tpl';
   }
+
+  /**
+   * Alter the way in which custom data fields are displayed.
+   *
+   * @param array $rows
+   */
+  public function alterCustomDataDisplay(&$rows) {
+    // custom code to alter rows having custom values
+    if (empty($this->_customGroupExtends)) {
+      return;
+    }
+
+    $customFields = [];
+    $customFieldIds = [];
+    foreach ($this->_params['fields'] as $fieldAlias => $value) {
+      if ($fieldId = CRM_Core_BAO_CustomField::getKeyID($fieldAlias)) {
+        $customFieldIds[$fieldAlias] = $fieldId;
+      }
+    }
+    if (empty($customFieldIds)) {
+      return;
+    }
+
+    // skip for type date and ContactReference since date format is already handled
+    $query = "
+SELECT cg.table_name, cf.id
+FROM  civicrm_custom_field cf
+INNER JOIN civicrm_custom_group cg ON cg.id = cf.custom_group_id
+WHERE cg.extends IN ('" . implode("','", $this->_customGroupExtends) . "') AND
+      cg.is_active = 1 AND
+      cf.is_active = 1 AND
+      cf.is_searchable = 1 AND
+      cf.data_type   NOT IN ('ContactReference', 'Date') AND
+      cf.id IN (" . implode(",", $customFieldIds) . ") AND
+      cf.id != 846";
+
+    $dao = CRM_Core_DAO::executeQuery($query);
+    while ($dao->fetch()) {
+      $customFields[$dao->table_name . '_custom_' . $dao->id] = $dao->id;
+    }
+
+    $entryFound = FALSE;
+    foreach ($rows as $rowNum => $row) {
+      foreach ($row as $tableCol => $val) {
+        if (array_key_exists($tableCol, $customFields)) {
+          $rows[$rowNum][$tableCol] = CRM_Core_BAO_CustomField::displayValue($val, $customFields[$tableCol]);
+          $entryFound = TRUE;
+        }
+      }
+
+      // skip looking further in rows, if first row itself doesn't
+      // have the column we need
+      if (!$entryFound) {
+        break;
+      }
+    }
+  }
+
 
 }
