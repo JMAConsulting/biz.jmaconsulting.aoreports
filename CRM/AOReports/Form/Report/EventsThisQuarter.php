@@ -220,29 +220,6 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
       ],
     );
     parent::__construct();
-    if (!empty($this->_columns['civicrm_value_flag_raising_66']) && !empty($this->_columns['civicrm_value_flag_raising_66']['fields']['custom_846'])) {
-      $this->_columns['civicrm_value_flag_raising_66']['fields']['custom_846']['type'] = CRM_Utils_Type::T_BOOLEAN;
-    }
-  }
-
-  function select() {
-    $select = $this->_columnHeaders = array();
-
-    foreach ($this->_columns as $tableName => $table) {
-      if (array_key_exists('fields', $table)) {
-        foreach ($table['fields'] as $fieldName => $field) {
-          if (CRM_Utils_Array::value('required', $field) ||
-            CRM_Utils_Array::value($fieldName, $this->_params['fields'])
-          ) {
-            $select[] = "{$field['dbAlias']} as {$tableName}_{$fieldName}";
-            $this->_columnHeaders["{$tableName}_{$fieldName}"]['title'] = CRM_Utils_Array::value('title', $field);
-            $this->_columnHeaders["{$tableName}_{$fieldName}"]['type'] = CRM_Utils_Array::value('type', $field);
-          }
-        }
-      }
-    }
-
-    $this->_select = "SELECT " . implode(', ', $select) . " ";
   }
 
   function from() {
@@ -311,20 +288,6 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
     $this->_groupBy = " GROUP BY {$this->_aliases['civicrm_event']}.id ";
   }
 
-  function postProcess() {
-
-    $this->beginPostProcess();
-
-    $sql = $this->buildQuery(TRUE);
-
-    $rows = array();
-    $this->buildRows($sql, $rows);
-
-    $this->formatDisplay($rows);
-    $this->doTemplateAssignment($rows);
-    $this->endPostProcess($rows);
-  }
-
   function alterDisplay(&$rows) {
     $eventType = CRM_Core_OptionGroup::values('event_type');
     // custom code to alter rows
@@ -334,9 +297,6 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
     if ($this->_outputMode == 'csv') {
       foreach ($rows as $rowNum => $row) {
         $rows[$rowNum]['civicrm_event_event_type_id'] = CRM_Utils_Array::value($row['civicrm_event_event_type_id'], $eventType);
-        if (isset($row['civicrm_value_flag_raising_66_custom_846']) && empty($row['civicrm_value_flag_raising_66_custom_846'])) {
-          $rows[$rowNum]['civicrm_value_flag_raising_66_custom_846'] = ts('No');
-        }
       }
       return;
     }
@@ -362,9 +322,7 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
             }
           }
 
-          if (isset($row['civicrm_value_flag_raising_66_custom_846']) && empty($row['civicrm_value_flag_raising_66_custom_846'])) {
-            $row['civicrm_value_flag_raising_66_custom_846'] = ts('No');
-          }
+          $row['civicrm_value_flag_raising_66_custom_846'] = empty($row['civicrm_value_flag_raising_66_custom_846']) ? ts('No') : $this->alterBoolean($row['civicrm_value_flag_raising_66_custom_846']);
 
           $newRows[$type][$rowNum] = $row;
           unset($rows[$rowNum]);
@@ -380,63 +338,5 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
   public function getTemplateFileName() {
     return 'CRM/Aoreports/Form/Report/EventsThisQuarter.tpl';
   }
-
-  /**
-   * Alter the way in which custom data fields are displayed.
-   *
-   * @param array $rows
-   */
-  public function alterCustomDataDisplay(&$rows) {
-    // custom code to alter rows having custom values
-    if (empty($this->_customGroupExtends)) {
-      return;
-    }
-
-    $customFields = [];
-    $customFieldIds = [];
-    foreach ($this->_params['fields'] as $fieldAlias => $value) {
-      if ($fieldId = CRM_Core_BAO_CustomField::getKeyID($fieldAlias)) {
-        $customFieldIds[$fieldAlias] = $fieldId;
-      }
-    }
-    if (empty($customFieldIds)) {
-      return;
-    }
-
-    // skip for type date and ContactReference since date format is already handled
-    $query = "
-SELECT cg.table_name, cf.id
-FROM  civicrm_custom_field cf
-INNER JOIN civicrm_custom_group cg ON cg.id = cf.custom_group_id
-WHERE cg.extends IN ('" . implode("','", $this->_customGroupExtends) . "') AND
-      cg.is_active = 1 AND
-      cf.is_active = 1 AND
-      cf.is_searchable = 1 AND
-      cf.data_type   NOT IN ('ContactReference', 'Date') AND
-      cf.id IN (" . implode(",", $customFieldIds) . ") AND
-      cf.id != 846";
-
-    $dao = CRM_Core_DAO::executeQuery($query);
-    while ($dao->fetch()) {
-      $customFields[$dao->table_name . '_custom_' . $dao->id] = $dao->id;
-    }
-
-    $entryFound = FALSE;
-    foreach ($rows as $rowNum => $row) {
-      foreach ($row as $tableCol => $val) {
-        if (array_key_exists($tableCol, $customFields)) {
-          $rows[$rowNum][$tableCol] = CRM_Core_BAO_CustomField::displayValue($val, $customFields[$tableCol]);
-          $entryFound = TRUE;
-        }
-      }
-
-      // skip looking further in rows, if first row itself doesn't
-      // have the column we need
-      if (!$entryFound) {
-        break;
-      }
-    }
-  }
-
 
 }
