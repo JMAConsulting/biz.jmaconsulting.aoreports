@@ -220,29 +220,6 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
       ],
     );
     parent::__construct();
-    if (!empty($this->_columns['civicrm_value_flag_raising_66']) && !empty($this->_columns['civicrm_value_flag_raising_66']['fields']['custom_846'])) {
-      $this->_columns['civicrm_value_flag_raising_66']['fields']['custom_846']['type'] = CRM_Utils_Type::T_BOOLEAN;
-    }
-  }
-
-  function select() {
-    $select = $this->_columnHeaders = array();
-
-    foreach ($this->_columns as $tableName => $table) {
-      if (array_key_exists('fields', $table)) {
-        foreach ($table['fields'] as $fieldName => $field) {
-          if (CRM_Utils_Array::value('required', $field) ||
-            CRM_Utils_Array::value($fieldName, $this->_params['fields'])
-          ) {
-            $select[] = "{$field['dbAlias']} as {$tableName}_{$fieldName}";
-            $this->_columnHeaders["{$tableName}_{$fieldName}"]['title'] = CRM_Utils_Array::value('title', $field);
-            $this->_columnHeaders["{$tableName}_{$fieldName}"]['type'] = CRM_Utils_Array::value('type', $field);
-          }
-        }
-      }
-    }
-
-    $this->_select = "SELECT " . implode(', ', $select) . " ";
   }
 
   function from() {
@@ -311,20 +288,6 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
     $this->_groupBy = " GROUP BY {$this->_aliases['civicrm_event']}.id ";
   }
 
-  function postProcess() {
-
-    $this->beginPostProcess();
-
-    $sql = $this->buildQuery(TRUE);
-
-    $rows = array();
-    $this->buildRows($sql, $rows);
-
-    $this->formatDisplay($rows);
-    $this->doTemplateAssignment($rows);
-    $this->endPostProcess($rows);
-  }
-
   function alterDisplay(&$rows) {
     $eventType = CRM_Core_OptionGroup::values('event_type');
     // custom code to alter rows
@@ -358,6 +321,8 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
               $row[$column] = sprintf("<a href='%s' target='_blank'>%s</a>", $url, $row[$column]);
             }
           }
+
+          $row['civicrm_value_flag_raising_66_custom_846'] = empty($row['civicrm_value_flag_raising_66_custom_846']) ? ts('No') : $this->alterBoolean($row['civicrm_value_flag_raising_66_custom_846']);
 
           $newRows[$type][$rowNum] = $row;
           unset($rows[$rowNum]);
