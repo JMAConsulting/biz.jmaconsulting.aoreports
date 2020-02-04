@@ -1,7 +1,7 @@
 <?php
-use CRM_AOReports_ExtensionUtil as E;
+use CRM_AOReports_Utils as E;
 
-class CRM_AOReports_Form_Report_ServiceNavigationDetail extends CRM_AOReports_Form_Report_ServiceNavigation {
+class CRM_AOReports_Form_Report_ServiceNavigationDetail extends CRM_Report_Form {
 
     protected $_summary = NULL;
     protected $addPaging = FALSE;
@@ -58,6 +58,7 @@ class CRM_AOReports_Form_Report_ServiceNavigationDetail extends CRM_AOReports_Fo
               ],
             ),
           ),
+        ),
       );
       parent::__construct();
     }
@@ -150,8 +151,15 @@ class CRM_AOReports_Form_Report_ServiceNavigationDetail extends CRM_AOReports_Fo
     }
 
     function alterDisplay(&$rows) {
+      $quarters = [
+        1 => 'Jan-Mar',
+        2 => 'Apr-Jun',
+        3 => 'Jul-Sept',
+        4 => 'Oct-Dec',
+      ];
       foreach ($rows as $rowNum => $row) {
         $rows[$rowNum]['civicrm_contact_contact_name'] = sprintf("<a href='%s'>%s</a>", CRM_Utils_System::url('civicrm/contact/view', 'reset=1&id=' . $row['civicrm_contact_contact_id']), $rows[$rowNum]['civicrm_contact_contact_name']);
+        $rows[$rowNum]['civicrm_contact_quarter'] = CRM_Utils_Array::value($rows[$rowNum]['civicrm_contact_quarter'], $quarters);
       }
     }
 
