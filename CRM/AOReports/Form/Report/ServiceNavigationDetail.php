@@ -59,7 +59,7 @@ class CRM_AOReports_Form_Report_ServiceNavigationDetail extends CRM_Report_Form 
             ),
           ),
         ),
-      );
+      ) + $this->getAddressColumns(array('group_bys' => FALSE));
       parent::__construct();
     }
 
@@ -95,6 +95,7 @@ class CRM_AOReports_Form_Report_ServiceNavigationDetail extends CRM_Report_Form 
       $tableName = E::getSNPActivityTableName($this->_params['activity_type_value'], $this, $this->_params['status_id_value'], $this->_params['status_id_op'], $tempTableWhere);
       $this->_from = " FROM civicrm_contact {$this->_aliases['civicrm_contact']}
         INNER JOIN {$tableName} temp ON temp.parent_id = {$this->_aliases['civicrm_contact']}.id ";
+      $this->joinAddressFromContact();
     }
 
     function groupBy() {
@@ -158,7 +159,7 @@ class CRM_AOReports_Form_Report_ServiceNavigationDetail extends CRM_Report_Form 
         4 => 'Oct-Dec',
       ];
       foreach ($rows as $rowNum => $row) {
-        $rows[$rowNum]['civicrm_contact_contact_name'] = sprintf("<a href='%s'>%s</a>", CRM_Utils_System::url('civicrm/contact/view', 'reset=1&id=' . $row['civicrm_contact_contact_id']), $rows[$rowNum]['civicrm_contact_contact_name']);
+        $rows[$rowNum]['civicrm_contact_contact_name'] = sprintf("<a href='%s'>%s</a>", CRM_Utils_System::url('civicrm/contact/view', 'reset=1&cid=' . $row['civicrm_contact_contact_id']), $rows[$rowNum]['civicrm_contact_contact_name']);
         $rows[$rowNum]['civicrm_contact_quarter'] = CRM_Utils_Array::value($rows[$rowNum]['civicrm_contact_quarter'], $quarters);
       }
     }
