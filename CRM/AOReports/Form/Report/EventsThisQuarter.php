@@ -35,6 +35,9 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
           'event_start_date' => array(
             'title' => ts('Event Date and Time'),
           ),
+          'created_date' => array(
+            'title' => ts('Created Date'),
+          ),
           'title' => array(
             'title' => ts('Name of Event'),
           ),
@@ -63,7 +66,7 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
           ],
           'postal_code' => [
             'title' => ts('Event Postal Code'),
-            'dbAlias' => 'CONCAT(a.postal_code_suffix, a.postal_code)',
+            'dbAlias' => 'CONCAT(COALESCE(a.postal_code_suffix, \'\'), a.postal_code)',
           ],
           'first_name' => [
             'title' => ts('Creator First Name'),
@@ -82,7 +85,7 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
             'title' => ts('Creator Phone'),
           ],
           'mailing_address' => [
-            'dbAlias' => 'CONCAT(ca.street_address, "  ", ca.city)',
+            'dbAlias' => 'CONCAT(ca.street_address, "  ", ca.city, "  ", COALESCE(ca.postal_code_suffix, \'\'), ca.postal_code)',
             'title' => ts('Creator Mailing Address'),
           ],
           'children' => array(
@@ -309,12 +312,12 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
       foreach ($rows as $rowNum => $row) {
         if ($row['civicrm_event_event_type_id'] == $id) {
           unset($row['civicrm_event_event_type_id']);
-          foreach (['civicrm_event_title', 'civicrm_event_event_start_date'] as $column) {
+          foreach (['civicrm_event_title', 'civicrm_event_event_start_date', 'civicrm_event_created_date'] as $column) {
             if (!empty($row[$column])) {
               $url = CRM_Utils_System::url("civicrm/event/manage/settings",
                 'reset=1&action=update&id=' . $row['civicrm_event_id']
               );
-              if ($column == 'civicrm_event_event_start_date') {
+              if (in_array($column, ['civicrm_event_event_start_date', 'civicrm_event_created_date'])) {
                 $row[$column] = CRM_Utils_Date::customFormat($row[$column]);
               }
 
