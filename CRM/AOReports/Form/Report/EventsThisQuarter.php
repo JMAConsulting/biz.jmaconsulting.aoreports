@@ -60,6 +60,10 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
             'title' => ts('Event Street Address'),
             'dbAlias' => 'a.street_address',
           ],
+          'supplemental_address_1' => [
+            'title' => ts('Event Supplemental Address'),
+            'dbAlias' => 'a.supplemental_address_1',
+          ],
           'city' => [
             'title' => ts('Event City'),
             'dbAlias' => 'a.city',
@@ -204,6 +208,9 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
           ),
           'event_start_date' => array(
             'title' => ts('Event Date and Time'),
+          ),
+          'created_date' => array(
+            'title' => ts('Created Date'),
           ),
           'title' => array(
             'title' => ts('Name of Event'),
@@ -399,12 +406,12 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
       foreach ($rows as $rowNum => $row) {
         if ($row['civicrm_event_event_type_id'] == $id) {
           unset($row['civicrm_event_event_type_id']);
-          foreach (['civicrm_event_title', 'civicrm_event_event_start_date', 'civicrm_event_created_date'] as $column) {
+          foreach (['civicrm_event_title', 'civicrm_event_event_start_date'] as $column) {
             if (!empty($row[$column])) {
               $url = CRM_Utils_System::url("civicrm/event/manage/settings",
                 'reset=1&action=update&id=' . $row['civicrm_event_id']
               );
-              if (in_array($column, ['civicrm_event_event_start_date', 'civicrm_event_created_date'])) {
+              if ($column == 'civicrm_event_event_start_date') {
                 $row[$column] = CRM_Utils_Date::customFormat($row[$column]);
               }
 
@@ -412,13 +419,8 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
             }
           }
 
-           $row['civicrm_value_flag_raising_66_custom_846'] = CRM_Utils_Array::value('civicrm_value_flag_raising_66_custom_846', $row) == NULL ? '' : $this->alterBoolean($row['civicrm_value_flag_raising_66_custom_846']);
-           $row['civicrm_value_flag_raising_66_custom_888'] = CRM_Utils_Array::value('civicrm_value_flag_raising_66_custom_888', $row) == NULL ? '' : $this->alterBoolean($row['civicrm_value_flag_raising_66_custom_888']);
-           if (!empty($row['civicrm_value_flag_raising_66_custom_888'])) {
-             $column = ['civicrm_value_flag_raising_66_custom_888' => $row['civicrm_value_flag_raising_66_custom_888']];
-             unset($row['civicrm_value_flag_raising_66_custom_888']);
-             array_splice($row, 3, 0, $column);
-           }
+          $row['civicrm_value_flag_raising_66_custom_846'] = CRM_Utils_Array::value('civicrm_value_flag_raising_66_custom_846', $row) == NULL ? '' : $this->alterBoolean($row['civicrm_value_flag_raising_66_custom_846']);
+          $row['civicrm_value_flag_raising_66_custom_888'] = CRM_Utils_Array::value('civicrm_value_flag_raising_66_custom_888', $row) == NULL ? '' : $this->alterBoolean($row['civicrm_value_flag_raising_66_custom_888']);
           if (!empty($row['civicrm_value_flag_raising_66_custom_888'])) {
             $column = ['civicrm_value_flag_raising_66_custom_888' => $row['civicrm_value_flag_raising_66_custom_888']];
             unset($row['civicrm_value_flag_raising_66_custom_888']);
