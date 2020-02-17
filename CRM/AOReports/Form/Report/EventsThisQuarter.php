@@ -400,7 +400,6 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
       unset($this->_columnHeaders['civicrm_value_flag_raising_66_custom_888']);
       array_splice($this->_columnHeaders, 3, 0, $column);
     }
-    $this->_columnHeaders['civicrm_event_event_type_id']
     foreach ($eventType as $id => $type) {
       $newRows[$type] = [];
       foreach ($rows as $rowNum => $row) {
