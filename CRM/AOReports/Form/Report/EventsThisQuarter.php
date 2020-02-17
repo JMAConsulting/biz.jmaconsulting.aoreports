@@ -202,6 +202,86 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
           'event_type_id' => array(
             'title' => ts('Event Type'),
           ),
+          'event_start_date' => array(
+            'title' => ts('Event Date and Time'),
+          ),
+          'title' => array(
+            'title' => ts('Name of Event'),
+          ),
+          'description' => array(
+            'title' => ts('Description'),
+          ),
+          'is_public' => [
+            'title' => ts('Is this ceremony open to public?'),
+          ],
+          'name' => [
+            'title' => ts('Name of Event Location?'),
+            'dbAlias' => 'a.name',
+          ],
+          'street_address' => [
+            'title' => ts('Event Street Address'),
+            'dbAlias' => 'a.street_address',
+          ],
+          'city' => [
+            'title' => ts('Event City'),
+            'dbAlias' => 'a.city',
+          ],
+          'postal_code' => [
+            'title' => ts('Event Postal Code'),
+            'dbAlias' => 'CONCAT(a.postal_code_suffix, a.postal_code)',
+          ],
+          'first_name' => [
+            'title' => ts('Creator First Name'),
+            'dbAlias' => 'cc.first_name',
+          ],
+          'last_name' => [
+            'title' => ts('Creator Last Name'),
+            'dbAlias' => 'cc.last_name',
+          ],
+          'email_address' => [
+            'dbAlias' => 'e.email',
+            'title' => ts('Creator Email Address'),
+          ],
+          'phone' => [
+            'dbAlias' => 'p.phone',
+            'title' => ts('Creator Phone'),
+          ],
+          'what_is_your_name' => [
+            'dbAlias' => 'value_flag_raising_66_civireport.what_is_your_name__847',
+            'title' => 'What is your name?',
+          ],
+          'what_is_your_email_address' => [
+            'dbAlias' => 'value_flag_raising_66_civireport.what_is_your_email_address__848',
+            'title' => 'What is your Email address?',
+          ],
+          'what_is_your_mailing_address__849' => [
+            'dbAlias' => 'value_flag_raising_66_civireport.what_is_your_mailing_address__849',
+            'title' => 'What is your Mailing address?',
+          ],
+          'autism_ontario_representation_850' => [
+            'dbAlias' => 'value_flag_raising_66_civireport.autism_ontario_representation_850',
+            'title' => 'Autism Ontario representation',
+          ],
+          'do_you_require_a_flag__846' => [
+            'dbAlias' => 'value_flag_raising_66_civireport.do_you_require_a_flag__846',
+            'title' => 'Do you require a flag?',
+          ],
+          'what_is_your_phone_number__857' => [
+            'dbAlias' => 'value_flag_raising_66_civireport.what_is_your_phone_number__857',
+            'title' => 'What is your phone number?',
+          ],
+          'what_is_your_phone_number__857' => [
+            'dbAlias' => 'value_flag_raising_66_civireport.what_is_your_phone_number__857',
+            'title' => 'What is your phone number?',
+          ],
+          'do_you_want_autism_ontario_to_pr_888' => [
+            'dbAlias' => 'value_flag_raising_66_civireport.do_you_want_autism_ontario_to_pr_888',
+            'title' => 'Do you want Autism Ontario to Promote your event?',
+          ],
+          'chapter_325' => [
+            'dbAlias' => 'value_flag_raising_66_civireport.chapter_325',
+            'title' => 'Chapter',
+          ],
         ],
       ],
       'civicrm_participant' => [
@@ -293,6 +373,7 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
 
   function alterDisplay(&$rows) {
     $eventType = CRM_Core_OptionGroup::values('event_type');
+
     // custom code to alter rows
     $entryFound = FALSE;
     $checkList = array();
@@ -307,6 +388,12 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
       unset($this->_columnHeaders['civicrm_event_event_type_id']);
     }
 
+    if (!empty($this->_columnHeaders['civicrm_value_flag_raising_66_custom_888'])) {
+      $column = ['civicrm_value_flag_raising_66_custom_888' => $this->_columnHeaders['civicrm_value_flag_raising_66_custom_888']];
+      unset($this->_columnHeaders['civicrm_value_flag_raising_66_custom_888']);
+      array_splice($this->_columnHeaders, 3, 0, $column);
+    }
+    $this->_columnHeaders['civicrm_event_event_type_id']
     foreach ($eventType as $id => $type) {
       $newRows[$type] = [];
       foreach ($rows as $rowNum => $row) {
@@ -325,8 +412,18 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
             }
           }
 
-          $row['civicrm_value_flag_raising_66_custom_846'] = empty($row['civicrm_value_flag_raising_66_custom_846']) ? ts('No') : $this->alterBoolean($row['civicrm_value_flag_raising_66_custom_846']);
-
+           $row['civicrm_value_flag_raising_66_custom_846'] = CRM_Utils_Array::value('civicrm_value_flag_raising_66_custom_846', $row) == NULL ? '' : $this->alterBoolean($row['civicrm_value_flag_raising_66_custom_846']);
+           $row['civicrm_value_flag_raising_66_custom_888'] = CRM_Utils_Array::value('civicrm_value_flag_raising_66_custom_888', $row) == NULL ? '' : $this->alterBoolean($row['civicrm_value_flag_raising_66_custom_888']);
+           if (!empty($row['civicrm_value_flag_raising_66_custom_888'])) {
+             $column = ['civicrm_value_flag_raising_66_custom_888' => $row['civicrm_value_flag_raising_66_custom_888']];
+             unset($row['civicrm_value_flag_raising_66_custom_888']);
+             array_splice($row, 3, 0, $column);
+           }
+          if (!empty($row['civicrm_value_flag_raising_66_custom_888'])) {
+            $column = ['civicrm_value_flag_raising_66_custom_888' => $row['civicrm_value_flag_raising_66_custom_888']];
+            unset($row['civicrm_value_flag_raising_66_custom_888']);
+            array_splice($row, 3, 0, $column);
+          }
           $newRows[$type][$rowNum] = $row;
           unset($rows[$rowNum]);
         }
