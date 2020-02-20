@@ -12,7 +12,7 @@ class CRM_AOReports_Form_Report_ExtendedParticipantListing extends CRM_Report_Fo
         ];
   }
 
-  public function from() {
+  public function from($includeLineItem = TRUE) {
     $this->_from = "
         FROM civicrm_participant {$this->_aliases['civicrm_participant']}
              LEFT JOIN civicrm_event {$this->_aliases['civicrm_event']}
@@ -43,13 +43,15 @@ class CRM_AOReports_Form_Report_ExtendedParticipantListing extends CRM_Report_Fo
                     ON (pp.contribution_id  = {$this->_aliases['civicrm_contribution']}.id)
       ";
     }
-    $this->_from .= "
-          LEFT JOIN civicrm_line_item line_item_civireport
-                ON line_item_civireport.entity_table = 'civicrm_participant' AND
-                   line_item_civireport.entity_id = {$this->_aliases['civicrm_participant']}.id AND
-                   line_item_civireport.qty > 0
-         LEFT JOIN civicrm_price_field pf ON pf.id = line_item_civireport.price_field_id
-    ";
+    if ($includeLineItem) {
+      $this->_from .= "
+            LEFT JOIN civicrm_line_item line_item_civireport
+                  ON line_item_civireport.entity_table = 'civicrm_participant' AND
+                     line_item_civireport.entity_id = {$this->_aliases['civicrm_participant']}.id AND
+                     line_item_civireport.qty > 0
+           LEFT JOIN civicrm_price_field pf ON pf.id = line_item_civireport.price_field_id
+      ";
+    }
 
     if ($this->_balance) {
       $this->_from .= "
@@ -68,6 +70,15 @@ class CRM_AOReports_Form_Report_ExtendedParticipantListing extends CRM_Report_Fo
     $totalParticipant = 0;
     $select = " SELECT CONCAT(pf.label, ' - ', SUM(participant_count)) as c,  SUM(participant_count) as count ";
     $sql = "{$select} {$this->_from} {$this->_where} GROUP BY line_item_civireport.price_field_id ";
+    $extensionInfo = civicrm_api3('Extension', 'get', ['key' => 'biz.jmaconsulting.waitlisttickets']);
+    $pendingFromWaitlistStatus = CRM_Core_PseudoConstant::getKey('CRM_Event_BAO_Participant', 'participant_status_id', 'Pending from waitlist');
+    $onWaitListStatus = CRM_Core_PseudoConstant::getKey('CRM_Event_BAO_Participant', 'participant_status_id', 'On waitlist');
+    if (!empty($extensionInfo['values']) && $extensionInfo['values'][$extensionInfo['id']]['status'] === 'installed' && (in_array($pendingFromWaitlistStatus, $this->_formValues['sid_value']) || in_array($onWaitListStatus, $this->_formValues['sid_value']))) {
+      $waitListWhere = str_replace('line_item_civireport', 'wait_list_tickets', $this->_where);
+      $this->from(FALSE);
+      $waitListFrom  = $this->_from . " LEFT JOIN civicrm_wait_list_tickets as wait_list_tickets ON wait_list_tickets.participant_id = participant_civireport.id LEFT JOIN civicrm_price_field pf ON pf.id = wait_list_tickets.price_field_id ";
+      $sql .= "UNION SELECT CONCAT(pf.label, ' - ', SUM(wait_list_tickets.participant_count)) as c,  SUM(wait_list_tickets.participant_count) as count {$waitListFrom} {$waitListWhere} GROUP BY wait_list_tickets.price_field_id";
+    }
     $this->addToDeveloperTab($sql);
     $dao = CRM_Core_DAO::executeQuery($sql);
     while ($dao->fetch()) {
