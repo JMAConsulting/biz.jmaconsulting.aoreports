@@ -378,6 +378,14 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
     $this->_groupBy = " GROUP BY {$this->_aliases['civicrm_event']}.id ";
   }
 
+  public function alterBooleanWithNo($value) {
+    $options = [0 => ts('No'), 1 => ts('Yes')];
+    if (isset($options[$value])) {
+      return $options[$value];
+    }
+    return $value;
+  } 
+
   function alterDisplay(&$rows) {
     $eventType = CRM_Core_OptionGroup::values('event_type');
 
@@ -418,8 +426,8 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
             }
           }
 
-          $row['civicrm_value_flag_raising_66_custom_846'] = CRM_Utils_Array::value('civicrm_value_flag_raising_66_custom_846', $row) == NULL ? '' : $this->alterBoolean($row['civicrm_value_flag_raising_66_custom_846']);
-          $row['civicrm_value_flag_raising_66_custom_888'] = CRM_Utils_Array::value('civicrm_value_flag_raising_66_custom_888', $row) == NULL ? '' : $this->alterBoolean($row['civicrm_value_flag_raising_66_custom_888']);
+          $row['civicrm_value_flag_raising_66_custom_846'] = CRM_Utils_Array::value('civicrm_value_flag_raising_66_custom_846', $row) == NULL ? '' : $this->alterBooleanWithNo($row['civicrm_value_flag_raising_66_custom_846']);
+          $row['civicrm_value_flag_raising_66_custom_888'] = CRM_Utils_Array::value('civicrm_value_flag_raising_66_custom_888', $row) == NULL ? '' : $this->alterBooleanWithNo($row['civicrm_value_flag_raising_66_custom_888']);
           if (!empty($row['civicrm_value_flag_raising_66_custom_888'])) {
             $column = ['civicrm_value_flag_raising_66_custom_888' => $row['civicrm_value_flag_raising_66_custom_888']];
             unset($row['civicrm_value_flag_raising_66_custom_888']);
