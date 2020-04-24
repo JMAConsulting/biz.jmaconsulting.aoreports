@@ -104,10 +104,10 @@ class CRM_AOReports_Form_Report_ExtendedBatchDetail extends CRM_Report_Form_Cont
   }
 
   public function alterDisplay(&$rows) {
-    $prefixValue = Civi::settings()->get('contribution_invoice_settings');
+    $invoicePrefix = Civi::settings()->get('invoice_prefix');
     foreach ($rows as $rowNum => $row) {
       if (array_key_exists('civicrm_contribution_contribution_id', $row)) {
-        $rows[$rowNum]['civicrm_contribution_invoice_id'] = CRM_Utils_Array::value('invoice_prefix', $prefixValue) . "" . $row['civicrm_contribution_contribution_id'];
+        $rows[$rowNum]['civicrm_contribution_invoice_id'] = $invoicePrefix . "" . $row['civicrm_contribution_contribution_id'];
         $entryFound = TRUE;
       }
       if (array_key_exists('civicrm_batch_batch_id', $row)) {
