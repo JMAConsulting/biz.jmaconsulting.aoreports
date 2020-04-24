@@ -9,6 +9,7 @@ class CRM_AOReports_Form_Report_ExtendedActivity extends CRM_Report_Form_Activit
    * @return string
    */
   public function buildQuery($applyLimit = TRUE) {
+    $this->_aliases['civicrm_case_activity'] = 'case_activity_civireport';
     $activityContacts = CRM_Activity_BAO_ActivityContact::buildOptions('record_type_id', 'validate');
     $sourceID = CRM_Utils_Array::key('Activity Source', $activityContacts);
     $assigneeID = CRM_Utils_Array::key('Activity Assignee', $activityContacts);
