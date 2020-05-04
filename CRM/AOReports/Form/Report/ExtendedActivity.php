@@ -3,6 +3,16 @@ use CRM_AOReports_ExtensionUtil as E;
 
 class CRM_AOReports_Form_Report_ExtendedActivity extends CRM_Report_Form_Activity {
 
+  public function __construct() {
+    parent::__construct();
+    $this->_columns['civicrm_contact']['fields']['contact_source']['title'] = ts('Organization Name');
+    $this->_columns['civicrm_contact']['order_bys']['contact_source'] = [
+      'name' => 'contact_source',
+      'dbAlias' => 'civicrm_contact_contact_source',
+      'title' => ts('Organization Name'),
+    ];
+  }
+
   /**
    * @param $applyLimit
    *
