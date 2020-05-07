@@ -141,11 +141,6 @@ function aoreports_civicrm_alterReportVar($type, &$columns, &$form) {
     $replace = "AND contact_id = 404318";
     $columns = str_replace($match, $replace, $columns);
   }
-  if ('CRM_Report_Form_Activity' == get_class($form)) {
-     $aliases = $form->getVar('_aliases');
-     $aliases['civicrm_case_activity'] = 'case_activity_civireport';
-     $form->setVar('_aliases', $aliases);
-  }
   if ('CRM_Report_Form_Contribute_Bookkeeping' == get_class($form) && $type == 'columns') {
     $columns['civicrm_batch']['filters']['batch_id'] = [
       'name' => 'id',
