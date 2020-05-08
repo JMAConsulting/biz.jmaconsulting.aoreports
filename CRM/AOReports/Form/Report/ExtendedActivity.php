@@ -5,6 +5,7 @@ class CRM_AOReports_Form_Report_ExtendedActivity extends CRM_Report_Form_Activit
 
   public function __construct() {
     parent::__construct();
+
     $this->_columns['civicrm_contact']['fields']['contact_source']['title'] = ts('Organization Name');
     $this->_columns['civicrm_contact']['order_bys']['contact_source'] = [
       'name' => 'contact_source',
