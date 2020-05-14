@@ -141,6 +141,37 @@ function aoreports_civicrm_alterReportVar($type, &$columns, &$form) {
     $replace = "AND contact_id = 404318";
     $columns = str_replace($match, $replace, $columns);
   }
+  if ('CRM_Report_Form_Activity' == get_class($form) && $type == 'rows' && strstr($_GET['q'], 'instance/47')) {
+    $activityType = CRM_Core_PseudoConstant::activityType(TRUE, TRUE, FALSE, 'label', TRUE);
+    $context = CRM_Utils_Request::retrieve('context', 'Alphanumeric', $form, FALSE, 'report');
+    foreach ($columns as $rowNum => $row) {
+      if (array_key_exists('civicrm_activity_activity_type_id', $columns)) {
+        if (!empty($columns[$rowNum]['civicrm_contact_contact_target_id'])) {
+          $targets = explode(';', $columns[$rowNum]['civicrm_contact_contact_target_id']);
+          $cid = $targets[0];
+        }
+        else {
+          $cid = $columns[$rowNum]['civicrm_contact_contact_source_id'];
+        }
+
+        $actActionLinks = CRM_Activity_Selector_Activity::actionLinks(array_search($row['civicrm_activity_activity_type_id'], $activityType),
+          CRM_Utils_Array::value('civicrm_activity_source_record_id', $columns[$rowNum]),
+          FALSE,
+          $columns[$rowNum]['civicrm_activity_id']
+        );
+
+        $actLinkValues = [
+          'id' => $columns[$rowNum]['civicrm_activity_id'],
+          'cid' => $cid,
+          'cxt' => $context,
+        ];
+        $actUrl = CRM_Utils_System::url($actActionLinks[CRM_Core_Action::VIEW]['url'],
+          CRM_Core_Action::replace($actActionLinks[CRM_Core_Action::VIEW]['qs'], $actLinkValues), TRUE
+        );
+        $columns[$rowNum]['civicrm_activity_activity_type_id_link'] = $actUrl;
+      }
+    }
+  }
   if ('CRM_Report_Form_Contribute_Bookkeeping' == get_class($form) && $type == 'columns') {
     $columns['civicrm_batch']['filters']['batch_id'] = [
       'name' => 'id',
