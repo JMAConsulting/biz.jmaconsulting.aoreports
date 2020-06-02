@@ -1033,6 +1033,7 @@ WHERE  civicrm_contribution_contribution_id={$row['civicrm_contribution_contribu
       !empty($this->_params['fields']['receipt_no']) ||
       !empty($this->_params['issued_on_value']) ||
       !empty($this->_params['issued_on_relative']) ||
+      !empty($this->_params['issued_on_from']) ||
       !empty($this->_params['receipt_no_value'])
     ) {
       $this->_from .= "
