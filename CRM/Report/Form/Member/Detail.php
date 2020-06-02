@@ -258,6 +258,7 @@ class CRM_Report_Form_Member_Detail extends CRM_Report_Form {
 
     $this->_currencyColumn = 'civicrm_contribution_currency';
     parent::__construct();
+    unset($this->_columns['civicrm_group']['filters']['gid']);
   }
 
   public function preProcess() {
@@ -478,7 +479,7 @@ class CRM_Report_Form_Member_Detail extends CRM_Report_Form {
 
 
     if (empty($filteredGroups) || in_array($op, ['nll', 'nnll'])) {
-      $where = ($op == 'nll') ? 'group_contact.group_id IS NOT NULL' : ($op = 'nnll') ? ' group_contact.group_id IS NULL ' : '(1)';
+      $where = ($op == 'nll') ? 'group_contact.group_id IS NOT NULL' : ($op == 'nnll') ? ' group_contact.group_id IS NULL ' : '(1)';
     }
     else {
       $op = ($op == 'in') ? 'IN' : 'NOT IN';
@@ -486,7 +487,7 @@ class CRM_Report_Form_Member_Detail extends CRM_Report_Form {
     }
 
     $query = "
-       SELECT DISTINCT group_contact.contact_id,  GROUP_CONCAT(DISTINCT g.title) as group_id
+       SELECT DISTINCT group_contact.contact_id,  GROUP_CONCAT(DISTINCT g.title_en_US) as group_id
        FROM civicrm_group_contact group_contact
        INNER JOIN civicrm_group g ON g.id = group_contact.group_id
        WHERE {$where}
@@ -497,7 +498,7 @@ class CRM_Report_Form_Member_Detail extends CRM_Report_Form {
     $where = str_replace('group_contact', 'smartgroup_contact', $where);
     $query .= "
       UNION DISTINCT
-      SELECT smartgroup_contact.contact_id, GROUP_CONCAT(DISTINCT g.title) as group_id
+      SELECT smartgroup_contact.contact_id, GROUP_CONCAT(DISTINCT g.title_en_US) as group_id
       FROM civicrm_group_contact_cache smartgroup_contact
       INNER JOIN civicrm_group g ON g.id = smartgroup_contact.group_id
       WHERE {$where}
