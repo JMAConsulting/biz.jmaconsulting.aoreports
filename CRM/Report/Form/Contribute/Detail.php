@@ -195,7 +195,7 @@ class CRM_Report_Form_Contribute_Detail extends CRM_Report_Form {
               'operatorType' => CRM_Report_Form::OP_MULTISELECT,
               'options' => CRM_Core_PseudoConstant::nestedGroup(),
             ],
-            'receive_date' => ['operatorType' => CRM_Report_Form::OP_DATE],
+            'receive_date' => ['title' => ts('Date Received'), 'operatorType' => CRM_Report_Form::OP_DATE, 'name' => 'contribution_civireport.receive_date'],
             'thankyou_date' => ['operatorType' => CRM_Report_Form::OP_DATE],
             'contribution_source' => [
               'title' => ts('Source'),
@@ -418,16 +418,12 @@ class CRM_Report_Form_Contribute_Detail extends CRM_Report_Form {
    * Set the FROM clause for the report.
    */
   public function from() {
-    $groupTable = $this->buildGroupTempTable();
-    $filteredGroups = (array) $this->_params['group_id_value'];
-    $side = empty($filteredGroups) ? 'LEFT' : 'INNER';
 
     $this->setFromBase('civicrm_contact');
     $this->_from .= "
       INNER JOIN civicrm_contribution {$this->_aliases['civicrm_contribution']}
         ON {$this->_aliases['civicrm_contact']}.id = {$this->_aliases['civicrm_contribution']}.contact_id
         AND {$this->_aliases['civicrm_contribution']}.is_test = 0
-      $side JOIN $groupTable group_temp_table ON {$this->_aliases['civicrm_contact']}.id = group_temp_table.contact_id
         ";
 
     $this->joinContributionToSoftCredit();
@@ -994,6 +990,14 @@ WHERE  civicrm_contribution_contribution_id={$row['civicrm_contribution_contribu
    * Append the joins that are required regardless of context.
    */
   public function appendAdditionalFromJoins() {
+    if (!empty($this->_params['fields']['group_id']) || !empty($this->_params['group_id_value'])) {
+      $groupTable = $this->buildGroupTempTable();
+      $filteredGroups = (array) $this->_params['group_id_value'];
+      $side = empty($filteredGroups) ? 'LEFT' : 'INNER';
+      $this->_from .= "
+      $side JOIN $groupTable group_temp_table ON {$this->_aliases['civicrm_contact']}.id = group_temp_table.contact_id ";
+    }
+
     if (!empty($this->_params['ordinality_value'])) {
       $this->_from .= "
               INNER JOIN (SELECT c.id, IF(COUNT(oc.id) = 0, 0, 1) AS ordinality FROM civicrm_contribution c LEFT JOIN civicrm_contribution oc ON c.contact_id = oc.contact_id AND oc.receive_date < c.receive_date GROUP BY c.id) {$this->_aliases['civicrm_contribution_ordinality']}
@@ -1026,7 +1030,10 @@ WHERE  civicrm_contribution_contribution_id={$row['civicrm_contribution_contribu
     }
     // JMA - Add join to tax receipt table
     if (!empty($this->_params['fields']['issued_on']) ||
-      !empty($this->_params['fields']['receipt_no'])
+      !empty($this->_params['fields']['receipt_no']) ||
+      !empty($this->_params['issued_on_value']) ||
+      !empty($this->_params['issued_on_relative']) ||
+      !empty($this->_params['receipt_no_value'])
     ) {
       $this->_from .= "
         LEFT JOIN cdntaxreceipts_log_contributions cdn_con
@@ -1118,7 +1125,7 @@ WHERE  civicrm_contribution_contribution_id={$row['civicrm_contribution_contribu
 
 
     if (empty($filteredGroups) || in_array($op, ['nll', 'nnll'])) {
-      $where = ($op == 'nll') ? 'group_contact.group_id IS NOT NULL' : ($op = 'nnll') ? ' group_contact.group_id IS NULL ' : '(1)';
+      $where = ($op == 'nll') ? 'group_contact.group_id IS NOT NULL' : ($op == 'nnll') ? ' group_contact.group_id IS NULL ' : '(1)';
     }
     else {
       $op = ($op == 'in') ? 'IN' : 'NOT IN';
@@ -1126,18 +1133,18 @@ WHERE  civicrm_contribution_contribution_id={$row['civicrm_contribution_contribu
     }
 
     $query = "
-       SELECT DISTINCT group_contact.contact_id,  GROUP_CONCAT(DISTICT g.title) as group_id
+       SELECT DISTINCT group_contact.contact_id,  GROUP_CONCAT(DISTINCT g.title_en_US) as group_id
        FROM civicrm_group_contact group_contact
        INNER JOIN civicrm_group g ON g.id = group_contact.group_id
        WHERE {$where}
        AND group_contact.status = 'Added'
-       GROUP BY smartgroup_contact.contact_id
+       GROUP BY group_contact.contact_id
        ";
 
     $where = str_replace('group_contact', 'smartgroup_contact', $where);
     $query .= "
       UNION DISTINCT
-      SELECT smartgroup_contact.contact_id, GROUP_CONCAT(DISTICT g.title) as group_id
+      SELECT smartgroup_contact.contact_id, GROUP_CONCAT(DISTINCT g.title_en_US) as group_id
       FROM civicrm_group_contact_cache smartgroup_contact
       INNER JOIN civicrm_group g ON g.id = smartgroup_contact.group_id
       WHERE {$where}
@@ -1145,7 +1152,7 @@ WHERE  civicrm_contribution_contribution_id={$row['civicrm_contribution_contribu
        ";
 
     $groupTempTable = $this->createTemporaryTable('rptgrp', $query);
-    CRM_Core_DAO::executeQuery("ALTER TABLE $this->groupTempTable ADD INDEX i_id(contact_id)");
+    CRM_Core_DAO::executeQuery("ALTER TABLE $groupTempTable ADD INDEX i_id(contact_id)");
     return $groupTempTable;
   }
 
