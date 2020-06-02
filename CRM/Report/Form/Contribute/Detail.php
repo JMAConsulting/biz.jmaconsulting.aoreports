@@ -144,7 +144,7 @@ class CRM_Report_Form_Contribute_Detail extends CRM_Report_Form {
               'no_display' => TRUE,
             ],
             'trxn_id' => NULL,
-            'receive_date' => ['default' => TRUE],
+            'receive_date' => ['default' => TRUE, 'type' => CRM_Utils_Type::T_DATE + CRM_Utils_Type::T_TIME],
             'receipt_date' => NULL,
             'thankyou_date' => NULL,
             'total_amount' => [
@@ -344,6 +344,7 @@ class CRM_Report_Form_Contribute_Detail extends CRM_Report_Form {
             ],
             'issued_on' => [
               'title' => ts('Tax Receipt Issued Date'),
+              'type' => CRM_Utils_Type::T_DATE + CRM_Utils_Type::T_TIME,
               'dbAlias' => "DATE_FORMAT(FROM_UNIXTIME(issued_on), '%Y-%m-%d %H:%i:%s')",
             ],
             'statistics' => FALSE,
@@ -355,8 +356,9 @@ class CRM_Report_Form_Contribute_Detail extends CRM_Report_Form {
               'type' => CRM_Utils_Type::T_STRING,
             ],
             'issued_on' => [
-              'title' => ts('Issued On'),
+              'title' => ts('Tax Receipt Issued Date'),
               'operatorType' => CRM_Report_Form::OP_DATE,
+              'name' => "DATE_FORMAT(FROM_UNIXTIME(issued_on), '%Y%m%d%H%i%s')",
             ],
           ],
         ],
@@ -374,18 +376,6 @@ class CRM_Report_Form_Contribute_Detail extends CRM_Report_Form {
               'title' => ts('Contribution Note'),
               'operator' => 'like',
               'type' => CRM_Utils_Type::T_STRING,
-            ],
-          ],
-        ],
-        'civicrm_group' => [
-          'dao' => 'CRM_Contact_DAO_Group',
-          'fields' => [
-            'title' => [
-              'title' => ts('Group(s)'),
-              'name' => 'title',
-            ],
-            'id' => [
-              'no_display' => TRUE,
             ],
           ],
         ],
@@ -845,6 +835,23 @@ WHERE  civicrm_contribution_contribution_id={$row['civicrm_contribution_contribu
           'soft_credit_type_id',
           $row['civicrm_contribution_soft_soft_credit_type_id']
         );
+      }
+
+      // Convert datetime values to custom date and time format
+      if ($this->_outputMode != 'csv') {
+        $dateFields = [
+          'civicrm_contribution_receive_date',
+          'cdntaxreceipts_log_issued_on',
+        ];
+
+        foreach ($dateFields as $dateField) {
+          if (array_key_exists($dateField, $row)) {
+            if (!empty($rows[$rowNum][$dateField])) {
+              $rows[$rowNum][$dateField] = CRM_Utils_Date::customFormat($row[$dateField], $config->dateformatDatetime);
+            }
+            $entryFound = TRUE;
+          }
+        }
       }
 
       $entryFound = $this->alterDisplayAddressFields($row, $rows, $rowNum, 'contribute/detail', 'List all contribution(s) for this ') ? TRUE : $entryFound;
