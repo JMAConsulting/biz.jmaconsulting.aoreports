@@ -49,12 +49,16 @@ class CRM_Report_Form_Member_Detail extends CRM_Report_Form {
     $this->_columns = [
       'civicrm_contact' => [
         'dao' => 'CRM_Contact_DAO_Contact',
-        'fields' => $this->getBasicContactFields(),
+        'fields' => array_merge(
+          $this->getBasicContactFields(),
+          ['preferred_communication_method' => ['title' => ts('Preferred Communication Method'), 'alter_display' => 'alterCommunicationtMethod',]]
+        ),
         'filters' => [
           'sort_name' => [
             'title' => ts('Contact Name'),
             'operator' => 'like',
           ],
+          'preferred_communication_method' => ['title' => ts('Preferred Communication Method')],
           'is_deleted' => [
             'title' => ts('Is Deleted'),
             'default' => 0,
