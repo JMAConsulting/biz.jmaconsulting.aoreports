@@ -145,7 +145,7 @@ function aoreports_civicrm_alterReportVar($type, &$columns, &$form) {
     $activityType = CRM_Core_PseudoConstant::activityType(TRUE, TRUE, FALSE, 'label', TRUE);
     $context = CRM_Utils_Request::retrieve('context', 'Alphanumeric', $form, FALSE, 'report');
     foreach ($columns as $rowNum => $row) {
-      if (array_key_exists('civicrm_activity_activity_type_id', $columns)) {
+      if (array_key_exists('civicrm_activity_activity_type_id', $row)) {
         if (!empty($columns[$rowNum]['civicrm_contact_contact_target_id'])) {
           $targets = explode(';', $columns[$rowNum]['civicrm_contact_contact_target_id']);
           $cid = $targets[0];
