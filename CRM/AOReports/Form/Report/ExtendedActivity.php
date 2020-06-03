@@ -2,6 +2,9 @@
 use CRM_AOReports_ExtensionUtil as E;
 
 class CRM_AOReports_Form_Report_ExtendedActivity extends CRM_Report_Form_Activity {
+  protected $_customGroupExtends = [
+    'Activity', 'Organization',
+  ];
 
   public function __construct() {
     parent::__construct();
