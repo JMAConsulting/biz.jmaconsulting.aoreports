@@ -336,7 +336,7 @@ class CRM_Report_Form_Member_Detail extends CRM_Report_Form {
             $this->_dateClause = $clause = $this->dateClause($field['name'], $relative, $from, $to, $field['type']);
           }
           elseif ($field['name'] == 'is_auto_renew') {
-            if ($this->_params['is_auto_renew_value'] !== NULL) {
+            if ($this->_params['is_auto_renew_value'] === 0 || $this->_params['is_auto_renew_value'] === 1) {
               $clause = $this->_params['is_auto_renew_value'] == 1 ? "{$this->_aliases['civicrm_membership']}.contribution_recur_id IS NOT NULL" : "{$this->_aliases['civicrm_membership']}.contribution_recur_id IS NULL";
             }
           }
