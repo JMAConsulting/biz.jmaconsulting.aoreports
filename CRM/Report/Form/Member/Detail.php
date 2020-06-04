@@ -336,7 +336,7 @@ class CRM_Report_Form_Member_Detail extends CRM_Report_Form {
             $this->_dateClause = $clause = $this->dateClause($field['name'], $relative, $from, $to, $field['type']);
           }
           elseif ($field['name'] == 'is_auto_renew') {
-            if ($this->_params['is_auto_renew_value'] !== NULL) {
+            if ($this->_params['is_auto_renew_value'] === 0 || $this->_params['is_auto_renew_value'] === 1) {
               $clause = $this->_params['is_auto_renew_value'] == 1 ? "{$this->_aliases['civicrm_membership']}.contribution_recur_id IS NOT NULL" : "{$this->_aliases['civicrm_membership']}.contribution_recur_id IS NULL";
             }
           }
@@ -491,7 +491,7 @@ class CRM_Report_Form_Member_Detail extends CRM_Report_Form {
     }
 
     $query = "
-       SELECT DISTINCT group_contact.contact_id,  GROUP_CONCAT(DISTINCT g.title_en_US) as group_id
+       SELECT DISTINCT group_contact.contact_id,  GROUP_CONCAT(DISTINCT g.title) as group_id
        FROM civicrm_group_contact group_contact
        INNER JOIN civicrm_group g ON g.id = group_contact.group_id
        WHERE {$where}
@@ -502,15 +502,26 @@ class CRM_Report_Form_Member_Detail extends CRM_Report_Form {
     $where = str_replace('group_contact', 'smartgroup_contact', $where);
     $query .= "
       UNION DISTINCT
-      SELECT smartgroup_contact.contact_id, GROUP_CONCAT(DISTINCT g.title_en_US) as group_id
+      SELECT smartgroup_contact.contact_id, GROUP_CONCAT(DISTINCT g.title) as group_id
       FROM civicrm_group_contact_cache smartgroup_contact
       INNER JOIN civicrm_group g ON g.id = smartgroup_contact.group_id
       WHERE {$where}
       GROUP BY smartgroup_contact.contact_id
        ";
+    $query = CRM_Core_I18n_Schema::rewriteQuery($query);
 
     $groupTempTable = $this->createTemporaryTable('rptgrp', $query);
     CRM_Core_DAO::executeQuery("ALTER TABLE $groupTempTable ADD INDEX i_id(contact_id)");
+
+    if ($op == 'NOT IN' && !empty($filteredGroups)) {
+      $query = str_replace('NOT IN', 'IN', $query);
+      CRM_Core_DAO::executeQuery("
+      DELETE FROM $groupTempTable WHERE contact_id IN (
+        SELECT contact_id
+        FROM ( $query ) temp
+      ) ");
+    }
+
     return $groupTempTable;
   }
 
