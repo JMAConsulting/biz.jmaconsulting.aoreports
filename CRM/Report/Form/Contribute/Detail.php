@@ -703,7 +703,7 @@ UNION ALL
       if (CRM_Utils_Array::value('civicrm_contribution_contribution_or_soft', $rows[$rowNum]) ==
         'Contribution'
       ) {
-        unset($rows[$rowNum]['civicrm_contribution_soft_soft_credit_type_id']);
+        // unset($rows[$rowNum]['civicrm_contribution_soft_soft_credit_type_id']);
       }
 
       $entryFound = $this->alterDisplayContactFields($row, $rows, $rowNum, 'contribution/detail', ts('View Contribution Details')) ? TRUE : $entryFound;
@@ -993,7 +993,7 @@ WHERE  civicrm_contribution_contribution_id={$row['civicrm_contribution_contribu
     if (!empty($this->_params['fields']['group_id']) || !empty($this->_params['group_id_value'])) {
       $groupTable = $this->buildGroupTempTable();
       $filteredGroups = (array) $this->_params['group_id_value'];
-      $side = empty($filteredGroups) ? 'LEFT' : 'INNER';
+      $side = empty($filteredGroups) || $this->_params['group_id_op'] == 'notin' ? 'LEFT' : 'INNER';
       $this->_from .= "
       $side JOIN $groupTable group_temp_table ON {$this->_aliases['civicrm_contact']}.id = group_temp_table.contact_id ";
     }

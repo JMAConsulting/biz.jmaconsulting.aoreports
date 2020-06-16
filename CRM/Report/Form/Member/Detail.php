@@ -273,7 +273,7 @@ class CRM_Report_Form_Member_Detail extends CRM_Report_Form {
   public function from() {
     $groupTable = $this->buildGroupTempTable();
     $filteredGroups = (array) $this->_params['group_id_value'];
-    $side = empty($filteredGroups) ? 'LEFT' : 'INNER';
+    $side = empty($filteredGroups) || $this->_params['group_id_op'] == 'notin' ? 'LEFT' : 'INNER';
     $this->setFromBase('civicrm_contact');
     $this->_from .= "
          {$this->_aclFrom}
