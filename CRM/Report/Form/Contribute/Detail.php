@@ -990,12 +990,13 @@ WHERE  civicrm_contribution_contribution_id={$row['civicrm_contribution_contribu
    * Append the joins that are required regardless of context.
    */
   public function appendAdditionalFromJoins() {
-    if (!empty($this->_params['fields']['group_id']) || !empty($this->_params['group_id_value'])) {
+    if (!empty($this->_params['fields']['group_id']) || !empty($this->_params['group_id_value']) || in_array($this->_params['group_id_op'], ['nll', 'nnll'])) {
+      $side = in_array($this->_params['group_id_op'], ['in', 'nnll']) ? 'INNER' : 'LEFT';
       $groupTable = $this->buildGroupTempTable();
-      $filteredGroups = (array) $this->_params['group_id_value'];
-      $side = empty($filteredGroups) || $this->_params['group_id_op'] == 'notin' ? 'LEFT' : 'INNER';
-      $this->_from .= "
-      $side JOIN $groupTable group_temp_table ON {$this->_aliases['civicrm_contact']}.id = group_temp_table.contact_id ";
+      if ($groupTable) {
+        $this->_from .= "
+        $side JOIN $groupTable group_temp_table ON {$this->_aliases['civicrm_contact']}.id = group_temp_table.contact_id ";
+      }
     }
 
     if (!empty($this->_params['ordinality_value'])) {
@@ -1078,6 +1079,16 @@ WHERE  civicrm_contribution_contribution_id={$row['civicrm_contribution_contribu
       if (array_key_exists('filters', $table)) {
         foreach ($table['filters'] as $fieldName => $field) {
           if ($field['name'] == 'group_id') {
+            $op = CRM_Utils_Array::value("{$fieldName}_op", $this->_params);
+            if ($op == 'nll' ) {
+              $clauses[] = " group_temp_table.contact_id IS NULL ";
+            }
+            elseif ($op == 'notin') {
+              $groupTable = $this->buildGroupTempTable(TRUE);
+              if ($groupTable) {
+                $clauses[] = " (group_temp_table.group_id IS NULL OR group_temp_table.contact_id NOT IN (SELECT contact_id FROM $groupTable ))";
+              }
+            }
             continue;
           }
           $clause = NULL;
@@ -1120,17 +1131,22 @@ WHERE  civicrm_contribution_contribution_id={$row['civicrm_contribution_contribu
    *
    * This function is called by both the api (tests) and the UI.
    */
-  public function buildGroupTempTable() {
+  public function buildGroupTempTable($override = FALSE) {
     $filteredGroups = (array) $this->_params['group_id_value'];
     $op = $this->_params['group_id_op'];
 
-
-    if (empty($filteredGroups) || in_array($op, ['nll', 'nnll'])) {
-      $where = ($op == 'nll') ? 'group_contact.group_id IS NOT NULL' : ($op == 'nnll') ? ' group_contact.group_id IS NULL ' : '(1)';
+    if (in_array($op, ['nll', 'nnll'])) {
+      $where = '(1)';
+    }
+    elseif (!empty($filteredGroups)) {
+      $op = $op == 'in' || $override ? 'IN' : 'NOT IN';
+      $where = sprintf(' group_contact.group_id %s (%s)', $op, implode(', ', $filteredGroups));
+    }
+    elseif (!empty($this->_params['fields']['group_id'])) {
+      $where = '(1)';
     }
     else {
-      $op = ($op == 'in') ? 'IN' : 'NOT IN';
-      $where = sprintf(' group_contact.group_id %s (%s)', $op, implode(', ', $filteredGroups));
+      return FALSE;
     }
 
     $query = "
@@ -1155,15 +1171,6 @@ WHERE  civicrm_contribution_contribution_id={$row['civicrm_contribution_contribu
 
     $groupTempTable = $this->createTemporaryTable('rptgrp', $query);
     CRM_Core_DAO::executeQuery("ALTER TABLE $groupTempTable ADD INDEX i_id(contact_id)");
-
-    if ($op == 'NOT IN' && !empty($filteredGroups)) {
-      $query = str_replace('NOT IN', 'IN', $query);
-      CRM_Core_DAO::executeQuery("
-      DELETE FROM $groupTempTable WHERE contact_id IN (
-        SELECT contact_id
-        FROM ( $query ) temp
-      ) ");
-    }
 
     return $groupTempTable;
   }
