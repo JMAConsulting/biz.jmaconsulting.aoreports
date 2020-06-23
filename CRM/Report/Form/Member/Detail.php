@@ -505,6 +505,9 @@ class CRM_Report_Form_Member_Detail extends CRM_Report_Form {
       $op = $op == 'in' || $override ? 'IN' : 'NOT IN';
       $where = sprintf(' group_contact.group_id %s (%s)', $op, implode(', ', $filteredGroups));
     }
+    elseif (!empty($this->_params['fields']['group_id'])) {
+      $where = '(1)';
+    }
     else {
       return FALSE;
     }
