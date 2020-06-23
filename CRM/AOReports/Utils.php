@@ -7,7 +7,7 @@ class CRM_AOReports_Utils {
   public static function getSNPActivityTableName($activityTypeIDs, &$form, $statuses = NULL, $operator, $yearWhere = NULL) {
     if (empty($yearWhere)) {
       $year = date('Y');
-      $yearWhere = "YEAR(a.activity_date_time) = {$date}";
+      $yearWhere = "YEAR(a.activity_date_time) = {$year}";
     }
     $ops = [
       'in' => 'IN',

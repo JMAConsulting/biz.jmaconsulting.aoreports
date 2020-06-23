@@ -26,14 +26,13 @@ class CRM_AOReports_Form_Report_ServiceNavigationDetail extends CRM_Report_Form 
             ),
             'region' => array(
               'name' => 'region',
-              'required' => TRUE,
               'dbAlias' => "temp.region",
-              'title' => 'Region',
+              'title' => 'Service Region',
             ),
             'assignee' => array(
               'name' => 'assignee',
-              'dbAlias' => "MAX(assignee.contact_id)",
-              'title' => ts('Assignee'),
+              'dbAlias' => "GROUP_CONCAT(DISTINCT assignee.contact_id)",
+              'title' => ts('Assignee(s)'),
             ),
             'year' => array(
               'title' => ts('Year'),
@@ -71,7 +70,7 @@ class CRM_AOReports_Form_Report_ServiceNavigationDetail extends CRM_Report_Form 
             'region' => array(
               'name' => 'region',
               'dbAlias' => "temp.region",
-              'title' => 'Region',
+              'title' => 'Service Region',
               'type' => CRM_Utils_Type::T_STRING,
               'operatorType' => CRM_Report_Form::OP_SELECT,
               'options' => ['' => 'Unknown'] + CRM_Core_OptionGroup::values('chapter_20180619153429'),
@@ -184,7 +183,14 @@ class CRM_AOReports_Form_Report_ServiceNavigationDetail extends CRM_Report_Form 
       ];
       foreach ($rows as $rowNum => $row) {
         $rows[$rowNum]['civicrm_contact_contact_name'] = sprintf("<a href='%s'>%s</a>", CRM_Utils_System::url('civicrm/contact/view', 'reset=1&cid=' . $row['civicrm_contact_contact_id']), $rows[$rowNum]['civicrm_contact_contact_name']);
-        $rows[$rowNum]['civicrm_contact_assignee'] = sprintf("<a href='%s'>%s</a>", CRM_Utils_System::url('civicrm/contact/view', 'reset=1&cid=' . $row['civicrm_contact_assignee']), CRM_Contact_BAO_Contact::displayName($row['civicrm_contact_assignee']));
+        if (!empty($rows[$rowNum]['civicrm_contact_assignee'])) {
+          $contactIDs = (array) explode(',', $rows[$rowNum]['civicrm_contact_assignee']);
+          $assignee = [];
+          foreach ($contactIDs as $contactID) {
+            $assignee[] = sprintf("<a href='%s'>%s</a>", CRM_Utils_System::url('civicrm/contact/view', 'reset=1&cid=' . $contactID), CRM_Contact_BAO_Contact::displayName($contactID));
+          }
+          $rows[$rowNum]['civicrm_contact_assignee'] = implode(', ', $assignee);
+        }
         $rows[$rowNum]['civicrm_contact_quarter'] = CRM_Utils_Array::value($rows[$rowNum]['civicrm_contact_quarter'], $quarters);
       }
     }
