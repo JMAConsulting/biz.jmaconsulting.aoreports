@@ -497,11 +497,7 @@ class CRM_Report_Form_Member_Detail extends CRM_Report_Form {
     $filteredGroups = (array) $this->_params['group_id_value'];
     $op = $this->_params['group_id_op'];
 
-
-    if (in_array($op, ['nll', 'nnll'])) {
-      $where = '(1)';
-    }
-    elseif (!empty($filteredGroups)) {
+    if (in_array($op, ['in', 'notin']) && !empty($filteredGroups)) {
       $op = $op == 'in' || $override ? 'IN' : 'NOT IN';
       $where = sprintf(' group_contact.group_id %s (%s)', $op, implode(', ', $filteredGroups));
     }
@@ -512,28 +508,41 @@ class CRM_Report_Form_Member_Detail extends CRM_Report_Form {
       return FALSE;
     }
 
+    $groupFieldSelect = (!empty($this->_params['fields']['group_id']) && $op == 'IN');
+
+    $whereUsed = $groupFieldSelect ? '(1)' : $where;
+
     $query = "
        SELECT DISTINCT group_contact.contact_id,  GROUP_CONCAT(DISTINCT g.title) as group_id
        FROM civicrm_group_contact group_contact
        INNER JOIN civicrm_group g ON g.id = group_contact.group_id
-       WHERE {$where}
+       INNER JOIN civicrm_membership cm ON cm.contact_id = group_contact.contact_id
+       WHERE $whereUsed
        AND group_contact.status = 'Added'
        GROUP BY group_contact.contact_id
-       ";
 
-    $where = str_replace('group_contact', 'smartgroup_contact', $where);
-    $query .= "
       UNION DISTINCT
-      SELECT smartgroup_contact.contact_id, GROUP_CONCAT(DISTINCT g.title) as group_id
-      FROM civicrm_group_contact_cache smartgroup_contact
-      INNER JOIN civicrm_group g ON g.id = smartgroup_contact.group_id
-      WHERE {$where}
-      GROUP BY smartgroup_contact.contact_id
+
+      SELECT group_contact.contact_id, GROUP_CONCAT(DISTINCT g.title) as group_id
+      FROM civicrm_group_contact_cache group_contact
+      INNER JOIN civicrm_group g ON g.id = group_contact.group_id
+      INNER JOIN civicrm_membership cm ON cm.contact_id = group_contact.contact_id
+      WHERE $whereUsed
+      GROUP BY group_contact.contact_id
        ";
     $query = CRM_Core_I18n_Schema::rewriteQuery($query);
 
     $groupTempTable = $this->createTemporaryTable('rptgrp', $query);
     CRM_Core_DAO::executeQuery("ALTER TABLE $groupTempTable ADD INDEX i_id(contact_id)");
+
+    if ($groupFieldSelect && !empty($filteredGroups) && !$override) {
+      $excludeQuery = str_replace('(1)', $where, $query);
+      CRM_Core_DAO::executeQuery("
+      DELETE FROM $groupTempTable WHERE contact_id NOT IN (
+        SELECT DISTINCT contact_id
+        FROM ( $excludeQuery ) temp
+      ) ");
+    }
 
     return $groupTempTable;
   }
