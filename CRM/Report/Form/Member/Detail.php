@@ -508,7 +508,7 @@ class CRM_Report_Form_Member_Detail extends CRM_Report_Form {
       return FALSE;
     }
 
-    $groupFieldSelect = (!empty($this->_params['fields']['group_id']) && $op == 'IN');
+    $groupFieldSelect = (!$override && !empty($this->_params['fields']['group_id']) && $op == 'IN');
 
     $whereUsed = $groupFieldSelect ? '(1)' : $where;
 

@@ -1146,7 +1146,7 @@ WHERE  civicrm_contribution_contribution_id={$row['civicrm_contribution_contribu
       return FALSE;
     }
 
-    $groupFieldSelect = (!empty($this->_params['fields']['group_id']) && $op == 'IN');
+    $groupFieldSelect = (!$override && !empty($this->_params['fields']['group_id']) && $op == 'IN');
 
     $whereUsed = $groupFieldSelect ? '(1)' : $where;
 
