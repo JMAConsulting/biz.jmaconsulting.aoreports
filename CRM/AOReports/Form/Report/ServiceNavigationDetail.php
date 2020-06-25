@@ -73,7 +73,8 @@ class CRM_AOReports_Form_Report_ServiceNavigationDetail extends CRM_Report_Form 
               'title' => 'Service Region',
               'type' => CRM_Utils_Type::T_STRING,
               'operatorType' => CRM_Report_Form::OP_SELECT,
-              'options' => ['' => '- select -'] + CRM_Core_OptionGroup::values('service_region_20190320122604'),
+              'default' => 'Unknown',
+              'options' => CRM_Core_OptionGroup::values('service_region_20190320122604'),
             ),
           ),
         ),
@@ -130,8 +131,8 @@ class CRM_AOReports_Form_Report_ServiceNavigationDetail extends CRM_Report_Form 
             if ($fieldName == 'activity_type' || $fieldName == 'activity_date_time') {
               continue;
             }
-            elseif ($fieldName == 'region' && CRM_Utils_Array::value("{$fieldName}_value", $this->_params) == '') {
-              $clauses[] = '(temp.region IS NULL OR temp.region = \'\')';
+            elseif ($fieldName == 'region' && CRM_Utils_Array::value("{$fieldName}_value", $this->_params) == 'Unknown') {
+              $clauses[] = '(temp.region IS NULL OR temp.region = \'\' OR temp.region = \'Unknown\')';
               continue;
             }
             if (CRM_Utils_Array::value('operatorType', $field) & CRM_Utils_Type::T_DATE) {
