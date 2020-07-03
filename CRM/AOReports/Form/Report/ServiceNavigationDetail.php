@@ -31,7 +31,7 @@ class CRM_AOReports_Form_Report_ServiceNavigationDetail extends CRM_Report_Form 
             ),
             'assignee' => array(
               'name' => 'assignee',
-              'dbAlias' => "GROUP_CONCAT(DISTINCT assignee.contact_id)",
+              'dbAlias' => "assignee.assignee_contact_id",
               'title' => ts('Assignee(s)'),
             ),
             'year' => array(
@@ -54,6 +54,12 @@ class CRM_AOReports_Form_Report_ServiceNavigationDetail extends CRM_Report_Form 
               'operatorType' => CRM_Report_Form::OP_DATE,
               'type' => CRM_Utils_Type::T_DATE,
             ),
+            'contact_assignee' => [
+              'dbAlias' => 'assignee_contact.assignee_name',
+              'title' => ts('Assignee Name'),
+              'operator' => 'like',
+              'type' => CRM_Report_Form::OP_STRING,
+            ],
             'activity_type' => array(
               'name' => 'activity_type',
               'dbAlias' => "1",
@@ -114,7 +120,12 @@ class CRM_AOReports_Form_Report_ServiceNavigationDetail extends CRM_Report_Form 
       $tableName = E::getSNPActivityTableName($this->_params['activity_type_value'], $this, $this->_params['status_id_value'], $this->_params['status_id_op'], $tempTableWhere);
       $this->_from = " FROM civicrm_contact {$this->_aliases['civicrm_contact']}
         INNER JOIN {$tableName} temp ON temp.parent_id = {$this->_aliases['civicrm_contact']}.id
-        LEFT JOIN civicrm_activity_contact assignee ON assignee.activity_id = temp.activity_id AND assignee.record_type_id = 1
+        INNER JOIN (
+        SELECT activity_id, GROUP_CONCAT(DISTINCT acc.display_name) as assignee_name, GROUP_CONCAT(DISTINCT ac.contact_id) as assignee_contact_id
+         FROM civicrm_activity_contact ac
+          INNER JOIN civicrm_contact acc ON acc.id = ac.contact_id AND ac.record_type_id = 1
+          GROUP BY ac.activity_id
+         ) assignee ON assignee.activity_id = temp.activity_id
          ";
       $this->joinAddressFromContact();
     }
