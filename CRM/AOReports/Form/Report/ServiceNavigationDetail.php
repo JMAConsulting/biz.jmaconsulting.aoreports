@@ -24,6 +24,16 @@ class CRM_AOReports_Form_Report_ServiceNavigationDetail extends CRM_Report_Form 
               'required' => TRUE,
               'dbAlias' => "contact_civireport.sort_name",
             ),
+            'region' => array(
+              'name' => 'region',
+              'dbAlias' => "temp.region",
+              'title' => 'Service Region',
+            ),
+            'assignee' => array(
+              'name' => 'assignee',
+              'dbAlias' => "assignee.assignee_contact_id",
+              'title' => ts('Assignee(s)'),
+            ),
             'year' => array(
               'title' => ts('Year'),
               'no_display' => TRUE,
@@ -44,6 +54,12 @@ class CRM_AOReports_Form_Report_ServiceNavigationDetail extends CRM_Report_Form 
               'operatorType' => CRM_Report_Form::OP_DATE,
               'type' => CRM_Utils_Type::T_DATE,
             ),
+            'contact_assignee' => [
+              'dbAlias' => 'assignee_contact.assignee_name',
+              'title' => ts('Assignee Name'),
+              'operator' => 'like',
+              'type' => CRM_Report_Form::OP_STRING,
+            ],
             'activity_type' => array(
               'name' => 'activity_type',
               'dbAlias' => "1",
@@ -56,6 +72,15 @@ class CRM_AOReports_Form_Report_ServiceNavigationDetail extends CRM_Report_Form 
                 70 => ts('Individual Consultation'),
                 5 => ts('Event Registration'),
               ],
+            ),
+            'region' => array(
+              'name' => 'region',
+              'dbAlias' => "temp.region",
+              'title' => 'Service Region',
+              'type' => CRM_Utils_Type::T_STRING,
+              'operatorType' => CRM_Report_Form::OP_SELECT,
+              'default' => 'Unknown',
+              'options' => CRM_Core_OptionGroup::values('service_region_20190320122604'),
             ),
           ),
         ),
@@ -94,7 +119,14 @@ class CRM_AOReports_Form_Report_ServiceNavigationDetail extends CRM_Report_Form 
       }
       $tableName = E::getSNPActivityTableName($this->_params['activity_type_value'], $this, $this->_params['status_id_value'], $this->_params['status_id_op'], $tempTableWhere);
       $this->_from = " FROM civicrm_contact {$this->_aliases['civicrm_contact']}
-        INNER JOIN {$tableName} temp ON temp.parent_id = {$this->_aliases['civicrm_contact']}.id ";
+        INNER JOIN {$tableName} temp ON temp.parent_id = {$this->_aliases['civicrm_contact']}.id
+        INNER JOIN (
+        SELECT activity_id, GROUP_CONCAT(DISTINCT acc.display_name) as assignee_name, GROUP_CONCAT(DISTINCT ac.contact_id) as assignee_contact_id
+         FROM civicrm_activity_contact ac
+          INNER JOIN civicrm_contact acc ON acc.id = ac.contact_id AND ac.record_type_id = 1
+          GROUP BY ac.activity_id
+         ) assignee ON assignee.activity_id = temp.activity_id
+         ";
       $this->joinAddressFromContact();
     }
 
@@ -103,12 +135,15 @@ class CRM_AOReports_Form_Report_ServiceNavigationDetail extends CRM_Report_Form 
     }
 
     function where() {
-      $clauses = ['(temp.region IS NULL OR temp.region = \'\')'];
       foreach ($this->_columns as $tableName => $table) {
         if (array_key_exists('filters', $table)) {
           foreach ($table['filters'] as $fieldName => $field) {
             $clause = NULL;
             if ($fieldName == 'activity_type' || $fieldName == 'activity_date_time') {
+              continue;
+            }
+            elseif ($fieldName == 'region' && CRM_Utils_Array::value("{$fieldName}_value", $this->_params) == 'Unknown') {
+              $clauses[] = '(temp.region IS NULL OR temp.region = \'\' OR temp.region = \'Unknown\')';
               continue;
             }
             if (CRM_Utils_Array::value('operatorType', $field) & CRM_Utils_Type::T_DATE) {
@@ -160,6 +195,14 @@ class CRM_AOReports_Form_Report_ServiceNavigationDetail extends CRM_Report_Form 
       ];
       foreach ($rows as $rowNum => $row) {
         $rows[$rowNum]['civicrm_contact_contact_name'] = sprintf("<a href='%s'>%s</a>", CRM_Utils_System::url('civicrm/contact/view', 'reset=1&cid=' . $row['civicrm_contact_contact_id']), $rows[$rowNum]['civicrm_contact_contact_name']);
+        if (!empty($rows[$rowNum]['civicrm_contact_assignee'])) {
+          $contactIDs = (array) explode(',', $rows[$rowNum]['civicrm_contact_assignee']);
+          $assignee = [];
+          foreach ($contactIDs as $contactID) {
+            $assignee[] = sprintf("<a href='%s'>%s</a>", CRM_Utils_System::url('civicrm/contact/view', 'reset=1&cid=' . $contactID), CRM_Contact_BAO_Contact::displayName($contactID));
+          }
+          $rows[$rowNum]['civicrm_contact_assignee'] = implode(', ', $assignee);
+        }
         $rows[$rowNum]['civicrm_contact_quarter'] = CRM_Utils_Array::value($rows[$rowNum]['civicrm_contact_quarter'], $quarters);
       }
     }
