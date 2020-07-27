@@ -271,9 +271,6 @@ class CRM_Report_Form_Member_Detail extends CRM_Report_Form {
   }
 
   public function from() {
-    $groupTable = $this->buildGroupTempTable();
-    $filteredGroups = (array) $this->_params['group_id_value'];
-    $side = empty($filteredGroups) || $this->_params['group_id_op'] == 'notin' ? 'LEFT' : 'INNER';
     $this->setFromBase('civicrm_contact');
     $this->_from .= "
          {$this->_aclFrom}
@@ -283,8 +280,17 @@ class CRM_Report_Form_Member_Detail extends CRM_Report_Form {
                LEFT  JOIN civicrm_membership_status {$this->_aliases['civicrm_membership_status']}
                           ON {$this->_aliases['civicrm_membership_status']}.id =
                              {$this->_aliases['civicrm_membership']}.status_id
-              $side JOIN {$groupTable} group_temp_table ON {$this->_aliases['civicrm_contact']}.id = group_temp_table.contact_id
                              ";
+
+   if (!empty($this->_params['fields']['group_id']) || !empty($this->_params['group_id_value']) || in_array($this->_params['group_id_op'], ['nll', 'nnll'])) {
+     $side = in_array($this->_params['group_id_op'], ['in', 'nnll']) ? 'INNER' : 'LEFT';
+     $groupTable = $this->buildGroupTempTable();
+     if ($groupTable) {
+       $this->_from .= "
+       $side JOIN $groupTable group_temp_table ON {$this->_aliases['civicrm_contact']}.id = group_temp_table.contact_id ";
+     }
+   }
+
 
     $this->joinAddressFromContact();
     $this->joinPhoneFromContact();
@@ -325,6 +331,16 @@ class CRM_Report_Form_Member_Detail extends CRM_Report_Form {
       if (array_key_exists('filters', $table)) {
         foreach ($table['filters'] as $fieldName => $field) {
           if ($field['name'] == 'group_id') {
+            $op = CRM_Utils_Array::value("{$fieldName}_op", $this->_params);
+            if ($op == 'nll' ) {
+              $clauses[] = " group_temp_table.contact_id IS NULL ";
+            }
+            elseif ($op == 'notin') {
+              $groupTable = $this->buildGroupTempTable(TRUE);
+              if ($groupTable) {
+                $clauses[] = " (group_temp_table.group_id IS NULL OR group_temp_table.contact_id NOT IN (SELECT contact_id FROM $groupTable ))";
+              }
+            }
             continue;
           }
           $clause = NULL;
@@ -477,48 +493,54 @@ class CRM_Report_Form_Member_Detail extends CRM_Report_Form {
    *
    * This function is called by both the api (tests) and the UI.
    */
-  public function buildGroupTempTable() {
+  public function buildGroupTempTable($override = FALSE) {
     $filteredGroups = (array) $this->_params['group_id_value'];
     $op = $this->_params['group_id_op'];
 
-
-    if (empty($filteredGroups) || in_array($op, ['nll', 'nnll'])) {
-      $where = ($op == 'nll') ? 'group_contact.group_id IS NOT NULL' : ($op == 'nnll') ? ' group_contact.group_id IS NULL ' : '(1)';
-    }
-    else {
-      $op = ($op == 'in') ? 'IN' : 'NOT IN';
+    if (in_array($op, ['in', 'notin']) && !empty($filteredGroups)) {
+      $op = $op == 'in' || $override ? 'IN' : 'NOT IN';
       $where = sprintf(' group_contact.group_id %s (%s)', $op, implode(', ', $filteredGroups));
     }
+    elseif (!empty($this->_params['fields']['group_id'])) {
+      $where = '(1)';
+    }
+    else {
+      return FALSE;
+    }
+
+    $groupFieldSelect = (!$override && !empty($this->_params['fields']['group_id']) && $op == 'IN');
+
+    $whereUsed = $groupFieldSelect ? '(1)' : $where;
 
     $query = "
        SELECT DISTINCT group_contact.contact_id,  GROUP_CONCAT(DISTINCT g.title) as group_id
        FROM civicrm_group_contact group_contact
        INNER JOIN civicrm_group g ON g.id = group_contact.group_id
-       WHERE {$where}
+       INNER JOIN civicrm_membership cm ON cm.contact_id = group_contact.contact_id
+       WHERE $whereUsed
        AND group_contact.status = 'Added'
        GROUP BY group_contact.contact_id
-       ";
 
-    $where = str_replace('group_contact', 'smartgroup_contact', $where);
-    $query .= "
       UNION DISTINCT
-      SELECT smartgroup_contact.contact_id, GROUP_CONCAT(DISTINCT g.title) as group_id
-      FROM civicrm_group_contact_cache smartgroup_contact
-      INNER JOIN civicrm_group g ON g.id = smartgroup_contact.group_id
-      WHERE {$where}
-      GROUP BY smartgroup_contact.contact_id
+
+      SELECT group_contact.contact_id, GROUP_CONCAT(DISTINCT g.title) as group_id
+      FROM civicrm_group_contact_cache group_contact
+      INNER JOIN civicrm_group g ON g.id = group_contact.group_id
+      INNER JOIN civicrm_membership cm ON cm.contact_id = group_contact.contact_id
+      WHERE $whereUsed
+      GROUP BY group_contact.contact_id
        ";
     $query = CRM_Core_I18n_Schema::rewriteQuery($query);
 
     $groupTempTable = $this->createTemporaryTable('rptgrp', $query);
     CRM_Core_DAO::executeQuery("ALTER TABLE $groupTempTable ADD INDEX i_id(contact_id)");
 
-    if ($op == 'NOT IN' && !empty($filteredGroups)) {
-      $query = str_replace('NOT IN', 'IN', $query);
+    if ($groupFieldSelect && !empty($filteredGroups) && !$override) {
+      $excludeQuery = str_replace('(1)', $where, $query);
       CRM_Core_DAO::executeQuery("
-      DELETE FROM $groupTempTable WHERE contact_id IN (
-        SELECT contact_id
-        FROM ( $query ) temp
+      DELETE FROM $groupTempTable WHERE contact_id NOT IN (
+        SELECT DISTINCT contact_id
+        FROM ( $excludeQuery ) temp
       ) ");
     }
 
