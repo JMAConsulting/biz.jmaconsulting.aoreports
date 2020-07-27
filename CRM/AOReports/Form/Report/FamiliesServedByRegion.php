@@ -18,7 +18,7 @@ class CRM_AOReports_Form_Report_FamiliesServedByRegion extends CRM_AOReports_For
       'title' => 'Region',
       'type' => CRM_Utils_Type::T_STRING,
       'operatorType' => CRM_Report_Form::OP_MULTISELECT,
-      'options' => ['' => '- select -'] + CRM_Core_OptionGroup::values('chapter_20180619153429'),
+      'options' => ['' => '- select -'] + CRM_Core_OptionGroup::values('service_region_20190320122604'),
     );
   }
 
