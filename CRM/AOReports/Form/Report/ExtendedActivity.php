@@ -15,6 +15,108 @@ class CRM_AOReports_Form_Report_ExtendedActivity extends CRM_Report_Form_Activit
       'dbAlias' => 'civicrm_contact_contact_source',
       'title' => ts('Organization Name'),
     ];
+    $this->_columns['civicrm_contact']['filters']['staff_assignee'] = [
+      'name' => 'staff_assignee',
+      'title' => ts('Staff assigned to'),
+      'type' => CRM_Utils_Type::T_INT,
+      'operatorType' => CRM_Report_Form::OP_MULTISELECT,
+      'options' => [404318 => ts('Ishmeet Kaur'), 108716 => ts('Stefanie Molica')],
+    ];
+  }
+
+  /**
+   * Build where clause.
+   *
+   * @todo get rid of $recordType param. It's only because 3 separate contact tables
+   * are mis-declared as one that we need it.
+   *
+   * @param string $recordType
+   */
+  public function where($recordType = NULL) {
+    $this->_where = " WHERE {$this->_aliases['civicrm_activity']}.is_test = 0 AND
+                                {$this->_aliases['civicrm_activity']}.is_deleted = 0 AND
+                                {$this->_aliases['civicrm_activity']}.is_current_revision = 1";
+
+    $clauses = [];
+    foreach ($this->_columns as $tableName => $table) {
+      if (array_key_exists('filters', $table)) {
+
+        foreach ($table['filters'] as $fieldName => $field) {
+          $clause = NULL;
+          if (($field['name'] == 'staff_assignee') || (
+            $fieldName != 'contact_' . $recordType && (strstr($fieldName, '_target') ||
+              strstr($fieldName, '_assignee') ||
+              strstr($fieldName, '_source')
+            )
+          )) {
+            continue;
+          }
+          if (CRM_Utils_Array::value('type', $field) & CRM_Utils_Type::T_DATE) {
+            $relative = $this->_params["{$fieldName}_relative"] ?? NULL;
+            $from = $this->_params["{$fieldName}_from"] ?? NULL;
+            $to = $this->_params["{$fieldName}_to"] ?? NULL;
+
+            $clause = $this->dateClause($field['dbAlias'], $relative, $from, $to, $field['type']);
+          }
+          else {
+            $op = $this->_params["{$fieldName}_op"] ?? NULL;
+            if ($op && !($fieldName === "contact_{$recordType}" && ($op === 'nnll' || $op === 'nll'))) {
+              $clause = $this->whereClause($field,
+                $op,
+                CRM_Utils_Array::value("{$fieldName}_value", $this->_params),
+                CRM_Utils_Array::value("{$fieldName}_min", $this->_params),
+                CRM_Utils_Array::value("{$fieldName}_max", $this->_params)
+              );
+              if ($field['name'] == 'include_case_activities') {
+                $clause = NULL;
+              }
+              if ($fieldName == 'activity_type_id' &&
+                empty($this->_params['activity_type_id_value'])
+              ) {
+                if (empty($this->_params['include_case_activities_value'])) {
+                  $this->activityTypes = CRM_Core_PseudoConstant::activityType(TRUE, FALSE, FALSE, 'label', TRUE);
+                }
+                $actTypes = array_flip($this->activityTypes);
+                $clause = "( {$this->_aliases['civicrm_activity']}.activity_type_id IN (" .
+                  implode(',', $actTypes) . ") )";
+              }
+            }
+          }
+
+          if ($field['name'] == 'current_user') {
+            if (CRM_Utils_Array::value("{$fieldName}_value", $this->_params) ==
+              1
+            ) {
+              // get current user
+              if ($contactID = CRM_Core_Session::getLoggedInContactID()) {
+                $clause = "{$this->_aliases['civicrm_activity_contact']}.activity_id IN
+                           (SELECT activity_id FROM civicrm_activity_contact WHERE contact_id = {$contactID})";
+              }
+              else {
+                $clause = NULL;
+              }
+            }
+            else {
+              $clause = NULL;
+            }
+          }
+          if (!empty($clause)) {
+            $clauses[] = $clause;
+          }
+        }
+      }
+    }
+
+    if (empty($clauses)) {
+      $this->_where .= " ";
+    }
+    else {
+      $this->_where .= " AND " . implode(' AND ', $clauses);
+    }
+
+    if ($this->_aclWhere) {
+      $this->_where .= " AND {$this->_aclWhere} ";
+    }
   }
 
   /**
@@ -119,7 +221,11 @@ class CRM_AOReports_Form_Report_ExtendedActivity extends CRM_Report_Form_Activit
     if ($this->_aclWhere) {
       $this->_where .= " AND {$this->_aclWhere} ";
     }
-    $contactID = CRM_Core_Session::singleton()->get('userID');
+
+    $assigneeWhereClause = '';
+    if (!empty($this->_params['staff_assignee_value'])) {
+      $assigneeWhereClause = sprintf('AND contact_id IN (%s)', implode(',', $this->_params['staff_assignee_value']));
+    }
 
     $sql = "{$this->_select}
       FROM $tempTableName tar
@@ -127,7 +233,7 @@ class CRM_AOReports_Form_Report_ExtendedActivity extends CRM_Report_Form_Activit
       INNER JOIN civicrm_activity_contact {$this->_aliases['civicrm_activity_contact']} ON {$this->_aliases['civicrm_activity_contact']}.activity_id = {$this->_aliases['civicrm_activity']}.id
       AND {$this->_aliases['civicrm_activity_contact']}.record_type_id = 1
       LEFT JOIN civicrm_contact contact_civireport ON contact_civireport.id = {$this->_aliases['civicrm_activity_contact']}.contact_id
-      {$this->_where} AND contact_id = {$contactID} {$groupByFromSelect} {$this->_having} {$this->_orderBy} {$this->_limit}";
+      {$this->_where} {$assigneeWhereClause} {$groupByFromSelect} {$this->_having} {$this->_orderBy} {$this->_limit}";
 
     CRM_Utils_Hook::alterReportVar('sql', $sql, $this);
     $this->addToDeveloperTab($sql);
