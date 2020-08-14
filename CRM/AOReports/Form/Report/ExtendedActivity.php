@@ -8,6 +8,19 @@ class CRM_AOReports_Form_Report_ExtendedActivity extends CRM_Report_Form_Activit
 
   public function __construct() {
     parent::__construct();
+    $details = [];
+    $staff = civicrm_api3('GroupContact', 'get', [
+      'sequential' => 1,
+      'group_id' => "Autism_Ontario_Prov_Staff_485",
+      'status' => 'Added',
+      'options' => ['limit' => 0],
+      'api.Contact.get' => ['return' => "display_name"],
+    ]);
+    if ($staff['count'] > 0) {
+      foreach ($staff['values'] as $ind) {
+        $details[$ind['api.Contact.get']['values'][0]['contact_id']] = $ind['api.Contact.get']['values'][0]['display_name'];
+      }
+    }
 
     $this->_columns['civicrm_contact']['fields']['contact_source']['title'] = ts('Organization Name');
     $this->_columns['civicrm_contact']['order_bys']['contact_source'] = [
@@ -20,7 +33,7 @@ class CRM_AOReports_Form_Report_ExtendedActivity extends CRM_Report_Form_Activit
       'title' => ts('Staff assigned to'),
       'type' => CRM_Utils_Type::T_INT,
       'operatorType' => CRM_Report_Form::OP_MULTISELECT,
-      'options' => [404318 => ts('Ishmeet Kaur'), 108716 => ts('Stefanie Molica')],
+      'options' => $details,
     ];
   }
 
