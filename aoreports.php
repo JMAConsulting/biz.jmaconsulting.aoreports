@@ -1,7 +1,7 @@
 <?php
 
 require_once 'aoreports.civix.php';
-use CRM_Aoreports_ExtensionUtil as E;
+use CRM_AOReports_ExtensionUtil as E;
 
 /**
  * Implements hook_civicrm_config().
