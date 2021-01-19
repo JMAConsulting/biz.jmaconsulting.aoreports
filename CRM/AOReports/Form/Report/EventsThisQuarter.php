@@ -100,7 +100,7 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
                INNER JOIN civicrm_participant_status_type pst ON pst.id = p.status_id AND pst.class = 'Positive'
                INNER JOIN civicrm_price_field pf ON li.price_field_id = pf.id
                WHERE p.event_id = event_civireport.id
-               AND (pf.name LIKE '%child%' OR pf.name LIKE '%youth%' OR pf.name LIKE '%teen%')
+               AND (LOWER(pf.label_en_US) LIKE '%child%' OR LOWER(pf.label_en_US) LIKE '%youth%' OR LOWER(pf.label_en_US) LIKE '%teen%')
              )",
           ),
           'adult' => array(
@@ -110,7 +110,7 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
                INNER JOIN civicrm_participant p ON li.entity_id = p.id AND li.entity_table = 'civicrm_participant'
                INNER JOIN civicrm_participant_status_type pst ON pst.id = p.status_id AND pst.class = 'Positive'
                INNER JOIN civicrm_price_field pf ON li.price_field_id = pf.id
-               WHERE p.event_id = event_civireport.id AND pf.name LIKE '%adult%'
+               WHERE p.event_id = event_civireport.id AND LOWER(pf.label_en_US) LIKE '%adult%'
              )",
           ),
           'parents' => array(
@@ -121,7 +121,7 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
                INNER JOIN civicrm_participant_status_type pst ON pst.id = p.status_id AND pst.class = 'Positive'
                INNER JOIN civicrm_price_field pf ON li.price_field_id = pf.id
                WHERE p.event_id = event_civireport.id
-               AND (pf.name LIKE '%parent%' OR pf.name LIKE '%guardian%' OR pf.name LIKE '%caregiver%')
+               AND (LOWER(pf.label_en_US) LIKE '%parent%' OR LOWER(pf.label_en_US) LIKE '%guardian%' OR LOWER(pf.label_en_US) LIKE '%caregiver%')
              )",
           ),
           'siblings' => array(
@@ -131,7 +131,7 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
                INNER JOIN civicrm_participant p ON li.entity_id = p.id AND li.entity_table = 'civicrm_participant'
                INNER JOIN civicrm_participant_status_type pst ON pst.id = p.status_id AND pst.class = 'Positive'
                INNER JOIN civicrm_price_field pf ON li.price_field_id = pf.id
-               WHERE p.event_id = event_civireport.id AND pf.name LIKE '%sibling%'
+               WHERE p.event_id = event_civireport.id AND LOWER(pf.label_en_US) LIKE '%sibling%'
              )",
           ),
           'professionals' => array(
@@ -141,7 +141,7 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
                INNER JOIN civicrm_participant p ON li.entity_id = p.id AND li.entity_table = 'civicrm_participant'
                INNER JOIN civicrm_participant_status_type pst ON pst.id = p.status_id AND pst.class = 'Positive'
                INNER JOIN civicrm_price_field pf ON li.price_field_id = pf.id
-               WHERE p.event_id = event_civireport.id AND pf.name LIKE '%professional%'
+               WHERE p.event_id = event_civireport.id AND LOWER(pf.label_en_US) LIKE '%professional%'
              )",
           ),
           'volunteers' => array(
@@ -151,7 +151,7 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
                INNER JOIN civicrm_participant p ON li.entity_id = p.id AND li.entity_table = 'civicrm_participant'
                INNER JOIN civicrm_participant_status_type pst ON pst.id = p.status_id AND pst.class = 'Positive'
                INNER JOIN civicrm_price_field pf ON li.price_field_id = pf.id
-               WHERE p.event_id = event_civireport.id AND pf.name LIKE '%volunteer%'
+               WHERE p.event_id = event_civireport.id AND LOWER(pf.label_en_US) LIKE '%volunteer%'
              )",
           ),
         ),
@@ -396,7 +396,7 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
       return $options[$value];
     }
     return $value;
-  } 
+  }
 
   function alterDisplay(&$rows) {
     $eventType = CRM_Core_OptionGroup::values('event_type');
