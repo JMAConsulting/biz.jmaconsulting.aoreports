@@ -94,13 +94,17 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
           ],
           'children' => array(
             'title' => ts('Children'),
-            'dbAlias' => "(SELECT ROUND(COALESCE(SUM(qty), 0), 0)
+            'dbAlias' => "(SELECT (
+              CASE
+                  WHEN pf.name LIKE '%family%' THEN (ROUND(COALESCE(SUM(qty), 0), 0) * 1)
+                  ELSE ROUND(COALESCE(SUM(qty), 0), 0)
+                END)
               FROM civicrm_line_item li
                INNER JOIN civicrm_participant p ON li.entity_id = p.id AND li.entity_table = 'civicrm_participant'
                INNER JOIN civicrm_participant_status_type pst ON pst.id = p.status_id AND pst.class = 'Positive'
                INNER JOIN civicrm_price_field pf ON li.price_field_id = pf.id
                WHERE p.event_id = event_civireport.id
-               AND (pf.name LIKE '%child%' OR pf.name LIKE '%youth%' OR pf.name LIKE '%teen%')
+               AND (pf.name LIKE '%child%' OR pf.name LIKE '%youth%' OR pf.name LIKE '%teen%' OR pf.name LIKE '%family%')
              )",
           ),
           'adult' => array(
@@ -115,23 +119,31 @@ class CRM_AOReports_Form_Report_EventsThisQuarter extends CRM_Report_Form {
           ),
           'parents' => array(
             'title' => ts('Parents'),
-            'dbAlias' => "(SELECT ROUND(COALESCE(SUM(qty), 0), 0)
+            'dbAlias' => "(SELECT (
+              CASE
+                  WHEN pf.name LIKE '%family%' THEN (ROUND(COALESCE(SUM(qty), 0), 0) * 2)
+                  ELSE ROUND(COALESCE(SUM(qty), 0), 0)
+                END)
               FROM civicrm_line_item li
                INNER JOIN civicrm_participant p ON li.entity_id = p.id AND li.entity_table = 'civicrm_participant'
                INNER JOIN civicrm_participant_status_type pst ON pst.id = p.status_id AND pst.class = 'Positive'
                INNER JOIN civicrm_price_field pf ON li.price_field_id = pf.id
                WHERE p.event_id = event_civireport.id
-               AND (pf.name LIKE '%parent%' OR pf.name LIKE '%guardian%' OR pf.name LIKE '%caregiver%')
+               AND (pf.name LIKE '%parent%' OR pf.name LIKE '%guardian%' OR pf.name LIKE '%caregiver%' OR pf.name LIKE '%family%')
              )",
           ),
           'siblings' => array(
             'title' => ts('Siblings / Friends'),
-            'dbAlias' => "(SELECT ROUND(COALESCE(SUM(qty), 0), 0)
+            'dbAlias' => "(SELECT (
+              CASE
+                  WHEN pf.name LIKE '%family%' THEN (ROUND(COALESCE(SUM(qty), 0), 0) * 1)
+                  ELSE ROUND(COALESCE(SUM(qty), 0), 0)
+                END)
               FROM civicrm_line_item li
                INNER JOIN civicrm_participant p ON li.entity_id = p.id AND li.entity_table = 'civicrm_participant'
                INNER JOIN civicrm_participant_status_type pst ON pst.id = p.status_id AND pst.class = 'Positive'
                INNER JOIN civicrm_price_field pf ON li.price_field_id = pf.id
-               WHERE p.event_id = event_civireport.id AND pf.name LIKE '%sibling%'
+               WHERE p.event_id = event_civireport.id AND (pf.name LIKE '%sibling%' OR pf.name LIKE '%family%')
              )",
           ),
           'professionals' => array(
