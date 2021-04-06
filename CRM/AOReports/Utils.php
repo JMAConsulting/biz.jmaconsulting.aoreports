@@ -30,6 +30,11 @@ class CRM_AOReports_Utils {
 
     CRM_Core_DAO::executeQuery('DROP TEMPORARY TABLE IF EXISTS ' . $tempTableName);
 
+    $activityTemporaryTable = CRM_Utils_SQL_TempTable::build()
+      ->createWithColumns('contact_id int unsigned DEFAULT NULL, activity_id int unsigned DEFAULT NULL, INDEX activity_id_contact_id (activity_id, contact_id)')
+      ->getName();
+    CRM_Core_DAO::executeQuery('INSERT INTO ' . $activityTemporaryTable . ' SELECT cac.contact_id, cac.activity_id FROM civicrm_activity_contact cac INNER JOIN civicrm_contact cc ON cc.id = cac.contact_id AND cac.record_type_id = 1');
+
     foreach ((array)$activityTypeIDs as $activityTypeID) {
       if (in_array($activityTypeID, [137, 138])) {
               $sql['snp'] = "
@@ -41,9 +46,7 @@ class CRM_AOReports_Utils {
                   INNER JOIN civicrm_relationship rel ON rel.contact_id_b = c.id
                   INNER JOIN civicrm_value_newsletter_cu_3 lfm on rel.contact_id_a = lfm.entity_id
                   LEFT JOIN civicrm_value_chapters_and__18 ct ON ct.entity_id = ac.contact_id
-                  INNER JOIN (
-                    SELECT cac.contact_id, cac.activity_id, cc.* FROM civicrm_activity_contact cac INNER JOIN civicrm_contact cc ON cc.id = cac.contact_id AND cac.record_type_id = 1
-                  ) ac1 ON ac1.activity_id = a.id
+                  INNER JOIN {$activityTemporaryTable} ac1 ON ac1.activity_id = a.id
             WHERE $yearWhere AND a.is_current_revision = 1 AND ac.record_type_id = 3 AND rel.relationship_type_id = 1 AND c.is_deleted = 0 AND lfm.lead_family_member__28 = 1 AND a.activity_type_id = $activityTypeID AND $status AND a.is_deleted = 0
             GROUP BY lfm.entity_id
             ";
